@@ -1,0 +1,48 @@
+name:                Advent
+version:             0.1.0.0
+github:              "EmilGedda/Advent-of-Code-2020"
+license:             BSD3
+author:              "Emil Gedda"
+maintainer:          "emil.gedda@emilgedda.se"
+copyright:           "2020 Emil Gedda"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+description:         Please see the README on GitHub at <https://github.com/EmilGedda/Advent-of-code-2020#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+  dependencies:
+    - aeson >=1.4.7 && <2
+    - bytestring >= 0.10 && <1
+    - containers >= 0.6 && <2
+    - text >= 1.2 && <2
+    - unordered-containers >= 0.2.10 && <1
+    - time >= 1.9 && <2
+
+executables:
+  Advent-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - Advent
+
+tests:
+  Advent-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - Advent
