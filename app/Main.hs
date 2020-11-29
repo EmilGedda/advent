@@ -13,7 +13,7 @@ main :: IO ()
 main = currentLeaderboard
 
 
-currentLeaderboard = either print (printLeaderboard stars)
+currentLeaderboard = either putStrLn (printLeaderboard stars)
                      =<< (runExceptT . get $ leaderboard 2020 409260)
 
 solve :: Day -> IO ()
