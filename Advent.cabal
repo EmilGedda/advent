@@ -26,12 +26,11 @@ source-repository head
 library
   exposed-modules:
       Advent
-      Advent.API.Input
-      Advent.API.Leaderboard
-      Advent.API.Submit
+      Advent.API
+      Advent.Leaderboard
       Advent.Problem
-      Advent.Solutions
-      Advent.Solutions.DayOne
+      Advent.Solution
+      Advent.Solution.DayOne
   other-modules:
       Paths_Advent
   hs-source-dirs:
@@ -41,9 +40,16 @@ library
     , base >=4.7 && <5
     , bytestring >=0.10 && <1
     , containers >=0.6 && <2
+    , directory >=1.3 && <2
+    , extra >=1.7 && <2
+    , filepath >=1.4 && <2
+    , http-client >=0.6 && <1
+    , lens >=4.18 && <5
+    , mtl >=2.2 && <3
     , text >=1.2 && <2
     , time >=1.9 && <2
     , unordered-containers >=0.2.10 && <1
+    , wreq >=0.5 && <1
   default-language: Haskell2010
 
 executable Advent-exe

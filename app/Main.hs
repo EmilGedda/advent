@@ -1,16 +1,20 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Advent.API.Leaderboard   (printLeaderboard, parseLeaderboard, testJson)
-import Advent.Solutions         (days)
-import Advent.Problem           (Input(..), Day(..), toString)
-import Control.Monad            (guard)
-import Data.Maybe               (maybe, isNothing, fromJust)
-import Data.Either              (rights)
-import System.CPUTime           (getCPUTime)
-import Text.Printf
+import Advent.Leaderboard   (printLeaderboard, stars)
+import Advent.API           (get, leaderboard)
+import Advent.Problem       (Input(..), Day(..), toString)
+import Control.Monad.Except (runExceptT)
+import Data.Maybe           (isNothing, fromJust)
+import System.CPUTime       (getCPUTime)
+import Text.Printf          (printf)
 
 main :: IO ()
-main = printLeaderboard . head . rights $ [parseLeaderboard testJson]
+main = currentLeaderboard
+
+
+currentLeaderboard = either print (printLeaderboard stars)
+                     =<< (runExceptT . get $ leaderboard 2020 409260)
 
 solve :: Day -> IO ()
 solve (Day day partOne partTwo) =
@@ -23,10 +27,10 @@ solve (Day day partOne partTwo) =
             putStrLn $ header part
 
             start <- getCPUTime
-            answer <- return $ solvePart ([partOne, fromJust partTwo] !! (part - 1))
+            let answer = solvePart ([partOne, fromJust partTwo] !! (part - 1))
             end <- getCPUTime
 
-            let duration = (fromIntegral (end - start)) / (10^9)
+            let duration = fromIntegral (end - start) / (10^9)
             printf "%s (%0.3fms)\n" answer (duration :: Double)
 
     in mapM_ printPart [1,2]

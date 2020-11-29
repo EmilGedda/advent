@@ -1,6 +1,6 @@
-module Advent.Solutions where
+module Advent.Solution where
 
-import Advent.Solutions.DayOne (day1)
+import Advent.Solution.DayOne (day1)
 import Advent.Problem (Day)
 
 days :: [Day]

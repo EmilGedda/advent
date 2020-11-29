@@ -1,10 +1,11 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Advent.Problem where
 
-data Input = Input String deriving Show
-data Answer = Answer (Either Integer String) deriving Show
+import Data.ByteString.Lazy (ByteString)
+
+newtype Input = Input ByteString deriving Show
+newtype Answer = Answer (Either Integer String) deriving Show
 
 type Solution = Input -> Answer
 
@@ -23,11 +24,11 @@ data Day = Day {
                partTwo :: Maybe Solution
             }
 
-day :: ToAnswer a => Integer -> (Input -> a) -> Maybe (Input -> a) -> Day
+day :: (ToAnswer a, ToAnswer b) => Integer -> (Input -> a) -> Maybe (Input -> b) -> Day
 day number partOne partTwo = Day number (answer . partOne) $ (answer .) <$> partTwo
 
 toString :: Answer -> String
-toString (Answer (Left number))  = show number
-toString (Answer (Right string)) = string
+toString = either show id . fromAnswer
 
 fromInput (Input str) = str
+fromAnswer (Answer e) = e
