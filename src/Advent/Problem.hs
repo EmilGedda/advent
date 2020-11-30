@@ -2,7 +2,13 @@
 
 module Advent.Problem where
 
-import Data.ByteString.Lazy (ByteString)
+import Prelude hiding       (readFile, writeFile)
+import Advent.API           (get, input)
+import Control.Monad        (unless)
+import Data.ByteString.Lazy (ByteString, readFile, writeFile)
+import Control.Monad.Except (ExceptT, lift)
+import System.Directory     (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
+import System.FilePath      ((</>))
 
 newtype Input = Input ByteString deriving Show
 newtype Answer = Answer (Either Integer String) deriving Show
@@ -21,14 +27,27 @@ instance ToAnswer String where
 data Day = Day {
                number :: Integer,
                partOne :: Solution,
-               partTwo :: Maybe Solution
+               partTwo :: Solution
             }
 
-day :: (ToAnswer a, ToAnswer b) => Integer -> (Input -> a) -> Maybe (Input -> b) -> Day
-day number partOne partTwo = Day number (answer . partOne) $ (answer .) <$> partTwo
+notSolved = const "Not solved"
+
+day :: (ToAnswer a, ToAnswer b) => Integer -> (Input -> a) -> (Input -> b) -> Day
+day number partOne partTwo = Day number (answer . partOne) (answer .  partTwo)
 
 toString :: Answer -> String
 toString = either show id . fromAnswer
 
 fromInput (Input str) = str
 fromAnswer (Answer e) = e
+
+fetchInput :: Integer -> Integer -> ExceptT String IO Input
+fetchInput year day = do
+    dir <- lift $ (</> show year </> show day) <$> getXdgDirectory XdgConfig "AdventOfCode"
+    lift $ createDirectoryIfMissing True dir
+    let cache = dir </> "input.txt"
+    hasFile <- lift $ doesFileExist cache
+    input <- if hasFile then lift (readFile cache) else get (input year day)
+    unless hasFile (lift $ writeFile cache input)
+    return $ Input input
+

@@ -3,16 +3,15 @@ module Advent.API where
 
 import Prelude hiding       (readFile, null)
 import Advent.Leaderboard   (Leaderboard, parseLeaderboard)
-import Advent.Problem       (Input(..))
 import Control.Monad        (when, unless)
 import Control.Exception    (SomeException)
 import Control.Monad.Reader (ReaderT, ask, runReaderT)
-import Control.Monad.Except (ExceptT(..), throwError, lift, liftEither, lift, mapExceptT, MonadError)
+import Control.Monad.Except (ExceptT, throwError, lift, liftEither, lift, mapExceptT, MonadError)
 import Control.Lens         ((?~), (^.))
 import Data.ByteString.Lazy (ByteString, toStrict, readFile, null, stripSuffix)
 import Data.Maybe           (fromMaybe)
-import Data.Time            (UTCTime(..), parseTimeOrError, defaultTimeLocale)
-import Network.HTTP.Client  (CookieJar(..), Cookie(..), createCookieJar)
+import Data.Time            (UTCTime, parseTimeOrError, defaultTimeLocale)
+import Network.HTTP.Client  (CookieJar, Cookie(..), createCookieJar)
 import Network.Wreq         (getWith, defaults, cookies, responseBody)
 import Text.Printf          (printf)
 import System.Directory     (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist)
@@ -63,8 +62,8 @@ fetch url = do
     return $ response ^. responseBody
 
 
-input :: Integer -> Integer -> ApiM Input
-input year day = Input <$> lift (fetch url) `catch` "Unable to fetch input"
+input :: Integer -> Integer -> ApiM ByteString
+input year day = lift (fetch url) `catch` "Unable to fetch input"
     where url = printf "/%d/day/%d/input" year day
 
 
