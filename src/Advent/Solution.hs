@@ -3,7 +3,7 @@ module Advent.Solution where
 import Advent.Solution.DayOne   (day1)
 import Advent.Problem           (Day(..), Input, fetchInput, toString)
 import Control.Monad.Except     (runExceptT)
-import Data.Maybe               (isJust, fromJust)
+import Data.Maybe               (isNothing, fromJust)
 import Data.List                (find)
 import Data.Time.Clock          (getCurrentTime, utctDay)
 import Data.Time.Calendar       (toGregorian)
@@ -14,12 +14,6 @@ days = [
     day1
     ]
 
-
-currentYear :: IO Integer
-currentYear = do
-    (year, _, _) <- toGregorian . utctDay <$> getCurrentTime
-    return year
-
 solveDay :: Day -> Input -> IO ()
 solveDay (Day d partOne partTwo) input = do
     putStrLn $ "Solving day " ++ show d
@@ -27,10 +21,10 @@ solveDay (Day d partOne partTwo) input = do
     putStrLn . (++) "Part 2: " . toString $ partTwo input
 
 solve :: Integer -> IO ()
-solve day = let solution = find ((==) day . number) days in
-    if isJust solution then do
-        year <- currentYear
-        input <- runExceptT $ fetchInput year day
+solve day | isNothing solution = putStrLn $ "No solution for day " ++ show day
+          | otherwise = do
+        (year, _, _) <- toGregorian . utctDay <$> getCurrentTime
+        input        <- runExceptT $ fetchInput year day
         either putStrLn (solveDay $ fromJust solution) input
-    else
-        putStrLn $ "No solution for day " ++ show day
+    where solution = find ((==) day . number) days
+
