@@ -25,7 +25,7 @@ data User
         name :: String,
         stars :: Integer,
         localScore :: Integer,
-        lastStar :: Integer, -- unix timestamp
+        lastStar :: Integer, -- unix timestamp, 0 if no star
         progress :: Map Integer Progress
     } deriving Show
 
