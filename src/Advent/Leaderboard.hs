@@ -53,44 +53,45 @@ instance FromJSON Leaderboard where
         <$> obj .: "event"
         <*> (elems <$> (obj .: "members" :: Parser (Map String User)))
 
+digits :: Integral a => a -> Int
+digits  = ceiling . logBase 10 . fromIntegral
+
 parseLeaderboard :: ByteString -> Either String Leaderboard
 parseLeaderboard = eitherDecode
 
 printLeaderboard :: (Integral t, PrintfArg t) => (User -> t) -> Leaderboard -> IO ()
-printLeaderboard ordering (Leaderboard event participants) = do
+printLeaderboard score (Leaderboard event participants) = do
     let
-        members     = sortBy order participants
-        digits      = ceiling . logBase 10 . fromIntegral
-        order       = comparing (Down . ordering) <> recency
+        members = sortBy order participants
+        order   = comparing (Down . score) <> recency
         recency a b
                 | lastStar a == lastStar b = EQ
                 | lastStar a == 0 = GT
                 | lastStar b == 0 = LT
                 | otherwise = compare (lastStar a) (lastStar b)
-        scoreWidth  = digits . ordering . head $ members
+        scoreWidth  = digits . score . head $ members
         indexWidth  = digits $ length participants
         nameWidth   = fromIntegral . maximum $ map (length . name) participants
-        indexFormat = "\x1b[37m%" ++show indexWidth ++ "d)\x1b[0m "
         columnWidth = indexWidth + scoreWidth + 2
         title       = if length event > columnWidth + 9
                         then take (columnWidth + 6) event ++ "..."
                         else event
-        spacing = 25 - max 0 (length title - columnWidth)
-        firstRowFormat  = "\x1b[37m%-" ++ show columnWidth ++ "s \x1b[32m%" ++ show spacing ++"s\n"
-        secondRowFormat = "\x1b[32m%" ++ show columnWidth ++ "c %s\x1b[39m\n"
+        spacing         = 25 - max 0 (length title - columnWidth)
+        indexFormat     = printf "\x1b[37m%%%dd)\x1b[0m " indexWidth
+        firstRowFormat  = printf "\x1b[37m%%-%ds \x1b[32m%%%ds\n" columnWidth spacing
+        secondRowFormat = printf "\x1b[32m%%%dc %%s\x1b[39m\n" columnWidth
         printRow idx user = do
             printf indexFormat idx
-            printUser ordering (show scoreWidth) (show nameWidth) user
+            printUser score scoreWidth nameWidth user
 
     printf firstRowFormat title $ replicate 10 '1' ++ replicate 6 '2'
     printf secondRowFormat ' ' . take 25 . drop 1 $ cycle ['0'..'9']
     mapM_ (uncurry printRow) $ zip ([1..] :: [Int]) members
 
 
-printUser :: PrintfArg t => (User -> t) -> String -> String -> User -> IO ()
+printUser :: PrintfArg t => (User -> t) -> Int -> Int -> User -> IO ()
 printUser scoring scoreWidth nameWidth user@(User name _ _ lastStar progress) = do
-    let format = "\x1b[1m%" ++ scoreWidth ++ "d\x1b[0m %s \x1b[1m\x1b[92m%-"
-                 ++ nameWidth ++ "s \x1b[0m\x1b[37m"
+    let format = printf "\x1b[1m%%%dd\x1b[0m %%s \x1b[1m\x1b[92m%%-%ds \x1b[0m\x1b[37m" scoreWidth nameWidth
         stars = maybe "\x1b[90m." star . flip M.lookup progress =<< [1..25]
         star (Progress 1) = "\x1b[37m*"
         star (Progress 2) = "\x1b[93m*"
