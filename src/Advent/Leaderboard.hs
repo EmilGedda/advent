@@ -4,13 +4,14 @@ module Advent.Leaderboard where
 
 import Control.Monad            (liftM2, when)
 import Control.Applicative      ((<|>))
+import Control.Arrow            ((&&&))
 import Data.Aeson
 import Data.Aeson.Types
 import Data.ByteString.Lazy     (ByteString(..))
 import Data.HashMap.Strict      (member)
 import Data.Map                 (Map(..), elems)
-import Data.List                (sortOn)
-import Data.Ord                 (Down(..))
+import Data.List                (sortBy)
+import Data.Ord                 (Down(..), comparing)
 import qualified Data.Map as M  (lookup)
 import Data.Time.Clock          (secondsToNominalDiffTime)
 import Data.Time.Format         (formatTime, defaultTimeLocale)
@@ -58,8 +59,14 @@ parseLeaderboard = eitherDecode
 printLeaderboard :: (Integral t, PrintfArg t) => (User -> t) -> Leaderboard -> IO ()
 printLeaderboard ordering (Leaderboard event participants) = do
     let
-        members     = sortOn (Down . ordering) participants
+        members     = sortBy order participants
         digits      = ceiling . logBase 10 . fromIntegral
+        order       = comparing (Down . ordering) <> recency
+        recency a b
+                | lastStar a == lastStar b = EQ
+                | lastStar a == 0 = GT
+                | lastStar b == 0 = LT
+                | otherwise = compare (lastStar a) (lastStar b)
         scoreWidth  = digits . ordering . head $ members
         indexWidth  = digits $ length participants
         nameWidth   = fromIntegral . maximum $ map (length . name) participants
