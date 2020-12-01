@@ -1,7 +1,7 @@
 module Advent.Solution where
 
 import Advent.Solution.DayOne   (day1)
-import Advent.Problem           (Day(..), Input, fetchInput, toString)
+import Advent.Problem           (Day(..), Input, fetchInput, answer)
 import Control.Monad.Except     (runExceptT)
 import Data.Maybe               (isNothing, fromJust)
 import Data.List                (find)
@@ -17,8 +17,8 @@ days = [
 solveDay :: Day -> Input -> IO ()
 solveDay (Day d partOne partTwo) input = do
     putStrLn $ "Solving day " ++ show d
-    putStrLn . (++) "Part 1: " . toString $ partOne input
-    putStrLn . (++) "Part 2: " . toString $ partTwo input
+    putStrLn . (++) "Part 1: " . answer $ partOne input
+    putStrLn . (++) "Part 2: " . answer $ partTwo input
 
 solve :: Integer -> IO ()
 solve day | isNothing solution = putStrLn $ "No solution for day " ++ show day

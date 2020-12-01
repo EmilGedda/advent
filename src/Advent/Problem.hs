@@ -1,52 +1,63 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module Advent.Problem where
 
-import Prelude hiding       (readFile, writeFile)
-import Advent.API           (get, input)
-import Control.Monad        (unless)
-import Data.ByteString.Lazy (ByteString, readFile, writeFile, stripSuffix)
-import Data.Maybe           (fromMaybe)
-import Control.Monad.Except (ExceptT, lift)
-import System.Directory     (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
-import System.FilePath      ((</>))
-import Text.Printf          (printf)
+import Prelude hiding               (readFile, writeFile)
+import Advent.API                   (get, input)
+import Control.Monad                (unless)
+import Data.ByteString.Lazy         (ByteString, readFile, writeFile, stripSuffix)
+import Data.ByteString.Lazy.Char8   (split, unpack)
+import Data.Maybe                   (fromMaybe)
+import Control.Monad.Except         (ExceptT, lift)
+import System.Directory             (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
+import System.FilePath              ((</>))
+import Text.Printf                  (printf)
+
+
+class Parseable a where
+    parse :: ByteString -> a
+
+instance Read a => Parseable a where
+    parse = read . unpack
+
+instance {-# OVERLAPPING #-} Parseable a => Parseable [a] where
+    parse = map parse . split '\n'
+
+
+class ToString a where
+    answer :: a -> String
+
+instance Show a => ToString a where
+    answer = show
+
+instance {-# OVERLAPPING #-} ToString Char where
+    answer = return
+
+instance {-# OVERLAPPING #-} ToString String where
+    answer = id
+
 
 newtype Input = Input ByteString deriving Show
-newtype Answer = Answer (Either Integer String) deriving Show
-
-type Solution = Input -> Answer
-
-class ToAnswer a where
-    answer :: a -> Answer
-
-instance ToAnswer Integer where
-    answer = Answer . Left
-
-instance ToAnswer Int where
-    answer = Answer . Left . toInteger
-
-instance ToAnswer String where
-    answer = Answer . Right
 
 data Day = Day {
                number :: Integer,
-               partOne :: Solution,
-               partTwo :: Solution
+               partOne :: Input -> String,
+               partTwo :: Input -> String
             }
+
 
 notSolved :: Input -> String
 notSolved = const "Not solved"
 
-day :: (ToAnswer a, ToAnswer b) => Integer -> (Input -> a) -> (Input -> b) -> Day
-day number partOne partTwo = Day number (answer . partOne) (answer .  partTwo)
-
-toString :: Answer -> String
-toString = either show id . fromAnswer
+day
+  :: (Parseable a, ToString b, Parseable c, ToString d) =>
+     Integer -> (a -> b) -> (c -> d) -> Day
+day number partOne partTwo = Day number (wrap partOne) (wrap partTwo)
+    where wrap part = answer . part . parse . fromInput
 
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
-fromAnswer (Answer e) = e
 
 fetchInput :: Integer -> Integer -> ExceptT String IO Input
 fetchInput year day = do
