@@ -1,22 +1,19 @@
 module Advent.Solution.DayOne where
 
 import Advent.Problem               (Day, Input, day, fromInput)
-import Control.Monad                (msum)
+import Control.Monad                (replicateM)
 import Data.ByteString.Lazy.Char8   (split, readInt)
 import Data.Maybe                   (fromJust)
+import Data.List                    (find)
 
 day1 :: Day
-day1 = day 1 (part1 . parse) (part2 . parse)
+day1 = day 1 part1 part2
 
 parse :: Input -> [Int]
 parse = map (fst . fromJust . readInt) . split '\n' . fromInput
 
-answer :: [Int] -> Maybe Int
-answer xs | sum xs == 2020 = Just (product xs)
-          | otherwise = Nothing
+solveFor :: Int -> Input -> Int
+solveFor n = product . fromJust . find ((==) 2020 . sum) . replicateM n . parse
 
-solve :: [[Int]] -> Int
-solve = fromJust . msum . map answer . sequence
-
-part1 input = solve [input, input]
-part2 input = solve [input, input, input]
+part1 = solveFor 2
+part2 = solveFor 3
