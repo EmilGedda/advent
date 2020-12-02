@@ -1,8 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: 2a0fefde99c862a7758cd447515bb502309cf2d879d7b1aa7dd5031d51503e68
 
 name:           Advent
 version:        0.1.0.0
@@ -31,6 +33,7 @@ library
       Advent.Problem
       Advent.Solution
       Advent.Solution.DayOne
+      Advent.Solution.DayTwo
   other-modules:
       Paths_Advent
   hs-source-dirs:
@@ -76,4 +79,7 @@ test-suite Advent-test
   build-depends:
       Advent
     , base >=4.7 && <5
+    , bytestring >=0.10 && <1
+    , tasty >=1.2 && <2
+    , tasty-hunit >=0.10 && <2
   default-language: Haskell2010

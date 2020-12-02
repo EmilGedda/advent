@@ -27,16 +27,16 @@ instance {-# OVERLAPPING #-} Parseable a => Parseable [a] where
 
 
 class ToString a where
-    answer :: a -> String
+    solution :: a -> String
 
 instance Show a => ToString a where
-    answer = show
+    solution = show
 
 instance {-# OVERLAPPING #-} ToString Char where
-    answer = return
+    solution = return
 
 instance {-# OVERLAPPING #-} ToString String where
-    answer = id
+    solution = id
 
 
 newtype Input = Input ByteString deriving Show
@@ -48,15 +48,16 @@ data Day = Day {
             }
 
 
-notSolved :: Input -> String
+notSolved :: Int -> String
 notSolved = const "Not solved"
 
 day
   :: (Parseable a, ToString b, Parseable c, ToString d) =>
      Integer -> (a -> b) -> (c -> d) -> Day
 day number partOne partTwo = Day number (wrap partOne) (wrap partTwo)
-    where wrap part = answer . part . parse . fromInput
+    where wrap part = solution . part . parse . fromInput
 
+fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
 
 fetchInput :: Integer -> Integer -> ExceptT String IO Input

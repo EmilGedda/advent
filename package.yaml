@@ -54,3 +54,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - Advent
+    - tasty         >= 1.2  && <2
+    - tasty-hunit   >= 0.10 && <2
+    - bytestring    >= 0.10 && <1

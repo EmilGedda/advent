@@ -1,24 +1,26 @@
 module Advent.Solution where
 
-import Advent.Solution.DayOne   (day1)
-import Advent.Problem           (Day(..), Input, fetchInput, answer)
+import Advent.Problem           (Day(..), Input, fetchInput)
 import Control.Monad.Except     (runExceptT)
 import Data.Maybe               (isNothing, fromJust)
 import Data.List                (find)
 import Data.Time.Clock          (getCurrentTime, utctDay)
 import Data.Time.Calendar       (toGregorian)
 
+import Advent.Solution.DayOne   (day1)
+import Advent.Solution.DayTwo   (day2)
 
 days :: [Day]
 days = [
-    day1
+        day1,
+        day2
     ]
 
 solveDay :: Day -> Input -> IO ()
 solveDay (Day d partOne partTwo) input = do
     putStrLn $ "Solving day " ++ show d
-    putStrLn . (++) "Part 1: " . answer $ partOne input
-    putStrLn . (++) "Part 2: " . answer $ partTwo input
+    putStrLn . (++) "Part 1: " . partOne $ input
+    putStrLn . (++) "Part 2: " . partTwo $ input
 
 solve :: Integer -> IO ()
 solve day | isNothing solution = putStrLn $ "No solution for day " ++ show day
