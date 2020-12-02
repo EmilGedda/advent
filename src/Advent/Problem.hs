@@ -7,8 +7,9 @@ module Advent.Problem where
 import Prelude hiding               (readFile, writeFile)
 import Advent.API                   (get, input)
 import Control.Monad                (unless)
-import Data.ByteString.Lazy         (ByteString, readFile, writeFile, stripSuffix)
-import Data.ByteString.Lazy.Char8   (split, unpack)
+import Data.ByteString              (ByteString, readFile, writeFile, stripSuffix)
+import Data.ByteString.Char8        (split, unpack)
+import Data.ByteString.Lazy         (toStrict)
 import Data.Maybe                   (fromMaybe)
 import Control.Monad.Except         (ExceptT, lift)
 import System.Directory             (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
@@ -68,7 +69,7 @@ fetchInput year day = do
     lift $ createDirectoryIfMissing True dir
     let cache = dir </> "input.txt"
     hasFile <- lift $ doesFileExist cache
-    input <- if hasFile then lift (readFile cache) else get (input year day)
+    input <- if hasFile then lift (readFile cache) else toStrict <$> get (input year day)
     unless hasFile (lift $ writeFile cache input)
     return $ Input input
 

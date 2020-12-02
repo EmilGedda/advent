@@ -3,10 +3,8 @@ module Advent.Solution.DayTwo where
 
 import Prelude hiding                   (drop)
 import Advent.Problem                   (Day, day, Parseable(..), fromRight)
-import Data.ByteString.Lazy.Char8       (toStrict)
 import Control.Lens                     ((^?), element)
 import Data.Attoparsec.ByteString.Char8
-
 
 data Policy = Policy Int Int Char String
 
@@ -17,7 +15,7 @@ policy = Policy
        <*> (": " *> many' anyChar)
 
 instance {-# OVERLAPPING #-} Parseable Policy where
-    parseInput = fromRight .  parseOnly policy . toStrict
+    parseInput = fromRight .  parseOnly policy
 
 
 day2 :: Day
