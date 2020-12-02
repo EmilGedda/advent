@@ -39,7 +39,7 @@ getSessionToken :: ExceptT String IO ByteString
 getSessionToken = flip catch "Unable to read session token" $ do
     file    <- lift $ (</> "session-token.txt") <$> getXdgDirectory XdgConfig "AdventOfCode"
     hasFile <- lift $ doesFileExist file
-    unless  hasFile $ throwError "No session token file found"
+    unless  hasFile . throwError $ "No session token file found: " ++ file
     token   <- lift $ readFile file
     when (null token) $ throwError "Empty session token file"
     return . fromMaybe token $ stripSuffix "\n" token

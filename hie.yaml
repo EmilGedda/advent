@@ -1,3 +1,11 @@
 cradle:
-    stack:
+  stack:
+    - path: "./test"
+      component: "Advent:test"
+
+    - path: "./src"
+      component: "Advent:lib"
+
+    - path: "./app"
+      component: "Advent:exe"
 
