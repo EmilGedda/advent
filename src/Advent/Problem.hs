@@ -8,9 +8,9 @@ import Prelude hiding               (readFile, writeFile)
 import Advent.API                   (get, input)
 import Control.Monad                (unless)
 import Data.ByteString              (ByteString, readFile, writeFile, stripSuffix)
-import Data.ByteString.Char8        (split, unpack)
+import Data.ByteString.Char8        (split, readInt, readInteger, unpack)
 import Data.ByteString.Lazy         (toStrict)
-import Data.Maybe                   (fromMaybe)
+import Data.Maybe                   (fromMaybe, fromJust)
 import Control.Monad.Except         (ExceptT, lift)
 import System.Directory             (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
 import System.FilePath              ((</>))
@@ -20,10 +20,16 @@ import Text.Printf                  (printf)
 class Parseable a where
     parseInput :: ByteString -> a
 
-instance Read a => Parseable a where
+instance Parseable Double where
     parseInput = read . unpack
 
-instance {-# OVERLAPPING #-} Parseable a => Parseable [a] where
+instance Parseable Integer where
+    parseInput = fst . fromJust . readInteger
+
+instance Parseable Int where
+    parseInput = fst . fromJust . readInt
+
+instance Parseable a => Parseable [a] where
     parseInput = map parseInput . split '\n'
 
 

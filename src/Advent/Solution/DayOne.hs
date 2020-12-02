@@ -1,4 +1,4 @@
-module Advent.Solution.DayOne where
+module Advent.Solution.DayOne (day1) where
 
 import Advent.Problem               (Day, day)
 import Control.Monad                (replicateM)
