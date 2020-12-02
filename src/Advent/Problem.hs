@@ -17,13 +17,13 @@ import Text.Printf                  (printf)
 
 
 class Parseable a where
-    parse :: ByteString -> a
+    parseInput :: ByteString -> a
 
 instance Read a => Parseable a where
-    parse = read . unpack
+    parseInput = read . unpack
 
 instance {-# OVERLAPPING #-} Parseable a => Parseable [a] where
-    parse = map parse . split '\n'
+    parseInput = map parseInput . split '\n'
 
 
 class ToString a where
@@ -48,6 +48,8 @@ data Day = Day {
             }
 
 
+fromRight (Right r) = r
+
 notSolved :: Int -> String
 notSolved = const "Not solved"
 
@@ -55,7 +57,7 @@ day
   :: (Parseable a, ToString b, Parseable c, ToString d) =>
      Integer -> (a -> b) -> (c -> d) -> Day
 day number partOne partTwo = Day number (wrap partOne) (wrap partTwo)
-    where wrap part = solution . part . parse . fromInput
+    where wrap part = solution . part . parseInput . fromInput
 
 fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str

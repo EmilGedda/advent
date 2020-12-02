@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2a0fefde99c862a7758cd447515bb502309cf2d879d7b1aa7dd5031d51503e68
+-- hash: cf7a6f492deda3d3149e5c2cc68b7861763d7eaee39b3f63d413446d7a614828
 
 name:           Advent
 version:        0.1.0.0
@@ -40,6 +40,7 @@ library
       src
   build-depends:
       aeson >=1.4 && <2
+    , attoparsec >=0.13 && <1
     , base >=4.7 && <5
     , bytestring >=0.10 && <1
     , containers >=0.6 && <2

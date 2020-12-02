@@ -31,6 +31,7 @@ library:
     - filepath              >= 1.4  && <2
     - lens                  >= 4.18 && <5
     - exceptions            >= 0.10 && <1
+    - attoparsec            >= 0.13 && <1
 
 executables:
   Advent-exe:
