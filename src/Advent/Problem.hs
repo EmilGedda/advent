@@ -8,7 +8,7 @@ import Prelude hiding               (readFile, writeFile)
 import Advent.API                   (get, input)
 import Control.Monad                (unless)
 import Data.ByteString              (ByteString, readFile, writeFile, stripSuffix)
-import Data.ByteString.Char8        (split, readInt, readInteger, unpack)
+import Data.ByteString.Char8        (split, readInt, readInteger, unpack, pack)
 import Data.ByteString.Lazy         (toStrict)
 import Data.Maybe                   (fromMaybe, fromJust)
 import Control.Monad.Except         (ExceptT, lift)
@@ -22,7 +22,7 @@ class Parseable a where
     parseInput = parseString . unpack
 
     parseString :: String -> a
-    parseString = undefined
+    parseString = parseInput . pack
 
 instance Parseable Double where
     parseString = read
