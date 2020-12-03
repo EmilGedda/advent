@@ -54,6 +54,9 @@ data Day = Day {
                partTwo :: Input -> String
             }
 
+-- TODO: move to Util
+every :: Int -> [a] -> [a]
+every n = map head . takeWhile (not . null) . iterate (drop n)
 
 fromRight (Right r) = r
 

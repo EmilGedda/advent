@@ -8,18 +8,23 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
+
+    - name: Load cache
+      uses: actions/cache@v2
+      with:
+        path:
+            .stack-work
+            ~/.stack
+        key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml.lock') }}
+        restore-keys: |
+            ${{ runner.os }}-stack-
+
     - uses: actions/setup-haskell@v1.1.4
       with:
         enable-stack: true
 
     - name: Build tests, lib, and exe
       run: stack build Advent:{test,exe} --no-run-tests
-
-    - name: Cache build artifacts
-      uses: actions/cache@v2
-      with:
-        path: ~/.stack-work
-        key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml.lock') }}
 
     - name: Prepare session token
       env:
