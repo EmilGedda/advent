@@ -19,9 +19,13 @@ import Text.Printf                  (printf)
 
 class Parseable a where
     parseInput :: ByteString -> a
+    parseInput = parseString . unpack
+
+    parseString :: String -> a
+    parseString = undefined
 
 instance Parseable Double where
-    parseInput = read . unpack
+    parseString = read
 
 instance Parseable Integer where
     parseInput = fst . fromJust . readInteger
