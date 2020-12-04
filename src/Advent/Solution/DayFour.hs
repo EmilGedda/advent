@@ -6,22 +6,17 @@ import Data.List                ((\\))
 import Data.List.Split          (splitOn)
 import qualified Data.Map as M
 
-newtype Passports = Passports [Passport]
-newtype Passport = Passport {
-                        fromPassport :: [(String, String)]
-                    }
-
-instance Parseable Passport where
-    parseString = Passport . map (second (drop 1) . break (==':')) . words
+type Passport = [(String, String)]
+newtype Passports = Passports { fromPassports :: [Passport] }
 
 instance Parseable Passports where
-    parseString = Passports . map parseString . splitOn "\n\n"
+    parseString = Passports . map (map (second (drop 1) . break (==':')) . words) . splitOn "\n\n"
 
 day4 :: Day
-day4 = day 4 (length . passports) $ count (all validate . fromPassport) . passports
+day4 = day 4 (length . passports) $ count (all validate) . passports
 
 passports :: Passports -> [Passport]
-passports (Passports p) = filter (null . (M.keys validators \\) . map fst . fromPassport) p
+passports = filter (null . (M.keys validators \\) . map fst) . fromPassports
 
 validate :: (String, String) -> Bool
 validate (k, v) = maybe True ($ v) $ validators M.!? k
