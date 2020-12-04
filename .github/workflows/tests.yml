@@ -20,8 +20,10 @@ jobs:
             ${{ steps.haskell.outputs.cabal-store }}
             ~/.stack
             .stack-work
-        key: ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}
+        key: ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('package.yaml') }}
         restore-keys: |
+            ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('package.yaml') }}
+            ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-
             ${{ runner.os }}-stack-
 
     - name: Build tests, lib, and exe
