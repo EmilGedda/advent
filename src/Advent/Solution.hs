@@ -10,12 +10,14 @@ import Data.Time.Calendar       (toGregorian)
 import Advent.Solution.DayOne   (day1)
 import Advent.Solution.DayTwo   (day2)
 import Advent.Solution.DayThree (day3)
+import Advent.Solution.DayFour  (day4)
 
 days :: [Day]
 days = [
         day1,
         day2,
-        day3
+        day3,
+        day4
     ]
 
 solveDay :: Day -> Input -> IO ()

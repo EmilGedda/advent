@@ -33,6 +33,7 @@ library:
     - unordered-containers  ^>= 0.2
     - wreq                  ^>= 0.5
     - vector                ^>= 0.12
+    - split                 ^>= 0.2
 
 executables:
   exe:

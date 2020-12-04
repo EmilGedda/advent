@@ -4,11 +4,11 @@
 
 module Advent.Problem where
 
-import Prelude hiding               (readFile, writeFile)
+import Prelude hiding               (readFile, writeFile, lines)
 import Advent.API                   (get, input)
 import Control.Monad                (unless)
 import Data.ByteString              (ByteString, readFile, writeFile, stripSuffix)
-import Data.ByteString.Char8        (split, readInt, readInteger, unpack, pack)
+import Data.ByteString.Char8        (lines, readInt, readInteger, unpack, pack)
 import Data.ByteString.Lazy         (toStrict)
 import Data.Maybe                   (fromMaybe, fromJust)
 import Control.Monad.Except         (ExceptT, lift)
@@ -34,7 +34,7 @@ instance Parseable Int where
     parseInput = fst . fromJust . readInt
 
 instance Parseable a => Parseable [a] where
-    parseInput = map parseInput . split '\n'
+    parseInput = map parseInput . lines
 
 
 class ToString a where
@@ -62,7 +62,13 @@ data Day = Day {
 every :: Int -> [a] -> [a]
 every n = map head . takeWhile (not . null) . iterate (drop n)
 
+count :: (a -> Bool) -> [a] -> Int
+count f = length . filter f
+
 fromRight (Right r) = r
+
+between :: Ord a => a -> a -> a -> Bool
+between a b x = a <= x && x <= b
 
 notSolved :: Int -> String
 notSolved = const "Not solved"

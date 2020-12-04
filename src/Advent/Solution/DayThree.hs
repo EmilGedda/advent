@@ -1,7 +1,7 @@
 module Advent.Solution.DayThree (day3) where
 
-import Advent.Problem                   (Day, day, Parseable(..), every)
-import Data.Vector                      (Vector, fromList, (!))
+import Advent.Problem   (Day, day, Parseable(..), every)
+import Data.Vector      (Vector, fromList, (!))
 
 newtype TreeRow = TreeRow (Vector Bool)
 
