@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 39c118c7e3e4d6e2a06df3e7018a2782021d4a70abf247e4abc0d259311c8adb
+-- hash: e5eafce0b141fea7a9bd5d7d9780ba1b16d80a1658f21251b762b63f2f071f52
 
 name:           Advent
 version:        1.0.0.0
@@ -52,6 +52,7 @@ library
     , http-client >=0.6 && <0.7
     , lens >=4.18 && <4.19
     , mtl >=2.2 && <2.3
+    , regex-tdfa >=1.3 && <1.4
     , split >=0.2 && <0.3
     , time >=1.9 && <1.10
     , unordered-containers >=0.2 && <0.3
@@ -69,6 +70,7 @@ executable exe
   build-depends:
       Advent
     , base >=4.13 && <4.14
+    , containers >=0.6 && <0.7
     , mtl >=2.2 && <2.3
   default-language: Haskell2010
 

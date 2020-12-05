@@ -4,7 +4,6 @@ module Advent.Leaderboard where
 
 import Control.Monad            (liftM2, when)
 import Control.Applicative      ((<|>))
-import Control.Arrow            ((&&&))
 import Data.Aeson
 import Data.Aeson.Types
 import Data.ByteString.Lazy     (ByteString(..))
@@ -18,7 +17,7 @@ import Data.Time.Format         (formatTime, defaultTimeLocale)
 import Data.Time.Clock.POSIX    (getPOSIXTime)
 import Text.Printf              (printf, PrintfArg)
 
-newtype Progress = Progress Int deriving Show
+newtype Progress = Progress { fromProgress :: Int } deriving Show
 
 data User
     = User {
@@ -26,6 +25,7 @@ data User
         stars :: Integer,
         localScore :: Integer,
         lastStar :: Integer, -- unix timestamp, 0 if no star
+        userid :: Integer,
         progress :: Map Integer Progress
     } deriving Show
 
@@ -46,6 +46,7 @@ instance FromJSON User where
         <*> obj .: "stars"
         <*> obj .: "local_score"
         <*> (obj .: "last_star_ts" <|> (read <$> obj .: "last_star_ts"))
+        <*> (obj .: "id" <|> (read <$> obj .: "id"))
         <*> obj .: "completion_day_level"
 
 instance FromJSON Leaderboard where
@@ -90,7 +91,7 @@ printLeaderboard score (Leaderboard event participants) = do
 
 
 printUser :: PrintfArg t => (User -> t) -> Int -> Int -> User -> IO ()
-printUser scoring scoreWidth nameWidth user@(User name _ _ lastStar progress) = do
+printUser scoring scoreWidth nameWidth user@(User name _ _ lastStar _ progress) = do
     let format = printf "\x1b[1m%%%dd\x1b[0m %%s \x1b[1m\x1b[92m%%-%ds \x1b[0m\x1b[37m" scoreWidth nameWidth
         stars = maybe "\x1b[90m." star . flip M.lookup progress =<< [1..25]
         star (Progress 1) = "\x1b[37m*"

@@ -1,11 +1,10 @@
 module Advent.Solution where
 
 import Advent.Problem           (Day(..), Input, fetchInput)
+import Advent.API               (currentYear)
 import Control.Monad.Except     (runExceptT)
 import Data.Maybe               (isNothing, fromJust)
 import Data.List                (find)
-import Data.Time.Clock          (getCurrentTime, utctDay)
-import Data.Time.Calendar       (toGregorian)
 
 import Advent.Solution.DayOne   (day1)
 import Advent.Solution.DayTwo   (day2)
@@ -29,8 +28,8 @@ solveDay (Day d partOne partTwo) input = do
 solve :: Integer -> IO ()
 solve day | isNothing solution = putStrLn $ "No solution for day " ++ show day
           | otherwise = do
-        (year, _, _) <- toGregorian . utctDay <$> getCurrentTime
-        input        <- runExceptT $ fetchInput year day
+        year  <- currentYear
+        input <- runExceptT $ fetchInput year day
         either putStrLn (solveDay $ fromJust solution) input
     where solution = find ((==) day . number) days
 

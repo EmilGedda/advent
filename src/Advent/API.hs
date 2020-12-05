@@ -1,21 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Advent.API where
 
-import Prelude hiding       (readFile, null)
-import Advent.Leaderboard   (Leaderboard, parseLeaderboard)
-import Control.Monad        (when, unless)
-import Control.Exception    (SomeException)
-import Control.Monad.Reader (ReaderT, ask, runReaderT)
-import Control.Monad.Except (ExceptT, throwError, lift, liftEither, lift, mapExceptT, MonadError)
-import Control.Lens         ((?~), (^.))
-import Data.ByteString.Lazy (ByteString, toStrict, readFile, null, stripSuffix)
-import Data.Maybe           (fromMaybe)
-import Data.Time            (UTCTime, parseTimeOrError, defaultTimeLocale)
-import Network.HTTP.Client  (CookieJar, Cookie(..), createCookieJar)
-import Network.Wreq         (getWith, defaults, cookies, responseBody)
-import Text.Printf          (printf)
-import System.Directory     (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist)
-import System.FilePath      ((</>))
+import Advent.Leaderboard           (Leaderboard, parseLeaderboard, User, members, userid)
+import Control.Exception            (SomeException)
+import Control.Lens                 ((?~), (^.))
+import Control.Monad                (when, unless)
+import Control.Monad.Except         (ExceptT, throwError, lift, liftEither, lift, mapExceptT, MonadError)
+import Control.Monad.Reader         (ReaderT, ask, runReaderT)
+import Data.ByteString.Lazy         (ByteString, toStrict, readFile, null, stripSuffix)
+import Data.ByteString.Lazy.Char8   (readInteger)
+import Data.List                    (find)
+import Data.Maybe                   (fromMaybe, listToMaybe)
+import Data.Time                    (UTCTime, parseTimeOrError, defaultTimeLocale)
+import Data.Time.Calendar           (toGregorian)
+import Data.Time.Clock              (getCurrentTime, utctDay)
+import Network.HTTP.Client          (CookieJar, Cookie(..), createCookieJar)
+import Network.Wreq                 (getWith, defaults, cookies, responseBody)
+import Prelude hiding               (readFile, null)
+import System.Directory             (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist)
+import System.FilePath              ((</>))
+import Text.Printf                  (printf)
+import Text.Regex.TDFA              ((=~))
+import Text.Regex.TDFA.ByteString   ()
 
 import qualified Control.Monad.Catch as C
 
@@ -26,13 +32,16 @@ type ApiM a = ExceptT String (ReaderT CookieJar IO) a
 baseURL :: String
 baseURL = "https://adventofcode.com"
 
-
 catch :: (C.MonadCatch m, MonadError e m) => m a -> e -> m a
 catch e str = e `C.catch` (throwError . anyException str)
 
-
 anyException :: a -> SomeException -> a
 anyException = const
+
+currentYear :: IO Integer
+currentYear = do
+    (year, _, _) <- toGregorian . utctDay <$> getCurrentTime
+    return year
 
 
 getSessionToken :: ExceptT String IO ByteString
@@ -54,8 +63,8 @@ sessionCookie token =
         "adventofcode.com" "/" create create True True False False]
 
 
-fetch :: String -> ReaderT CookieJar IO ByteString
-fetch url = do
+fetch :: String -> ApiM ByteString
+fetch url = lift $ do
     cookiejar <- ask
     let opts = cookies ?~ cookiejar $ defaults
     response <- lift $ getWith opts (baseURL ++ url)
@@ -63,12 +72,26 @@ fetch url = do
 
 
 input :: Integer -> Integer -> ApiM ByteString
-input year day = lift (fetch url) `catch` "Unable to fetch input"
+input year day = fetch url `catch` "Unable to fetch input"
     where url = printf "/%d/day/%d/input" year day
+
+currentUser :: ExceptT String IO User
+currentUser = do
+    id <- get $ liftEither . findID =<< fetch "/settings" `catch` "Unable to fetch UserID"
+    year <- lift currentYear
+    leaderboard <- get (leaderboard year id)
+    let users = find ((id ==) . userid) $ members leaderboard
+    liftEither $ maybe (Left "Unable to find user") Right users
+
+findID :: ByteString -> Either String Integer
+findID str =
+    let (_, _, _, id) = str =~ ("anonymous user #([0-9]+)" :: ByteString)
+                          :: (ByteString, ByteString, ByteString, [ByteString])
+    in maybe (Left "Unable to find user id") (Right . fst) (readInteger =<< listToMaybe id)
 
 
 leaderboard :: Integer -> Integer -> ApiM Leaderboard
-leaderboard year id = liftEither . parseLeaderboard =<< lift (fetch url) `catch` "Unable to fetch leaderboard"
+leaderboard year id = liftEither . parseLeaderboard =<< fetch url `catch` "Unable to fetch leaderboard"
     where url = printf "/%d/leaderboard/private/view/%d.json" year id
 
 
