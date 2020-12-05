@@ -75,6 +75,7 @@ input :: Integer -> Integer -> ApiM ByteString
 input year day = fetch url `catch` "Unable to fetch input"
     where url = printf "/%d/day/%d/input" year day
 
+
 currentUser :: ExceptT String IO User
 currentUser = do
     id <- get $ liftEither . findID =<< fetch "/settings" `catch` "Unable to fetch UserID"
@@ -82,6 +83,7 @@ currentUser = do
     leaderboard <- get (leaderboard year id)
     let users = find ((id ==) . userid) $ members leaderboard
     liftEither $ maybe (Left "Unable to find user") Right users
+
 
 findID :: ByteString -> Either String Integer
 findID str =

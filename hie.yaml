@@ -7,5 +7,5 @@ cradle:
       component: "Advent:lib"
 
     - path: "./app"
-      component: "Advent:exe"
+      component: "Advent:advent"
 

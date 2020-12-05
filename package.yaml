@@ -36,7 +36,7 @@ library:
     - wreq                  ^>= 0.5
 
 executables:
-  exe:
+  advent:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -45,8 +45,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - Advent
-    - mtl           ^>= 2.2
-    - containers    ^>= 0.6
+    - containers            ^>= 0.6
+    - mtl                   ^>= 2.2
+    - optparse-applicative  ^>= 0.15
 
 tests:
   test:
@@ -58,7 +59,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - Advent
-    - tasty         ^>= 1.2
-    - tasty-hunit   ^>= 0.10
     - bytestring    ^>= 0.10
     - mtl           ^>= 2.2
+    - tasty         ^>= 1.2
+    - tasty-hunit   ^>= 0.10

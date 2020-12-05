@@ -18,7 +18,7 @@ These are my solutions to Advent of Code 2020.
 Also comes with a small library for interfacing with the website with features
 such as:
  * Fetching input
- * Cacheing input to disk
+ * Caching input to disk
  * Type infered parsing
  * Printing leaderboards and user progress
  * Test suite for inputs and solutions
@@ -30,7 +30,7 @@ The daily solutions can be found in [Advent.Solutions](https://github.com/EmilGe
 
 To use the library features, a session token must be present. The session token
 can be found by inspecting your cookies on
-[adventofcode.com](adventofcode.com). The library expects this token to be put
+[adventofcode.com](https://adventofcode.com/). The library expects this token to be put
 inside a file called `session-token.txt` which should reside in
 `$XDG_CONFIG_HOME/AdventOfCode` (the environment variable `XDG_CONFIG_HOME`
 falls back to `~/.config` if not defined). If the file can't be found when
