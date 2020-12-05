@@ -19,9 +19,9 @@ starCount = (length *** length) . partition (==1) . map fromProgress . M.elems
 shortProgress :: IO ()
 shortProgress = run (uncurry printStars . starCount . progress) =<< runExceptT currentUser
     where printStars silver gold = do
-            putStr "Silver:\t"
+            putStr "Silver \t"
             print silver
-            putStr "Gold:\t"
+            putStr "Gold \t"
             print gold
 
 

@@ -38,3 +38,24 @@ jobs:
 
     - name: Run tests
       run: stack test --verbosity warning
+
+    - name: Create svg badges
+      working-directory: "./.github"
+      run: |
+          mkdir svg
+          stack run --verbosity silent | awk '{ print "./badge.sh", $0, ">", "svg/" $1 ".svg" }' | bash -
+
+    - name: Get short SHA
+      id: scratch
+      run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
+    - name: Save badges to Github Pages
+      if: github.ref == 'refs/heads/master'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+          allow_empty_commit: true
+          full_commit_message: ${{ steps.scratch.outputs.sha8 }} ${{ github.event.head_commit.message }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./.github/svg
+          user_email: "actions@github"
+          user_name: "Github Actions"
