@@ -4,17 +4,18 @@
 
 module Advent.Problem where
 
-import Prelude hiding               (readFile, writeFile, lines)
-import Advent.API                   (get, input)
-import Control.Monad                (unless)
-import Control.Monad.Except         (ExceptT, lift)
-import Data.ByteString              (ByteString, readFile, writeFile, stripSuffix)
-import Data.ByteString.Char8        (lines, readInt, readInteger, unpack, pack)
-import Data.ByteString.Lazy         (toStrict)
-import Data.Maybe                   (fromMaybe, fromJust)
-import System.Directory             (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
-import System.FilePath              ((</>))
-import Text.Printf                  (printf)
+import Prelude hiding           (readFile, writeFile, lines)
+import Advent.API               (get, input)
+import Control.Arrow            ((***))
+import Control.Monad            (unless)
+import Control.Monad.Except     (ExceptT, lift)
+import Data.ByteString          (ByteString, readFile, writeFile, stripSuffix)
+import Data.ByteString.Char8    (lines, readInt, readInteger, unpack, pack)
+import Data.ByteString.Lazy     (toStrict)
+import Data.Maybe               (fromMaybe, fromJust)
+import System.Directory         (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
+import System.FilePath          ((</>))
+import Text.Printf              (printf)
 
 
 class Parseable a where
@@ -69,6 +70,8 @@ fromRight (Right r) = r
 
 between :: Ord a => a -> a -> a -> Bool
 between a b x = a <= x && x <= b
+
+both f = f *** f
 
 notSolved :: Int -> String
 notSolved = const "Not solved"

@@ -10,13 +10,15 @@ import Advent.Solution.DayOne   (day1)
 import Advent.Solution.DayTwo   (day2)
 import Advent.Solution.DayThree (day3)
 import Advent.Solution.DayFour  (day4)
+import Advent.Solution.DayFive  (day5)
 
 days :: [Day]
 days = [
         day1,
         day2,
         day3,
-        day4
+        day4,
+        day5
     ]
 
 solveDay :: Day -> Input -> IO ()

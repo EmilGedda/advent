@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e5eafce0b141fea7a9bd5d7d9780ba1b16d80a1658f21251b762b63f2f071f52
+-- hash: ce129c9dc3e603e6aeb3e360acb0bc9a580767e162ae6ea1c6464f9f465f9fcc
 
 name:           Advent
 version:        1.0.0.0
@@ -32,6 +32,7 @@ library
       Advent.Leaderboard
       Advent.Problem
       Advent.Solution
+      Advent.Solution.DayFive
       Advent.Solution.DayFour
       Advent.Solution.DayOne
       Advent.Solution.DayThree
