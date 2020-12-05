@@ -20,9 +20,9 @@ jobs:
             ${{ steps.haskell.outputs.cabal-store }}
             ~/.stack
             .stack-work
-        key: ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('package.yaml') }}
+        key: ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('Advent.cabal') }}
         restore-keys: |
-            ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('package.yaml') }}
+            ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('Advent.cabal') }}
             ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-
             ${{ runner.os }}-stack-
 
