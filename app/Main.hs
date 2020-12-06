@@ -4,22 +4,29 @@ import Advent.API
 import Advent.Problem
 import Advent.Leaderboard
 
-import Control.Monad.Except (runExceptT, ExceptT(..), lift, mapExceptT)
-import Control.Arrow        ((***))
-import Data.List            (partition)
+import Control.Monad.Except (runExceptT, ExceptT(..), mapExceptT)
+import Data.Char            (toLower)
+import Data.List            (partition, intercalate)
 import Data.Maybe           (fromMaybe)
 import Options.Applicative
 import qualified Data.Map as M
 
-data LeaderboardOrder = LocalScore | Stars deriving (Read, Show)
+data LeaderboardOrder = LocalScore | Stars
 
 data Options = LeaderboardOptions {
                 id :: Maybe Integer,
                 year :: Maybe Integer,
-                order :: Maybe LeaderboardOrder
+                order :: User -> Integer
             } | ProgressOptions {
                 onlyStarCount :: Bool
             }
+
+orderReader = eitherReader $ \s ->
+        maybe (Left $ help s) Right $ map toLower s `lookup` order
+        where order = [("localscore", localScore), ("stars", stars)]
+              help s = "Could not parser order \"" ++ s
+                       ++ "\", expected one of: " ++ intercalate ", " (map fst order)
+
 
 leaderboardParser :: Parser Options
 leaderboardParser = LeaderboardOptions
@@ -27,18 +34,22 @@ leaderboardParser = LeaderboardOptions
                 (option auto
                     (long "id"
                     <> short 'i'
-                    <> help "Leaderboard ID"))
+                    <> metavar "ID"
+                    <> help ("Leaderboard ID. Defaults to the private leaderboard "
+                            ++ "of the current user. Global leaderboard not supported.")))
         <*> optional
                 (option auto
                     (long "year"
                     <> short 'y'
-                    <> help "Year of Leaderboard"))
-        <*> optional
-                (option auto
+                    <> metavar "YEAR"
+                    <> help "Year of Leaderboard. Defaults to current year."))
+        <*> option orderReader
                     (long "order"
                     <> short 'o'
-                    <> help "Scoring order"
-                    <> metavar "localscore|stars"))
+                    <> metavar "ORDER"
+                    <> value stars
+                    <> help ("Scoring order, can be \"localscore\" or \"stars\". "
+                          ++ "Defaults to stars. Ties are resolved by recency of last star."))
 
 progressParser :: Parser Options
 progressParser = ProgressOptions
@@ -79,11 +90,10 @@ run :: Options -> IO ()
 run (LeaderboardOptions id year order) = do
     now <- currentYear
 
-    let id'    = mapExceptT (fmap $ getID id) currentUser
-        year'  = fromMaybe now   year
-        order' = maybe stars toOrder order
+    let id'   = mapExceptT (fmap $ getID id) currentUser
+        year' = fromMaybe now   year
 
-    printLeaderboard order' <== get . leaderboard year' =<< id'
+    printLeaderboard order <== get . leaderboard year' =<< id'
 
 run (ProgressOptions onlyStarCount) = do
     now <- currentYear

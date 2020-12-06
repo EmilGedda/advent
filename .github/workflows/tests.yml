@@ -43,7 +43,7 @@ jobs:
       working-directory: "./.github"
       run: |
           mkdir svg
-          stack run progress --verbosity silent -- -s | awk '{ print "./badge.sh", $0, ">", "svg/" tolower($1) ".svg" }' | bash -
+          stack run progress --verbosity silent -- -s | awk '{ print "./badge.sh", $0, ">", "svg/" tolower($1) ".svg" }' | bash
 
     - name: Get short SHA
       id: scratch

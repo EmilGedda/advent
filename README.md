@@ -70,11 +70,65 @@ Tests
 All 17 tests passed (0.17s)
 ```
 
+###### Display a leaderboard
+```bash
+$ stack run -- leaderboard -i 409260
+2020           1111111111222222
+      1234567890123456789012345
+1) 12 ******................... Emil Gedda      (0d09h13m00s)
+2) 12 ******................... Anders Eriksson (0d04h08m54s)
+3)  8 ****..................... kennethrunnman  (0d04h42m34s)
+4)  0 ......................... LukasSzerszen
+5)  0 ......................... Emil Persson
+6)  0 ......................... miht
+```
+
+###### Show current user progress in leaderboard format
+```bash
+$ stack run -- progress
+2020           1111111111222222
+      1234567890123456789012345
+1) 12 ******................... Emil Gedda (0d09h11m57s)
+```
+
 ###### Show current user progress in short format
 ```bash
-$ stack run
+$ stack run -- progress -s
 Silver  0
 Gold    5
+```
+
+###### Display help text
+```bash
+$ stack run
+Missing: COMMAND
+
+Usage: advent COMMAND
+  Display info and stats from Advent of Code
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  leaderboard              Display a leaderboard
+  progress                 Show current user progress
+```
+
+###### Display help text for a specific command
+```bash
+$ stack run -- leaderboard -h
+Usage: advent leaderboard [-i|--id ID] [-y|--year YEAR] [-o|--order ORDER]
+  Display a leaderboard
+
+Available options:
+  -h,--help                Show this help text
+  -i,--id ID               Leaderboard ID. Defaults to the private leaderboard
+                           of the current user. Global leaderboard not
+                           supported.
+  -y,--year YEAR           Year of Leaderboard. Defaults to current year.
+  -o,--order ORDER         Scoring order, can be "localscore" or "stars".
+                           Defaults to stars. Ties are resolved by recency of
+                           last star.
 ```
 
 
