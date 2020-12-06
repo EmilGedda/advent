@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 13006e6d98ed02dd13812a45d99b47e33e2663bb7233f38f87cd1c598fc8b0f8
+-- hash: 9228dbd48d04fe3d0c33063eee6d5412db31b4a5540e1965b88242c85ac4304f
 
 name:           Advent
 version:        1.0.0.0
@@ -35,6 +35,7 @@ library
       Advent.Solution.DayFive
       Advent.Solution.DayFour
       Advent.Solution.DayOne
+      Advent.Solution.DaySix
       Advent.Solution.DayThree
       Advent.Solution.DayTwo
   other-modules:

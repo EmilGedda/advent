@@ -1,9 +1,10 @@
 module Main where
 
 import Advent.API
+import Advent.Problem
 import Advent.Leaderboard
 
-import Control.Monad.Except (runExceptT, ExceptT(..))
+import Control.Monad.Except (runExceptT, ExceptT(..), lift, mapExceptT)
 import Control.Arrow        ((***))
 import Data.List            (partition)
 import Data.Maybe           (fromMaybe)
@@ -37,7 +38,7 @@ leaderboardParser = LeaderboardOptions
                     (long "order"
                     <> short 'o'
                     <> help "Scoring order"
-                    <> metavar "localscore|globalscore|stars"))
+                    <> metavar "localscore|stars"))
 
 progressParser :: Parser Options
 progressParser = ProgressOptions
@@ -58,6 +59,12 @@ main = run =<< customExecParser (prefs showHelpOnError)
     (optionsParser `withInfo` "Display info and stats from Advent of Code")
 
 
+output :: (a -> IO ()) -> ExceptT String IO a -> IO ()
+output f input = either putStrLn f =<< runExceptT input
+
+(<==) = output
+infixr 1 <==
+
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
@@ -65,42 +72,38 @@ toOrder :: LeaderboardOrder -> (User -> Integer)
 toOrder LocalScore = localScore
 toOrder Stars = stars
 
-getID :: Either String Integer -> Maybe Integer -> Either String Integer
-getID err@(Left _) = const err
-getID (Right id) = Right . fromMaybe id
+getID :: Functor f => Maybe Integer -> f User -> f Integer
+getID override user = flip fromMaybe override . userid <$> user
 
 run :: Options -> IO ()
 run (LeaderboardOptions id year order) = do
     now <- currentYear
-    user <- runExceptT $ userid <$> currentUser
 
-    let id'    = getID user id
+    let id'    = mapExceptT (fmap $ getID id) currentUser
         year'  = fromMaybe now   year
         order' = maybe stars toOrder order
 
-    board <- runExceptT $ get . leaderboard year' =<< ExceptT (return id')
-    either putStrLn (printLeaderboard order') board
+    printLeaderboard order' <== get . leaderboard year' =<< id'
 
 run (ProgressOptions onlyStarCount) = do
     now <- currentYear
 
     let user = currentUser
         id   = userid <$> user
-        output = either putStrLn
         soloboard id = do
-                l <- get $ leaderboard now id
-                return $ l { members = filter ((==) id . userid) (members l) }
+            l <- get $ leaderboard now id
+            return $ l { members = filter ((==) id . userid) (members l) }
 
-        printStars silver gold = do
+        printStars (silver, gold) = do
             putStr "Silver\t"
             print silver
             putStr "Gold\t"
             print gold
 
     if onlyStarCount
-       then output (uncurry printStars . starCount . progress) =<< runExceptT user
-       else output (printLeaderboard stars) =<< runExceptT (soloboard =<< id)
+       then printStars . starCount . progress <== user
+       else printLeaderboard stars <== soloboard =<< id
 
 
 starCount :: M.Map Integer Progress -> (Int, Int)
-starCount = (length *** length) . partition (==1) . map fromProgress . M.elems
+starCount = both length . partition (==1) . map fromProgress . M.elems

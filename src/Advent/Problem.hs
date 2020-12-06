@@ -16,6 +16,7 @@ import Data.Maybe               (fromMaybe, fromJust)
 import System.Directory         (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
 import System.FilePath          ((</>))
 import Text.Printf              (printf)
+import qualified Data.Set as    Set
 
 
 class Parseable a where
@@ -72,6 +73,13 @@ between :: Ord a => a -> a -> a -> Bool
 between a b x = a <= x && x <= b
 
 both f = f *** f
+
+sortNub :: (Ord a) => [a] -> [a]
+sortNub = Set.toList . Set.fromList
+
+same :: (Eq a) => [a] -> Bool
+same xs = all (== head xs) (tail xs)
+
 
 notSolved :: Int -> String
 notSolved = const "Not solved"

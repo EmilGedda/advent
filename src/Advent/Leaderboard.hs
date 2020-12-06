@@ -55,7 +55,7 @@ instance FromJSON Leaderboard where
         <*> (elems <$> (obj .: "members" :: Parser (Map String User)))
 
 digits :: Integral a => a -> Int
-digits  = ceiling . logBase 10 . fromIntegral
+digits  = (+1) . floor . logBase 10 . fromIntegral
 
 parseLeaderboard :: ByteString -> Either String Leaderboard
 parseLeaderboard = eitherDecode
