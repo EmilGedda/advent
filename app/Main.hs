@@ -13,12 +13,17 @@ import qualified Data.Map as M
 
 data LeaderboardOrder = LocalScore | Stars
 
+data BadgesOptions = Path String | Disabled
+
 data Options = LeaderboardOptions {
                 id :: Maybe Integer,
                 year :: Maybe Integer,
                 order :: User -> Integer
             } | ProgressOptions {
                 onlyStarCount :: Bool
+            } | BadgesOptions {
+                gold :: BadgesOptions,
+                silver :: BadgesOptions
             }
 
 orderReader = eitherReader $ \s ->

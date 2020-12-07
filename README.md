@@ -39,7 +39,7 @@ the program is ran, it prints the expected location for it in the error message.
 The project is built with [stack](https://haskellstack.org/).
 
 ###### To run the tests
-```bash
+```
 $ stack test
 Tests
   Test consistency
@@ -71,7 +71,7 @@ All 17 tests passed (0.17s)
 ```
 
 ###### Display a leaderboard
-```bash
+```
 $ stack run -- leaderboard -i 409260
 2020           1111111111222222
       1234567890123456789012345
@@ -84,7 +84,7 @@ $ stack run -- leaderboard -i 409260
 ```
 
 ###### Show current user progress in leaderboard format
-```bash
+```
 $ stack run -- progress
 2020           1111111111222222
       1234567890123456789012345
@@ -92,14 +92,14 @@ $ stack run -- progress
 ```
 
 ###### Show current user progress in short format
-```bash
+```
 $ stack run -- progress -s
 Silver  0
 Gold    5
 ```
 
 ###### Display help text
-```bash
+```
 $ stack run
 Missing: COMMAND
 
@@ -115,7 +115,7 @@ Available commands:
 ```
 
 ###### Display help text for a specific command
-```bash
+```
 $ stack run -- leaderboard -h
 Usage: advent leaderboard [-i|--id ID] [-y|--year YEAR] [-o|--order ORDER]
   Display a leaderboard
@@ -134,7 +134,7 @@ Available options:
 
 ###### Creating badges
 The bash script takes a color and a star count.
-```bash
+```
 $ ./.github/badge.sh gold 5 > gold-badge.svg
 $ ./.github/badge.sh silver 0 > silver-badge.svg
 ```

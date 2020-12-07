@@ -2,7 +2,7 @@ import Types
 import Tests
 
 import Prelude hiding       (null)
-import Advent.Problem       (Day(..), Input, fromInput, fetchInput)
+import Advent.Problem       (Day(..), Input, fromInput, fetchInput, solution, parseInput, fromInput)
 import Advent.Solution      (days)
 import Data.ByteString      (null)
 import Data.Either          (isRight)
@@ -36,12 +36,13 @@ apply f (a,b,c) = f a b c
 
 testDay :: Answer -> Day -> Either String Input -> TestTree
 testDay (Answer _ first second) (Day n partOne partTwo) input =
-    let parts = zip3 "12" [partOne, partTwo] $ catMaybes [Just first, second]
+    let wrap f = solution . f . parseInput . fromInput
+        parts = zip3 "12" [wrap partOne, wrap partTwo] $ catMaybes [Just first, second]
         fromRight ~(Right r) = r
         fromLeft ~(Left a) = a
         day = "Day " ++ show n
-        test (part, solution, answer) = after AllSucceed (day ++ ".Input") .
-            testCase ("Part " ++ [part]) $ solution (fromRight input) @?= answer
+        test (part, output, answer) = after AllSucceed (day ++ ".Input") .
+            testCase ("Part " ++ [part]) $ output (fromRight input) @?= solution answer
     in testGroup day $
             testCase "Input" (do
                 isRight input @? "Input is invalid: " ++ fromLeft input

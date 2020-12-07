@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
 module Advent.Problem where
 
@@ -39,7 +40,7 @@ instance Parseable a => Parseable [a] where
     parseInput = map parseInput . lines
 
 
-class ToString a where
+class Show a => ToString a where
     solution :: a -> String
 
 instance Show a => ToString a where
@@ -54,11 +55,16 @@ instance {-# OVERLAPPING #-} ToString String where
 
 newtype Input = Input ByteString deriving Show
 
-data Day = Day {
-               number :: Integer,
-               partOne :: Input -> String,
-               partTwo :: Input -> String
-            }
+data Day = forall a b c. (Parseable a, ToString b, ToString c)
+         => Day {
+           number :: Integer,
+           partOne :: a -> b,
+           partTwo :: a -> c
+        }
+
+day :: (Parseable a, ToString b, ToString c, Show b, Show c)
+        => Integer -> (a -> b) -> (a -> c) -> Day
+day = Day
 
 -- TODO: move to Util
 every :: Int -> [a] -> [a]
@@ -83,12 +89,6 @@ same xs = all (== head xs) (tail xs)
 
 notSolved :: Int -> String
 notSolved = const "Not solved"
-
-day
-  :: (Parseable a, ToString b, Parseable c, ToString d) =>
-     Integer -> (a -> b) -> (c -> d) -> Day
-day number partOne partTwo = Day number (wrap partOne) (wrap partTwo)
-    where wrap part = solution . part . parseInput . fromInput
 
 fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
