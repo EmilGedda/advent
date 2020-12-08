@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f553671b0b64b31e5f42d4ffc0ab5e5162592510f3d1c7550f9da751133f3a02
+-- hash: 5f3b161165fb7c71081f6c8244f383348da79a33115bd5456c683608dd49abd8
 
 name:           Advent
 version:        1.0.0.0
@@ -32,6 +32,7 @@ library
       Advent.Leaderboard
       Advent.Problem
       Advent.Solution
+      Advent.Solution.DayEight
       Advent.Solution.DayFive
       Advent.Solution.DayFour
       Advent.Solution.DayOne
@@ -60,6 +61,7 @@ library
     , split >=0.2 && <0.3
     , string-interpolate >=0.2 && <0.3
     , time >=1.9 && <1.10
+    , timeit >=2.0 && <2.1
     , unordered-containers >=0.2 && <0.3
     , vector >=0.12 && <0.13
     , wreq >=0.5 && <0.6

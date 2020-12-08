@@ -27,6 +27,13 @@ class Parseable a where
     parseString :: String -> a
     parseString = parseInput . pack
 
+
+newtype Ignored = Ignored String
+
+instance Parseable Ignored where
+    parseString = const (Ignored "")
+
+
 instance Parseable Double where
     parseString = read
 
@@ -62,7 +69,7 @@ data Day = forall a b c. (Parseable a, ToString b, ToString c)
            partTwo :: a -> c
         }
 
-day :: (Parseable a, ToString b, ToString c, Show b, Show c)
+day :: (Parseable a, ToString b, ToString c)
         => Integer -> (a -> b) -> (a -> c) -> Day
 day = Day
 
@@ -87,7 +94,7 @@ same :: (Eq a) => [a] -> Bool
 same xs = all (== head xs) (tail xs)
 
 
-notSolved :: Int -> String
+notSolved :: Parseable a => a -> String
 notSolved = const "Not solved"
 
 fromInput :: Input -> ByteString

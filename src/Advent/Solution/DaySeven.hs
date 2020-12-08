@@ -14,7 +14,7 @@ data Bag = Bag { verb :: ByteString, color :: ByteString } deriving (Eq, Ord)
 
 data Rule = Rule Bag [(Int, Bag)]
 
-word = takeTill (`elem` ("\n .,!?" :: String))
+word = takeTill (==' ')
 
 bag :: Parser Bag
 bag = Bag <$> word <*> (" " *> word <* " bag" <* option "" "s")
