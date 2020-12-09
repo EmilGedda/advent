@@ -5,24 +5,23 @@ import           Advent.Problem                           (Day, Parseable, parse
 import           Control.Applicative                      ((<|>))
 import           Data.Attoparsec.ByteString.Char8 hiding  (count, take)
 import           Data.Functor                             (($>))
-import           Data.Maybe                               (mapMaybe)
+import qualified Data.Vector                      as V
+import qualified Data.Vector.Mutable              as M
 import qualified Data.Set                         as S
 
-data OpCode = Nop | Jmp | Acc deriving (Show, Eq)
+data OpCode = Nop | Jmp | Acc deriving (Show, Eq, Enum)
 data Instr = Instr OpCode Int deriving Show
 
 data Computer = Computer {
                     accumulator :: Int,
                     index :: Int,
-                    code :: [Instr],
+                    code :: V.Vector Instr,
                     len :: Int,
                     visited :: S.Set Int
                 } deriving Show
 
 opcode :: Parser OpCode
-opcode = "nop" $> Nop
-     <|> "jmp" $> Jmp
-     <|> "acc" $> Acc
+opcode = "nop" $> Nop <|> "jmp" $> Jmp <|> "acc" $> Acc
 
 instruction = Instr <$> opcode <*> (" " *> signed decimal)
 
@@ -30,42 +29,34 @@ instance Parseable Instr where
     parseInput = fromRight . parseOnly instruction
 
 day8 :: Day
-day8 = day 8 partOne partTwo
+day8 = day 8 (accumulator . run . computer) (accumulator . partTwo)
 
-partTwo :: [Instr] -> Int
-partTwo bootcode = head . mapMaybe (verify . run . construct . fix bootcode)
-                 . replaceable $ zip [0..] bootcode
-    where construct instrs = Computer 0 0 instrs (length bootcode) S.empty
-          verify (Computer acc idx _ n _)
-            | idx == n  = Just acc
-            | otherwise = Nothing
+partTwo :: V.Vector Instr -> Computer
+partTwo bootcode = V.head . V.filter ((==) <$> index <*> len)
+                 . V.map (run . computer . fix bootcode)
+                 . replaceable $ bootcode
 
-partOne :: [Instr] -> Int
-partOne bootcode = accumulator $ run (Computer 0 0 bootcode (length bootcode) S.empty)
+computer :: V.Vector Instr -> Computer
+computer instrs = Computer 0 0 instrs (length instrs) S.empty
 
+fix :: V.Vector Instr -> Int -> V.Vector Instr
+fix xs n = xs V.// [(n, replace $ xs V.! n)]
 
-fix :: [Instr] -> Int -> [Instr]
-fix xs n = take n xs ++ replace (xs !! n):drop (n + 1) xs
+replaceable :: V.Vector Instr -> V.Vector Int
+replaceable = V.findIndices (\(Instr op _) -> op `elem` [Jmp, Nop])
 
-replaceable :: [(a, Instr)] -> [a]
-replaceable = map fst . filter (swapped . snd)
-        where swapped (Instr op _) = op == Nop || op == Jmp
-
+run :: Computer -> Computer
 run c@(Computer _ idx code n visited)
   | S.member idx visited || idx >= n = c
-  | otherwise = run $ exec (code !! idx) c
+  | otherwise = run $ exec (code V.! idx) c
 
 exec :: Instr -> Computer -> Computer
 exec (Instr Acc v) c@(Computer acc _ _ _ _) = (step 1 c){ accumulator = acc + v }
 exec (Instr Jmp n) c = step n c
 exec (Instr Nop _) c = step 1 c
 
-visit :: Computer -> Computer
-visit c@(Computer _ idx _ _ v) = c{ visited = S.insert idx v }
-
 step :: Int -> Computer -> Computer
-step n c@(Computer _ idx _ _ _) = (visit c){ index = idx + n }
+step n c@(Computer _ idx _ _ v) = c{ index = idx + n, visited = S.insert idx v }
 
 replace (Instr Nop v) = Instr Jmp v
 replace (Instr Jmp v) = Instr Nop v
-replace x = x

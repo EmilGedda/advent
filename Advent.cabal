@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 45ad954d32a41c113087a79ccad9ef525fbd11ba75d71d9d89569e4100d5d829
+-- hash: cede0c4827f7730b30489231449c87671208863ea590f435083b19a641c227ef
 
 name:           Advent
 version:        1.0.0.0
@@ -91,7 +91,7 @@ test-suite test
       Paths_Advent
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Advent
     , base >=4.13 && <4.14
