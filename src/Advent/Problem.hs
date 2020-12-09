@@ -17,7 +17,10 @@ import Data.Maybe               (fromMaybe, fromJust)
 import System.Directory         (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
 import System.FilePath          ((</>))
 import Text.Printf              (printf)
-import qualified Data.Set as    Set
+
+import qualified Data.Set            as Set
+import qualified Data.Vector         as V
+import qualified Data.Vector.Unboxed as UV
 
 
 class Parseable a where
@@ -26,13 +29,6 @@ class Parseable a where
 
     parseString :: String -> a
     parseString = parseInput . pack
-
-
-newtype Ignored = Ignored String
-
-instance Parseable Ignored where
-    parseString = const (Ignored "")
-
 
 instance Parseable Double where
     parseString = read
@@ -46,6 +42,11 @@ instance Parseable Int where
 instance Parseable a => Parseable [a] where
     parseInput = map parseInput . lines
 
+instance (Parseable a, UV.Unbox a) => Parseable (UV.Vector a) where
+    parseInput = UV.fromList . parseInput
+
+instance Parseable a => Parseable (V.Vector a) where
+    parseInput = V.fromList . parseInput
 
 class Show a => ToString a where
     solution :: a -> String
@@ -80,7 +81,10 @@ every n = map head . takeWhile (not . null) . iterate (drop n)
 count :: (a -> Bool) -> [a] -> Int
 count f = length . filter f
 
+
 fromRight (Right r) = r
+fromBool f x | f x = Just x
+             | otherwise = Nothing
 
 between :: Ord a => a -> a -> a -> Bool
 between a b x = a <= x && x <= b
