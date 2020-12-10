@@ -29,11 +29,12 @@ library:
     - lens                  ^>= 4.18
     - mtl                   ^>= 2.2
     - string-interpolate    ^>= 0.2
-    - regex-tdfa	        ^>= 1.3
+    - regex-tdfa	          ^>= 1.3
     - split                 ^>= 0.2
     - time                  ^>= 1.9
     - unordered-containers  ^>= 0.2
     - vector                ^>= 0.12
+    - vector-algorithms     ^>= 0.8
     - wreq                  ^>= 0.5
 
 executables:
@@ -41,27 +42,28 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -O2
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - Advent
-    - containers            ^>= 0.6
-    - mtl                   ^>= 2.2
-    - optparse-applicative  ^>= 0.15
+      - Advent
+      - containers            ^>= 0.6
+      - mtl                   ^>= 2.2
+      - optparse-applicative  ^>= 0.15
 
 tests:
   test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
-    - -O2
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -O2
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - Advent
-    - bytestring    ^>= 0.10
-    - mtl           ^>= 2.2
-    - tasty         ^>= 1.2
-    - tasty-hunit   ^>= 0.10
+      - Advent
+      - bytestring    ^>= 0.10
+      - mtl           ^>= 2.2
+      - tasty         ^>= 1.2
+      - tasty-hunit   ^>= 0.10

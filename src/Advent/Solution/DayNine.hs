@@ -1,7 +1,7 @@
 module Advent.Solution.DayNine (day9) where
 
-import           Advent.Problem         (Day, day)
-import qualified Data.Vector            as V
+import           Advent.Problem (Day, day)
+import qualified Data.Vector    as V
 
 day9 :: Day
 day9 = day 9 partOne partTwo
