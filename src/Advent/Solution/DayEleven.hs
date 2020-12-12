@@ -6,8 +6,8 @@ import           Data.Bifunctor               (bimap)
 import           Data.Foldable                (foldrM, forM_)
 import           Data.Maybe                   (mapMaybe, listToMaybe)
 import           Data.Tuple                   (swap)
-import           Control.Arrow                ((&&&))
-import           Control.Monad                (filterM, when)
+import           Control.Arrow                ((&&&), second)
+import           Control.Monad                (filterM, when, filterM)
 import           Control.Monad.Fix            (fix)
 import           Control.Monad.ST             (ST, runST)
 import qualified Data.Vector                  as V
@@ -32,6 +32,8 @@ seat :: Ruleset -> Grid -> Int
 seat rules (Grid (width,v)) = runST $ stabilize rules width =<< V.thaw v
 
 -- precalculate this instead of doing it on every iteration
+--
+adjacent :: Ruleset -> Int -> V.MVector s Tile -> Int -> ST s [Int]
 adjacent rules width v idx =
     let coords = swap . flip divMod width
         height = M.length v `div` width
@@ -60,28 +62,29 @@ tile rules neighbours t
 
 stabilize :: Ruleset -> Int -> M.MVector s Tile -> ST s Int
 stabilize rules width v = do
-    let loop = [0..M.length v - 1]
-        fold v f = foldrM f [] v
+    let fold v s f = foldrM f s v
+    loop <- filterM (fmap (/=Floor) . M.read v) [0..M.length v - 1]
+    neighbours <- M.new (M.length v)
 
-    -- whileM
-    changes <-
-        fold loop $ \i changed -> do
-           current    <- M.read v i
-           if current == Floor
-              then return changed
-              else do
-                  neighbours <- mapM (M.read v) =<< adjacent rules width v i
-                  let new = tile rules neighbours current
-                  if current /= new
-                     then return $ (i, new):changed
-                     else return changed
+    forM_ loop $ \tile -> do
+        M.write neighbours tile =<< adjacent rules width v tile
 
-    forM_ changes $
-        uncurry (M.write  v)
+    whileM $ do
+        changes <-
+            fold loop [] $ \i changed -> do
+                current <- M.read v i
+                close <- mapM (M.read v) =<< M.read neighbours i
+                let new = tile rules close current
+                if current /= new
+                   then return $ (i, new):changed
+                   else return changed
 
-    if not $ null changes
-        then stabilize rules width v
-        else taken v
+        forM_ changes $
+            uncurry (M.write  v)
+
+        return . not $ null changes
+
+    taken v
 
 taken :: M.MVector s Tile -> ST s Int
 taken v =  count (==Occupied) <$> mapM (M.read v) [0..M.length v - 1]
