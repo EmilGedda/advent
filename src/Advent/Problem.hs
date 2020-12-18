@@ -15,6 +15,7 @@ import           Data.ByteString.Char8    (lines, readInt, readInteger, unpack, 
 import           Data.ByteString.Lazy     (toStrict)
 import           Data.Monoid              (Sum(..), getSum)
 import           Data.Maybe               (fromMaybe, fromJust)
+import           Data.List                (foldl1')
 import           System.Directory         (XdgDirectory(XdgConfig), getXdgDirectory
                                           , doesFileExist, createDirectoryIfMissing)
 import           System.FilePath          ((</>))
@@ -97,6 +98,8 @@ sortNub = Set.toList . Set.fromList
 same :: (Eq a) => [a] -> Bool
 same xs = all (== head xs) (tail xs)
 
+fromBits :: Num a => [a] -> a
+fromBits = foldl1' ((+) . (2*))
 
 notSolved :: Parseable a => a -> String
 notSolved = const "Not solved"
