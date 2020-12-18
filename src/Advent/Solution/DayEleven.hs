@@ -45,7 +45,7 @@ seat rules (Grid (width,v)) = runST $ stabilize rules width =<< U.thaw v
 adjacent :: Ruleset -> Int -> UM.MVector s Tile -> [Int] -> ST s (M.MVector s (UM.MVector s Int))
 adjacent rules width tiles seats = do
     let coords = swap . flip divMod width
-        height = UM.length tiles`div` width
+        height = UM.length tiles `div` width
         index (x,y) = x + y * width
         neighbouring = [(1, 0), (-1, 1), (0, 1), (1, 1)]
         oob (x,y) = x < 0 || x >= width || y < 0 || y >= height
@@ -119,16 +119,16 @@ stabilize rules width v = do
                     if n > tolerance
                        then return n
                        else do
-                        seat <- UM.unsafeRead close j
-                        tile <- UM.unsafeRead v seat
-                        return . (n+) . fromEnum $ tile == occupied'
+                            seat <- UM.unsafeRead close j
+                            tile <- UM.unsafeRead v seat
+                            return . (n+) . fromEnum $ tile == occupied'
 
                 let new = tile rules occupied current
-                if current /= new
-                   then do
+                if current == new
+                   then return changed
+                   else do
                        UM.unsafeWrite changes changed (i, new)
                        return $ changed + 1
-                   else return changed
 
         forM_ [0..changed - 1] $ \i -> do
             (idx, tile) <- UM.unsafeRead changes i
@@ -146,7 +146,7 @@ whileM f = do
     !b <- f
     when b (whileM f)
 
-foldIM max s f = go 0 max s f
+foldIM max s f =  go 0 max s f
     where go curr max !s f
             | curr >= max = return s
             | otherwise = do

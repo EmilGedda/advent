@@ -7,18 +7,19 @@ import Control.Monad.Except      (runExceptT)
 import Data.Maybe                (isNothing, fromJust)
 import Data.List                 (find)
 
-import Advent.Solution.DayOne    (day1)
-import Advent.Solution.DayTwo    (day2)
-import Advent.Solution.DayThree  (day3)
-import Advent.Solution.DayFour   (day4)
-import Advent.Solution.DayFive   (day5)
-import Advent.Solution.DaySix    (day6)
-import Advent.Solution.DaySeven  (day7)
-import Advent.Solution.DayEight  (day8)
-import Advent.Solution.DayNine   (day9)
-import Advent.Solution.DayTen    (day10)
-import Advent.Solution.DayEleven (day11)
-import Advent.Solution.DayTwelve (day12)
+import Advent.Solution.DayOne       (day1)
+import Advent.Solution.DayTwo       (day2)
+import Advent.Solution.DayThree     (day3)
+import Advent.Solution.DayFour      (day4)
+import Advent.Solution.DayFive      (day5)
+import Advent.Solution.DaySix       (day6)
+import Advent.Solution.DaySeven     (day7)
+import Advent.Solution.DayEight     (day8)
+import Advent.Solution.DayNine      (day9)
+import Advent.Solution.DayTen       (day10)
+import Advent.Solution.DayEleven    (day11)
+import Advent.Solution.DayTwelve    (day12)
+import Advent.Solution.DayThirteen  (day13)
 
 days :: [Day]
 days = [
@@ -33,7 +34,8 @@ days = [
         day9,
         day10,
         day11,
-        day12
+        day12,
+        day13
     ]
 
 solveDay :: Day -> Input -> IO ()
