@@ -11,7 +11,7 @@ import           Control.Arrow            ((***))
 import           Control.Monad            (unless, foldM)
 import           Control.Monad.Except     (ExceptT, lift)
 import           Data.ByteString          (ByteString, readFile, writeFile, stripSuffix)
-import           Data.ByteString.Char8    (lines, readInt, readInteger, unpack, pack)
+import           Data.ByteString.Char8    (lines, readInt, readInteger, unpack, pack, split)
 import           Data.ByteString.Lazy     (toStrict)
 import           Data.Monoid              (Sum(..), getSum)
 import           Data.Maybe               (fromMaybe, fromJust)
@@ -24,6 +24,7 @@ import qualified Data.Set                 as Set
 import qualified Data.Vector              as V
 import qualified Data.Vector.Unboxed      as UV
 
+newtype CommaList a = CommaList { getList :: [a] }
 
 class Parseable a where
     parseInput :: ByteString -> a
@@ -49,6 +50,9 @@ instance (Parseable a, UV.Unbox a) => Parseable (UV.Vector a) where
 
 instance Parseable a => Parseable (V.Vector a) where
     parseInput = V.fromList . parseInput
+
+instance Parseable a => Parseable (CommaList a) where
+    parseInput = CommaList . map parseInput . split ','
 
 class Show a => ToString a where
     solution :: a -> String
