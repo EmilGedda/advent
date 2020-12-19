@@ -13,7 +13,7 @@ speak n (CommaList xs) = runST $ do
     mem <- UM.new n
     mapM_ (uncurry (UM.write mem)) $ zip xs [1..]
 
-    fold [length xs + 1..n] (last xs) $ \prev i -> do
+    fold [length xs..n - 1] (last xs) $ \prev i -> do
         v <- UM.read mem prev
-        UM.write mem prev (i - 1)
-        return $ bool 0 (i - 1 - v) (v > 0)
+        UM.write mem prev i
+        return $ bool 0 (i - v) (v > 0)

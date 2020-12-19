@@ -20,6 +20,7 @@ import           System.Directory         (XdgDirectory(XdgConfig), getXdgDirect
                                           , doesFileExist, createDirectoryIfMissing)
 import           System.FilePath          ((</>))
 import           Text.Printf              (printf)
+import           Data.Attoparsec.ByteString.Char8 hiding (takeWhile)
 import qualified Data.Set                 as Set
 import qualified Data.Vector              as V
 import qualified Data.Vector.Unboxed      as UV
@@ -53,6 +54,9 @@ instance Parseable a => Parseable (V.Vector a) where
 
 instance Parseable a => Parseable (CommaList a) where
     parseInput = CommaList . map parseInput . split ','
+
+instance Show a => Show (CommaList a) where
+    show = show . getList
 
 class Show a => ToString a where
     solution :: a -> String
@@ -107,6 +111,9 @@ fromBits = foldl1' ((+) . (2*))
 
 fold :: (Foldable t, Monad m) => t a -> b -> (b -> a -> m b) -> m b
 fold v s f = foldM f s v
+
+commalist :: Parser a -> Parser (CommaList a)
+commalist p = CommaList <$> p `sepBy` ","
 
 notSolved :: Parseable a => a -> String
 notSolved = const "Not solved"

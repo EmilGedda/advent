@@ -22,6 +22,7 @@ import Advent.Solution.DayTwelve    (day12)
 import Advent.Solution.DayThirteen  (day13)
 import Advent.Solution.DayFourteen  (day14)
 import Advent.Solution.DayFifteen   (day15)
+import Advent.Solution.DaySixteen   (day16)
 
 days :: [Day]
 days = [
@@ -39,7 +40,8 @@ days = [
         day12,
         day13,
         day14,
-        day15
+        day15,
+        day16
     ]
 
 solveDay :: Day -> Input -> IO ()
