@@ -20,7 +20,7 @@ speak :: Int -> Numbers -> Int
 speak n (Numbers xs) = runST $ do
     let fold v s f = foldM f s v
 
-    mem <- UM.new (n + 8)
+    mem <- UM.new n
     mapM_ (uncurry (UM.write mem)) $ zip xs [1..]
 
     fold [length xs + 1..n] (last xs) $ \prev i -> do
