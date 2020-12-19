@@ -1,8 +1,12 @@
 module Advent.Solution.DayFifteen where
 
-import Advent.Problem                   (Day, notSolved, day, Parseable(..), parseInput, )
-import Data.ByteString.Char8            (split)
-import qualified Data.Map as M
+import           Advent.Problem                 (Day, notSolved, day, Parseable(..), parseInput)
+import           Data.ByteString.Char8          (split)
+import           Data.Bool                      (bool)
+import           Control.Monad                  (foldM)
+import           Control.Monad.ST               (runST)
+import qualified Data.Vector.Unboxed.Mutable    as UM
+import qualified Data.IntMap.Strict             as M
 
 newtype Numbers = Numbers { getNumbers :: [Int] }
 
@@ -10,13 +14,16 @@ instance Parseable Numbers where
     parseInput = Numbers . map parseInput . split ','
 
 day15 :: Day
-day15 = day 15 ((!! 2019) . speak) ((!! 29999999) . speak)
+day15 = day 15 (speak 2020) (speak 30000000)
 
+speak :: Int -> Numbers -> Int
+speak n (Numbers xs) = runST $ do
+    let fold v s f = foldM f s v
 
-speak n@(Numbers xs) =
-    let start = zip xs [1..]
-    in xs ++ go (M.fromList start) (length start + 1) (fst $ last start)
-    where go m i v
-            | M.member v m = let val = i - 1 - (m M.! v)
-                             in val:go (M.insert v (i - 1) m) (i + 1) val
-            | otherwise = 0:go (M.insert v (i - 1) m) (i + 1) 0
+    mem <- UM.new (n + 8)
+    mapM_ (uncurry (UM.write mem)) $ zip xs [1..]
+
+    fold [length xs + 1..n] (last xs) $ \prev i -> do
+        v <- UM.read mem prev
+        UM.write mem prev (i - 1)
+        return $ bool 0 (i - 1 - v) (v > 0)
