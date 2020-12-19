@@ -1,9 +1,8 @@
 module Advent.Solution.DayFifteen where
 
-import           Advent.Problem                 (Day, notSolved, day, Parseable(..), parseInput)
+import           Advent.Problem                 (Day, notSolved, day, Parseable(..), parseInput, fold)
 import           Data.ByteString.Char8          (split)
 import           Data.Bool                      (bool)
-import           Control.Monad                  (foldM)
 import           Control.Monad.ST               (runST)
 import qualified Data.Vector.Unboxed.Mutable    as UM
 import qualified Data.IntMap.Strict             as M
@@ -18,8 +17,6 @@ day15 = day 15 (speak 2020) (speak 30000000)
 
 speak :: Int -> Numbers -> Int
 speak n (Numbers xs) = runST $ do
-    let fold v s f = foldM f s v
-
     mem <- UM.new n
     mapM_ (uncurry (UM.write mem)) $ zip xs [1..]
 

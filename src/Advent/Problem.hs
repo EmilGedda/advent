@@ -8,7 +8,7 @@ module Advent.Problem where
 import           Prelude hiding           (readFile, writeFile, lines)
 import           Advent.API               (get, input)
 import           Control.Arrow            ((***))
-import           Control.Monad            (unless)
+import           Control.Monad            (unless, foldM)
 import           Control.Monad.Except     (ExceptT, lift)
 import           Data.ByteString          (ByteString, readFile, writeFile, stripSuffix)
 import           Data.ByteString.Char8    (lines, readInt, readInteger, unpack, pack)
@@ -100,6 +100,9 @@ same xs = all (== head xs) (tail xs)
 
 fromBits :: Num a => [a] -> a
 fromBits = foldl1' ((+) . (2*))
+
+fold :: (Foldable t, Monad m) => t a -> b -> (b -> a -> m b) -> m b
+fold v s f = foldM f s v
 
 notSolved :: Parseable a => a -> String
 notSolved = const "Not solved"
