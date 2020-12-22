@@ -16,7 +16,7 @@ data LeaderboardOrder = LocalScore | Stars
 data BadgesOptions = Path String | Disabled
 
 data Options = LeaderboardOptions {
-                id :: Maybe Integer,
+                lid :: Maybe Integer,
                 year :: Maybe Integer,
                 order :: User -> Integer
             } | ProgressOptions {
@@ -122,3 +122,4 @@ run (ProgressOptions onlyStarCount) = do
 
 starCount :: M.Map Integer Progress -> (Int, Int)
 starCount = both length . partition (==1) . map fromProgress . M.elems
+

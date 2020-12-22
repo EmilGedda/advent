@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 module Advent.Solution.DaySixteen where
 
-import Advent.Problem                   (Day, day, CommaList(..), fold, commalist, Parseable(..), fromRight, notSolved, between, CommaList, getList)
+import Advent.Problem                   (Day, day, CommaList(..), commalist, Parseable(..)
+                                        , fromRight, notSolved, between, CommaList, getList)
 import Data.Maybe                       (catMaybes, listToMaybe, mapMaybe, isJust)
-import Data.List                        (find, transpose, intersect, sortOn, (\\), isPrefixOf, concatMap, foldl')
-import Data.Attoparsec.ByteString.Char8
-import Debug.Trace
+import Data.List                        (find, transpose, intersect, sortOn, (\\)
+                                        , isPrefixOf, concatMap, foldl')
+import Data.Attoparsec.ByteString.Char8 (manyTill, parseOnly, decimal, sepBy, anyChar)
 
 data Rule = Rule {
             name :: String,
@@ -14,18 +14,18 @@ data Rule = Rule {
             second :: (Int, Int)
         } deriving Show
 
+type Ticket = CommaList Int
+
+data Notes = Notes [Rule] Ticket [Ticket] deriving Show
+
 rule = Rule
        <$> manyTill anyChar ": "
        <*> pair
        <*> (" or " *> pair)
     where pair = (,) <$> decimal <*> ("-" *> decimal)
 
-type Ticket = CommaList Int
-
-data Notes = Notes [Rule] Ticket [Ticket] deriving Show
-
 notes = Notes
-        <$> rule `sepBy` char '\n'
+        <$> rule `sepBy` "\n"
         <*> ("\n\nyour ticket:\n" *> commalist decimal)
         <*> ("\n\nnearby tickets:\n" *> commalist decimal `sepBy` "\n")
 
@@ -37,8 +37,8 @@ day16 :: Day
 day16 = day 16 partOne partTwo
 
 partOne :: Notes -> Int
-partOne (Notes rules _ nearby) = sum $ mapMaybe (verify . getList) nearby
-    where verify = find (not . validate rules)
+partOne (Notes rules _ nearby)
+  = sum $ mapMaybe (find (not . validate rules) . getList) nearby
 
 partTwo :: Notes -> Int
 partTwo (Notes rules ticket nearby)
@@ -47,11 +47,9 @@ partTwo (Notes rules ticket nearby)
   . foldl' (\acc (v, x) -> (v, head $ x \\ map snd acc):acc) []
   . sortOn (length . snd)
   . zip (getList ticket)
-  . map (foldr1 intersect
-       . map (flip mapMaybe rules . valid)
-       . filter (validate rules))
+  . map (foldr1 intersect . map (flip mapMaybe rules . valid))
   . transpose
-  $ map getList nearby
+  $ map (filter (validate rules) . getList) nearby
 
 validate :: Foldable t => t Rule -> Int -> Bool
 validate rules = flip any rules . (isJust .) . valid
