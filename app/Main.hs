@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Main where
 
 import Advent.API
@@ -89,14 +90,14 @@ toOrder LocalScore = localScore
 toOrder Stars = stars
 
 getID :: Functor f => Maybe Integer -> f User -> f Integer
-getID override user = flip fromMaybe override . userid <$> user
+getID override = fmap (flip fromMaybe override . userid)
 
 run :: Options -> IO ()
 run (LeaderboardOptions id year order) = do
     now <- currentYear
 
     let id'   = mapExceptT (fmap $ getID id) currentUser
-        year' = fromMaybe now   year
+        year' = fromMaybe now year
 
     printLeaderboard order <== get . leaderboard year' =<< id'
 

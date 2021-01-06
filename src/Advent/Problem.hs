@@ -127,7 +127,7 @@ fetchInput year day = do
     lift $ createDirectoryIfMissing True dir
     let cache = dir </> "input.txt"
     hasFile <- lift $ doesFileExist cache
-    input <- if hasFile then lift (readFile cache) else toStrict <$> get (input year day)
+    input <- if hasFile then lift (readFile cache) else get (input year day)
     unless hasFile (lift $ writeFile cache input)
     return $ Input input
 
