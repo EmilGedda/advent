@@ -10,7 +10,7 @@ day18 :: Day
 day18 = day 18 (eval grammar1) (eval grammar2)
 
 eval :: Parser Int -> [B.ByteString] -> Int
-eval parser = sum . map (attoparse parser . B.map switch . B.reverse)
+eval parser = sum . map (attoparse parser . B.reverse)
 
 grammar1 :: Parser Int
 grammar1 = binop (+) " + " <|> binop (*) " * " <|> term grammar1
@@ -21,9 +21,4 @@ grammar2 = (*) <$> add <* " * " <*> grammar2 <|> add
     where add = (+) <$> term grammar2 <* " + " <*> add <|> term grammar2
 
 term :: Parser Int -> Parser Int
-term p = "(" *> p <* ")" <|> decimal
-
-switch :: Char -> Char
-switch ')' = '('
-switch '(' = ')'
-switch x = x
+term p = ")" *> p <* "(" <|> decimal
