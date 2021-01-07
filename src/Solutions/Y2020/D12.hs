@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
-module Solutions.Y2020.D12 where
+module Solutions.Y2020.D12 (day12) where
 
 import Advent.Problem                           (Day, day, fromRight, Parseable(..))
 import Data.List                                (foldl')

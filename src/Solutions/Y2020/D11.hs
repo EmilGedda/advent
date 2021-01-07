@@ -1,6 +1,6 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE BangPatterns #-}
-module Solutions.Y2020.D11 where
+module Solutions.Y2020.D11 (day11) where
 
 import           Advent.Problem               (Day, day, count, Parseable, parseString, both)
 import           Data.Bifunctor               (bimap)

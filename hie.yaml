@@ -6,6 +6,9 @@ cradle:
     - path: "./src"
       component: "Advent:lib"
 
+    - path: "./lib"
+      component: "Advent:lib"
+
     - path: "./app"
       component: "Advent:advent"
 

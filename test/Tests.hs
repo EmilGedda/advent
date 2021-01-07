@@ -1,30 +1,29 @@
 module Tests where
 
-import Types (Answers(..), day)
+import Advent.Problem
+import qualified Solutions.Y2020 as Y20
+import Types (Answers(..), answer)
 
 answers :: [Answers]
 answers = [
-        y2020
-    ]
-
-y2020 :: Answers
-y2020 = Answers 2020 [
-        day  1 970816         96047280,
-        day  2 666            670,
-        day  3 223            3517401300,
-        day  4 235            194,
-        day  5 998            676,
-        day  6 6387           3039,
-        day  7 242            176035,
-        day  8 1200           1023,
-        day  9 1639024365     219202240,
-        day 10 1980           4628074479616,
-        day 11 2346           2111,
-        day 12 2879           178986,
-        day 13 119            1106724616194525,
-        day 14 17028179706934 3683236147222,
-        day 15 475            11261,
-        day 16 21956          3709435214239,
-        day 17 362            1980,
-        day 18 6923486965641  70722650566361
+        Answers 2020 [
+            answer Y20.day01 970816         96047280,
+            answer Y20.day02 666            670,
+            answer Y20.day03 223            3517401300,
+            answer Y20.day04 235            194,
+            answer Y20.day05 998            676,
+            answer Y20.day06 6387           3039,
+            answer Y20.day07 242            176035,
+            answer Y20.day08 1200           1023,
+            answer Y20.day09 1639024365     219202240,
+            answer Y20.day10 1980           4628074479616,
+            answer Y20.day11 2346           2111,
+            answer Y20.day12 2879           178986,
+            answer Y20.day13 119            1106724616194525,
+            answer Y20.day14 17028179706934 3683236147222,
+            answer Y20.day15 475            11261,
+            answer Y20.day16 21956          3709435214239,
+            answer Y20.day17 362            1980,
+            answer Y20.day18 6923486965641  70722650566361
+        ]
     ]

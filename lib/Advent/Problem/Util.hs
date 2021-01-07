@@ -25,7 +25,7 @@ fromBool f x | f x = Just x
 between :: Ord a => a -> a -> a -> Bool
 between a b x = a <= x && x <= b
 
-both :: Arrow a => a b' c' -> a (b', b') (c', c')
+both :: Arrow a => a b c -> a (b, b) (c, c)
 both f = f *** f
 
 sortNub :: (Ord a) => [a] -> [a]

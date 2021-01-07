@@ -1,24 +1,44 @@
-module Solutions.Y2020 where
+module Solutions.Y2020 (
+    module Solutions.Y2020.D01,
+    module Solutions.Y2020.D02,
+    module Solutions.Y2020.D03,
+    module Solutions.Y2020.D04,
+    module Solutions.Y2020.D05,
+    module Solutions.Y2020.D06,
+    module Solutions.Y2020.D07,
+    module Solutions.Y2020.D08,
+    module Solutions.Y2020.D09,
+    module Solutions.Y2020.D10,
+    module Solutions.Y2020.D11,
+    module Solutions.Y2020.D12,
+    module Solutions.Y2020.D13,
+    module Solutions.Y2020.D14,
+    module Solutions.Y2020.D15,
+    module Solutions.Y2020.D16,
+    module Solutions.Y2020.D17,
+    module Solutions.Y2020.D18,
+    y2020
+    ) where
 
 import Advent.Problem       (Year(..))
-import Solutions.Y2020.D01  (day01)
-import Solutions.Y2020.D02  (day02)
-import Solutions.Y2020.D03  (day03)
-import Solutions.Y2020.D04  (day04)
-import Solutions.Y2020.D05  (day05)
-import Solutions.Y2020.D06  (day06)
-import Solutions.Y2020.D07  (day07)
-import Solutions.Y2020.D08  (day08)
-import Solutions.Y2020.D09  (day09)
-import Solutions.Y2020.D10  (day10)
-import Solutions.Y2020.D11  (day11)
-import Solutions.Y2020.D12  (day12)
-import Solutions.Y2020.D13  (day13)
-import Solutions.Y2020.D14  (day14)
-import Solutions.Y2020.D15  (day15)
-import Solutions.Y2020.D16  (day16)
-import Solutions.Y2020.D17  (day17)
-import Solutions.Y2020.D18  (day18)
+import Solutions.Y2020.D01
+import Solutions.Y2020.D02
+import Solutions.Y2020.D03
+import Solutions.Y2020.D04
+import Solutions.Y2020.D05
+import Solutions.Y2020.D06
+import Solutions.Y2020.D07
+import Solutions.Y2020.D08
+import Solutions.Y2020.D09
+import Solutions.Y2020.D10
+import Solutions.Y2020.D11
+import Solutions.Y2020.D12
+import Solutions.Y2020.D13
+import Solutions.Y2020.D14
+import Solutions.Y2020.D15
+import Solutions.Y2020.D16
+import Solutions.Y2020.D17
+import Solutions.Y2020.D18
 
 y2020 :: Year
 y2020 = Year 2020 [

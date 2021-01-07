@@ -5,17 +5,17 @@
 
 module Types where
 
-import Advent.Problem   (solution, ToString)
+import Advent.Problem   (solution, ToString, Day(..))
 import Data.Maybe       (fromJust)
 
-day :: (Result a, Result b) => Integer -> a -> b -> Answer
-day n partOne partTwo = Answer n (fromJust $ result partOne) (result partTwo)
+answer :: (Result a, Result b) => Day -> a -> b -> Answer
+answer day partOne partTwo = Answer day (fromJust $ result partOne) (result partTwo)
 
 data Answer = Answer {
-            num :: Integer,
+            day :: Day,
             partOne :: String,
             partTwo :: Maybe String
-        } deriving Show
+        }
 
 class Result a where
     result :: a -> Maybe String
@@ -23,7 +23,7 @@ class Result a where
 data Answers = Answers {
             when :: Integer,
             solutions :: [Answer]
-        } deriving Show
+        }
 
 -- This is an ugly and unsound type hack to help type inference,
 -- but it works since we only want to use Nothing and never Just
