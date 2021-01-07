@@ -2,7 +2,7 @@
 module Advent.Problem.Util where
 
 import           Advent.Problem.Types                      (CommaList(..))
-import           Control.Arrow                             ((***))
+import           Control.Arrow                             (Arrow, (***))
 import           Control.Monad                             (foldM)
 import           Data.ByteString                           (ByteString, stripSuffix)
 import           Data.Monoid                               (Sum(..), getSum)
@@ -25,6 +25,7 @@ fromBool f x | f x = Just x
 between :: Ord a => a -> a -> a -> Bool
 between a b x = a <= x && x <= b
 
+both :: Arrow a => a b' c' -> a (b', b') (c', c')
 both f = f *** f
 
 sortNub :: (Ord a) => [a] -> [a]
@@ -42,6 +43,7 @@ fold v s f = foldM f s v
 commalist :: Parser a -> Parser (CommaList a)
 commalist p = CommaList <$> p `sepBy` ","
 
+debug :: Show a => a -> a
 debug x = trace (show x) x
 
 attoparse :: Parser a -> ByteString -> a
