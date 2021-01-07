@@ -13,27 +13,25 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 main :: IO ()
-main = do
+main =
     defaultMain
-        . testGroup "Tests"
+        . testGroup "Test solutions"
         =<< forM answers
              (\(Answers y ans) ->
                 let Just alldays = days <$> find ((==y) . year) years
                 in testGroup (show y)
                    . (testConsistency alldays ans:)
-                   . return
-                   . testGroup "Stars"
                    . map (uncurry testDay)
                    <$> mapM (findTest y) ans)
 
 testConsistency :: [Day] -> [Answer] -> TestTree
-testConsistency d ans = testGroup "Test consistency" [
-        testCase "No days lacking tests" $ map number d \\ map (number . day) ans @?= []
-    ]
+testConsistency d ans
+    = testCase "No days lacking tests"
+    $ map number d \\ map (number . day) ans @?= []
 
 findTest :: Integer -> Answer -> IO (Answer, Either String Input)
 findTest y ans@(Answer (Day n _ _) _ _)
-  = (,) ans <$> runExceptT (fetchInput y n)
+    = (,) ans <$> runExceptT (fetchInput y n)
 
 testDay :: Answer -> Either String Input -> TestTree
 testDay (Answer (Day n partOne partTwo) first second) input =
