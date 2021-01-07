@@ -1,10 +1,10 @@
-module Advent.Solution.DayNine (day9) where
+module Solutions.Y2020.D09 (day09) where
 
 import           Advent.Problem (Day, day)
 import qualified Data.Vector    as V
 
-day9 :: Day
-day9 = day 9 partOne partTwo
+day09 :: Day
+day09 = day 9 partOne partTwo
 
 partOne :: V.Vector Integer -> Integer
 partOne input

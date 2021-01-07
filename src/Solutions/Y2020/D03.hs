@@ -1,4 +1,4 @@
-module Advent.Solution.DayThree (day3) where
+module Solutions.Y2020.D03 (day03) where
 
 import Advent.Problem   (Day, day, Parseable(..), every)
 import Data.Vector      (Vector, fromList, (!))
@@ -8,8 +8,8 @@ newtype TreeRow = TreeRow (Vector Bool)
 instance Parseable TreeRow where
     parseString = TreeRow . fromList . map ('#' ==)
 
-day3 :: Day
-day3 = day 3 (slope 3 1) part2
+day03 :: Day
+day03 = day 3 (slope 3 1) part2
 
 slope :: Int -> Int -> [TreeRow] -> Int
 slope right down = sum . zipWith isTree (every right [0..]) . every down

@@ -1,9 +1,14 @@
 module Tests where
 
-import Types (Answer, day)
+import Types (Answers(..), day)
 
-answers :: [Answer]
+answers :: [Answers]
 answers = [
+        y2020
+    ]
+
+y2020 :: Answers
+y2020 = Answers 2020 [
         day  1 970816         96047280,
         day  2 666            670,
         day  3 223            3517401300,

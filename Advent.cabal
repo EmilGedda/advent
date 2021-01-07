@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cc6c490be9dd7f7fb0fb3dd376cca153f956f80db251d59fc32c3e5cbb483d01
+-- hash: 2a282905f60656e1cee820b3d89b07b60d214e29f3bc1e80d2c02126c7edcd25
 
 name:           Advent
 version:        1.0.0.0
@@ -27,34 +27,36 @@ source-repository head
 
 library
   exposed-modules:
+      Solutions
+      Solutions.Y2020
+      Solutions.Y2020.D01
+      Solutions.Y2020.D02
+      Solutions.Y2020.D03
+      Solutions.Y2020.D04
+      Solutions.Y2020.D05
+      Solutions.Y2020.D06
+      Solutions.Y2020.D07
+      Solutions.Y2020.D08
+      Solutions.Y2020.D09
+      Solutions.Y2020.D10
+      Solutions.Y2020.D11
+      Solutions.Y2020.D12
+      Solutions.Y2020.D13
+      Solutions.Y2020.D14
+      Solutions.Y2020.D15
+      Solutions.Y2020.D16
+      Solutions.Y2020.D17
+      Solutions.Y2020.D18
       Advent
       Advent.API
       Advent.Leaderboard
       Advent.Problem
-      Advent.Solution
-      Advent.Solution.DayEight
-      Advent.Solution.DayEighteen
-      Advent.Solution.DayEleven
-      Advent.Solution.DayFifteen
-      Advent.Solution.DayFive
-      Advent.Solution.DayFour
-      Advent.Solution.DayFourteen
-      Advent.Solution.DayNine
-      Advent.Solution.DayOne
-      Advent.Solution.DaySeven
-      Advent.Solution.DaySeventeen
-      Advent.Solution.DaySix
-      Advent.Solution.DaySixteen
-      Advent.Solution.DayTen
-      Advent.Solution.DayThirteen
-      Advent.Solution.DayThree
-      Advent.Solution.DayTwelve
-      Advent.Solution.DayTwo
       Advent.SVG
   other-modules:
       Paths_Advent
   hs-source-dirs:
       src
+      lib
   build-depends:
       aeson >=1.4 && <1.5
     , attoparsec >=0.13 && <0.14

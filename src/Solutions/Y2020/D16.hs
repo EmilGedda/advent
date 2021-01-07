@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Advent.Solution.DaySixteen where
+module Solutions.Y2020.D16 where
 
 import Advent.Problem                   (Day, day, CommaList(..), commalist, Parseable(..)
                                         , fromRight, notSolved, between, CommaList, getList)

@@ -88,6 +88,11 @@ day :: (Parseable a, ToString b, ToString c)
         => Integer -> (a -> b) -> (a -> c) -> Day
 day = Day
 
+data Year = Year {
+                year :: Integer,
+                days :: [Day]
+             }
+
 -- TODO: move to Util
 every :: Int -> [a] -> [a]
 every n = map head . takeWhile (not . null) . iterate (drop n)

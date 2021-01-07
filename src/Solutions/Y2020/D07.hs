@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Advent.Solution.DaySeven where
+module Solutions.Y2020.D07 (day07) where
 
 import           Advent.Problem                           (Parseable, Day, parseInput,
                                                                 day, fromRight, count)
@@ -33,8 +33,8 @@ rule = Rule
 instance Parseable Rule where
     parseInput = fromRight . parseOnly rule
 
-day7 :: Day
-day7 = day 7 partOne partTwo
+day07 :: Day
+day07 = day 7 partOne partTwo
 
 own :: Bag
 own = Bag "shiny" "gold"

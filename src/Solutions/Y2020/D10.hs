@@ -1,4 +1,4 @@
-module Advent.Solution.DayTen (day10) where
+module Solutions.Y2020.D10 (day10) where
 
 import           Advent.Problem               (Day, day, count)
 import           Data.List                    (group)

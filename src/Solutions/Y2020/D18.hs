@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Advent.Solution.DayEighteen where
+module Solutions.Y2020.D18 where
 
 import           Advent.Problem                   (day, Day, attoparse)
 import           Control.Applicative              ((<|>))

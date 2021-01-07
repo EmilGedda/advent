@@ -1,4 +1,4 @@
-module Advent.Solution.DayFour (day4) where
+module Solutions.Y2020.D04 (day04) where
 
 import Advent.Problem           (Day, day, Parseable(..), count, between)
 import Control.Arrow            (second)
@@ -12,8 +12,8 @@ newtype Passports = Passports { fromPassports :: [Passport] }
 instance Parseable Passports where
     parseString = Passports . map (map (second (drop 1) . break (==':')) . words) . splitOn "\n\n"
 
-day4 :: Day
-day4 = day 4 (length . passports) $ count (all validate) . passports
+day04 :: Day
+day04 = day 4 (length . passports) $ count (all validate) . passports
 
 passports :: Passports -> [Passport]
 passports = filter (null . (M.keys validators \\) . map fst) . fromPassports

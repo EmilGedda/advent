@@ -16,7 +16,9 @@ dependencies:
 - base ^>= 4.13
 
 library:
-  source-dirs: src
+  source-dirs: 
+    - src
+    - lib
   dependencies:
     - aeson                 ^>= 1.4
     - attoparsec            ^>= 0.13

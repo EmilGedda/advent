@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Advent.Solution.DayEight where
+module Solutions.Y2020.D08 (day08) where
 
 import           Advent.Problem                           (Day, Parseable, parseInput
                                                           , day, fromRight)
@@ -28,8 +28,8 @@ instruction = Instr <$> opcode <*> (" " *> signed decimal)
 instance Parseable Instr where
     parseInput = fromRight . parseOnly instruction
 
-day8 :: Day
-day8 = day 8 (accumulator . run . computer) (accumulator . partTwo)
+day08 :: Day
+day08 = day 8 (accumulator . run . computer) (accumulator . partTwo)
 
 partTwo :: V.Vector Instr -> Computer
 partTwo bootcode = V.head . V.filter ((==) <$> index <*> len)

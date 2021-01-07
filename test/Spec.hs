@@ -2,11 +2,11 @@ import Types
 import Tests
 
 import Prelude hiding       (null)
-import Advent.Problem       (Day(..), Input, fromInput, fetchInput, solution, parseInput, fromInput)
-import Advent.Solution      (days)
+import Advent.Problem       (Day(..), Year(..), Input, fromInput, fetchInput, solution, parseInput, fromInput)
+import Solutions            (years)
 import Data.ByteString      (null)
 import Data.Either          (isRight)
-import Control.Monad.Except (runExceptT)
+import Control.Monad.Except (runExceptT, forM)
 import Data.Maybe           (catMaybes)
 import Data.List            ((\\), find, intersect)
 import Test.Tasty
@@ -14,22 +14,32 @@ import Test.Tasty.HUnit
 
 main :: IO ()
 main = do
-    let solutions = map number days `intersect` map num answers
-    tests <- map (apply testDay) <$> mapM findTest solutions
-    defaultMain $ testGroup "Tests" [testConsistency, testGroup "Stars" tests]
+    defaultMain
+        . testGroup "Tests"
+        =<< forM years
+            (\(Year y d) ->
+                let Just ans = solutions <$> find ((==y) . when) answers
+                in testGroup (show y)
+                   . (testConsistency d ans:)
+                   . return
+                   . testGroup "Stars"
+                   . map (apply testDay)
+                   <$> mapM (findTest d ans)
+                   (map number d `intersect` map num ans))
 
-testConsistency :: TestTree
-testConsistency = testGroup "Test consistency" [
-        testCase "No days lacking tests" $ map number days \\ map num answers @?= [],
-        testCase "No tests lacking days" $ map num answers \\ map number days @?= []
+
+testConsistency :: [Day] -> [Answer] -> TestTree
+testConsistency d ans = testGroup "Test consistency" [
+        testCase "No days lacking tests" $ map number d \\ map num ans @?= [],
+        testCase "No tests lacking days" $ map num ans \\ map number d @?= []
     ]
 
-findTest :: Integer -> IO (Answer, Day, Either String Input)
-findTest n = do
-    let Just answer = find ((==) n . num) answers
-    let Just day = find ((==) n . number) days
+findTest :: [Day] -> [Answer] -> Integer -> IO (Answer, Day, Either String Input)
+findTest days answers n = do
+    let Just ans = find ((==) n . num) answers
+    let Just d = find ((==) n . number) days
     input <- runExceptT $ fetchInput 2020 n
-    return (answer, day, input)
+    return (ans, d, input)
 
 apply :: (a -> b -> c -> d) -> (a, b, c) -> d
 apply f (a,b,c) = f a b c

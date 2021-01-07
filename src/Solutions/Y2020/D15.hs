@@ -1,4 +1,4 @@
-module Advent.Solution.DayFifteen where
+module Solutions.Y2020.D15 where
 
 import           Advent.Problem                 (Day, day, CommaList(..), fold)
 import           Data.Bool                      (bool)

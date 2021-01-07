@@ -1,4 +1,4 @@
-module Advent.Solution.DaySeventeen (day17) where
+module Solutions.Y2020.D17 (day17) where
 
 import Advent.Problem       (day, Day, Parseable(..))
 import Control.Arrow        ((&&&))

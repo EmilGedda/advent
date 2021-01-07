@@ -20,6 +20,11 @@ data Answer = Answer {
 class Result a where
     result :: a -> Maybe String
 
+data Answers = Answers {
+            when :: Integer,
+            solutions :: [Answer]
+        } deriving Show
+
 -- This is an ugly and unsound type hack to help type inference,
 -- but it works since we only want to use Nothing and never Just
 instance (ToString a, a ~ Integer) => Result (Maybe a) where

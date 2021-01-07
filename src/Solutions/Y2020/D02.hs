@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Advent.Solution.DayTwo (day2) where
+module Solutions.Y2020.D02 (day02) where
 
 import Prelude hiding                   (drop)
 import Advent.Problem                   (Day, day, Parseable(..), fromRight)
@@ -17,8 +17,8 @@ instance Parseable Policy where
     parseInput = fromRight .  parseOnly policy
 
 
-day2 :: Day
-day2 = day 2 (length . filter valid1) (length . filter valid2)
+day02 :: Day
+day02 = day 2 (length . filter valid1) (length . filter valid2)
 
 valid1 :: Policy -> Bool
 valid1 (Policy lower upper char password) = lower <= count && count <= upper
