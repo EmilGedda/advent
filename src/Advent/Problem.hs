@@ -127,6 +127,9 @@ fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
 
 debug x = trace (show x) x
 
+attoparse :: Parser a -> ByteString -> a
+attoparse p = fromRight . parseOnly p
+
 fetchInput :: Integer -> Integer -> ExceptT String IO Input
 fetchInput year day = do
     dir <- lift $ (</> show year </> printf "%02d" day) <$> getXdgDirectory XdgConfig "AdventOfCode"
