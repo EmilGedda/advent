@@ -16,6 +16,7 @@ import           Data.ByteString.Lazy     (toStrict)
 import           Data.Monoid              (Sum(..), getSum)
 import           Data.Maybe               (fromMaybe, fromJust)
 import           Data.List                (foldl1')
+import           Debug.Trace              (trace)
 import           System.Directory         (XdgDirectory(XdgConfig), getXdgDirectory
                                           , doesFileExist, createDirectoryIfMissing)
 import           System.FilePath          ((</>))
@@ -36,6 +37,9 @@ class Parseable a where
 
 instance Parseable Double where
     parseString = read
+
+instance Parseable ByteString where
+    parseInput = id
 
 instance Parseable Integer where
     parseInput = fst . fromJust . readInteger
@@ -120,6 +124,8 @@ notSolved = const "Not solved"
 
 fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
+
+debug x = trace (show x) x
 
 fetchInput :: Integer -> Integer -> ExceptT String IO Input
 fetchInput year day = do
