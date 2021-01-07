@@ -21,16 +21,17 @@ solveDay Day{ number=d, partOne=first, partTwo=second } !text = do
     putStrLn $ "Parsing 1: " ++ solution (first input)
     putStrLn $ "Parsing 2: " ++ solution (second input)
 
-
 solve :: Integer -> IO ()
-solve day = do
-        now  <- currentYear
-        maybe (putStrLn $ "No solution for year" ++ show now)
+solve day = solve' day =<< currentYear
+
+solve' ::  Integer -> Integer -> IO ()
+solve' day y =
+        maybe (putStrLn $ "No solution for year" ++ show y)
               (\(Year _ days) -> do
-                input <- runExceptT $ fetchInput now day
+                input <- runExceptT $ fetchInput y day
                 maybe (liftIO . putStrLn $ "No solution for day " ++ show day)
                       (\ans -> either putStrLn (solveDay ans) input) (answer days)
-              ) (from now)
+              ) (from y)
         where answer = find ((==) day . number)
               from now = find ((==) now . year) years
 

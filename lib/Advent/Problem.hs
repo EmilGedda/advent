@@ -1,11 +1,21 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-module Advent.Problem where
+module Advent.Problem (
+        module Advent.Problem.Util,
+        module Advent.Problem.Types,
+        Day(..),
+        Year(..),
+        Input(..),
+        day,
+        notSolved,
+        fromInput,
+        fetchInput
+    ) where
 
 import           Prelude hiding           (readFile, writeFile, lines)
+import           Advent.Problem.Util
+import           Advent.Problem.Types
 import           Advent.API               (get, input)
 import           Control.Arrow            ((***))
 import           Control.Monad            (unless, foldM)
@@ -26,55 +36,6 @@ import qualified Data.Set                 as Set
 import qualified Data.Vector              as V
 import qualified Data.Vector.Unboxed      as UV
 
-newtype CommaList a = CommaList { getList :: [a] }
-
-class Parseable a where
-    parseInput :: ByteString -> a
-    parseInput = parseString . unpack
-
-    parseString :: String -> a
-    parseString = parseInput . pack
-
-instance Parseable Double where
-    parseString = read
-
-instance Parseable ByteString where
-    parseInput = id
-
-instance Parseable Integer where
-    parseInput = fst . fromJust . readInteger
-
-instance Parseable Int where
-    parseInput = fst . fromJust . readInt
-
-instance Parseable a => Parseable [a] where
-    parseInput = map parseInput . lines
-
-instance (Parseable a, UV.Unbox a) => Parseable (UV.Vector a) where
-    parseInput = UV.fromList . parseInput
-
-instance Parseable a => Parseable (V.Vector a) where
-    parseInput = V.fromList . parseInput
-
-instance Parseable a => Parseable (CommaList a) where
-    parseInput = CommaList . map parseInput . split ','
-
-instance Show a => Show (CommaList a) where
-    show = show . getList
-
-class Show a => ToString a where
-    solution :: a -> String
-
-instance Show a => ToString a where
-    solution = show
-
-instance {-# OVERLAPPING #-} ToString Char where
-    solution = return
-
-instance {-# OVERLAPPING #-} ToString String where
-    solution = id
-
-
 newtype Input = Input ByteString deriving Show
 
 data Day = forall a b c. (Parseable a, ToString b, ToString c)
@@ -93,47 +54,12 @@ data Year = Year {
                 days :: [Day]
              }
 
--- TODO: move to Util
-every :: Int -> [a] -> [a]
-every n = map head . takeWhile (not . null) . iterate (drop n)
-
-count :: (Foldable t, Enum b) => (a -> b) -> t a -> Int
-count f = getSum . foldMap (Sum . fromEnum . f)
-
-fromRight (Right r) = r
-fromBool f x | f x = Just x
-             | otherwise = Nothing
-
-between :: Ord a => a -> a -> a -> Bool
-between a b x = a <= x && x <= b
-
-both f = f *** f
-
-sortNub :: (Ord a) => [a] -> [a]
-sortNub = Set.toList . Set.fromList
-
-same :: (Eq a) => [a] -> Bool
-same xs = all (== head xs) (tail xs)
-
-fromBits :: Num a => [a] -> a
-fromBits = foldl1' ((+) . (2*))
-
-fold :: (Foldable t, Monad m) => t a -> b -> (b -> a -> m b) -> m b
-fold v s f = foldM f s v
-
-commalist :: Parser a -> Parser (CommaList a)
-commalist p = CommaList <$> p `sepBy` ","
 
 notSolved :: Parseable a => a -> String
 notSolved = const "Not solved"
 
 fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
-
-debug x = trace (show x) x
-
-attoparse :: Parser a -> ByteString -> a
-attoparse p = fromRight . parseOnly p
 
 fetchInput :: Integer -> Integer -> ExceptT String IO Input
 fetchInput year day = do
