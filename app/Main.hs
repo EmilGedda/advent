@@ -1,16 +1,21 @@
-{-# LANGUAGE FlexibleContexts #-}
 module Main where
 
 import Advent.API
 import Advent.Problem
 import Advent.Leaderboard
 
-import Control.Monad.Except (runExceptT, ExceptT(..), mapExceptT)
-import Data.Char            (toLower)
-import Data.List            (partition, intercalate)
-import Data.Maybe           (fromMaybe)
-import Options.Applicative
+import           Control.Monad.Except   (runExceptT, ExceptT(..), mapExceptT)
+import           Control.Monad.Catch    (MonadCatch)
+import           Control.Monad.Reader   (ReaderT)
+import           Data.Char              (toLower)
+import           Data.List              (partition, intercalate)
+import           Data.Maybe             (fromMaybe)
+import           Network.Wreq.Session   (Session)
+import           Network.HTTP.Client    (CookieJar)
+import           Options.Applicative
 import qualified Data.Map as M
+
+type App a = ReaderT Session (ExceptT String IO) a
 
 data LeaderboardOrder = LocalScore | Stars
 
@@ -76,11 +81,12 @@ main = run =<< customExecParser (prefs showHelpOnError)
     (optionsParser `withInfo` "Display info and stats from Advent of Code")
 
 
-output :: (a -> IO ()) -> ExceptT String IO a -> IO ()
-output f input = either putStrLn f =<< runExceptT input
+output :: (a -> IO ()) -> App a -> IO ()
+output f input = either putStrLn f
+  =<< (runExceptT . runSession) input
 
 (<==) = output
-infixr 1 <==
+infixr 0 <==
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
@@ -89,36 +95,30 @@ toOrder :: LeaderboardOrder -> (User -> Integer)
 toOrder LocalScore = localScore
 toOrder Stars = stars
 
-getID :: Functor f => Maybe Integer -> f User -> f Integer
-getID override = fmap (flip fromMaybe override . userid)
+getID :: Maybe Integer -> User -> Integer
+getID override = flip fromMaybe override . userid
+
+current :: App (Integer, User)
+current = (,) <$> currentYear <*> currentUser
 
 run :: Options -> IO ()
-run (LeaderboardOptions id year order) = do
-    now <- currentYear
+run (LeaderboardOptions id year order)
+  = printLeaderboard order <== do
+        (now, user) <- current
+        leaderboard (fromMaybe now year) (getID id user)
 
-    let id'   = mapExceptT (fmap $ getID id) currentUser
-        year' = fromMaybe now year
-
-    printLeaderboard order <== get . leaderboard year' =<< id'
-
-run (ProgressOptions onlyStarCount) = do
-    now <- currentYear
-
-    let user = currentUser
-        id   = userid <$> user
-        soloboard id = do
-            l <- get $ leaderboard now id
-            return $ l { members = filter ((==) id . userid) (members l) }
-
-        printStars (silver, gold) = do
+run (ProgressOptions onlyStarCount)
+    | onlyStarCount = printStars . starCount . progress <== currentUser
+    | otherwise = printLeaderboard stars <== do
+        (now, user) <- current
+        let id = userid user
+        soloboard <- leaderboard now id
+        return $ soloboard { members = filter ((==) id . userid) (members soloboard) }
+    where printStars (silver, gold) = do
             putStr "Silver\t"
             print silver
             putStr "Gold\t"
             print gold
-
-    if onlyStarCount
-       then printStars . starCount . progress <== user
-       else printLeaderboard stars <== soloboard =<< id
 
 
 starCount :: M.Map Integer Progress -> (Int, Int)

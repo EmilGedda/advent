@@ -20,7 +20,7 @@ module Solutions.Y2020 (
     y2020
     ) where
 
-import Advent.Problem       (Year(..))
+import Advent.Problem
 import Solutions.Y2020.D01
 import Solutions.Y2020.D02
 import Solutions.Y2020.D03

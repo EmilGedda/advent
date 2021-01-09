@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 module Solutions where
 
 import Advent.Problem
@@ -14,10 +15,10 @@ years = [
     ]
 
 solveDay :: Day -> Input -> IO ()
-solveDay Day{ number=d, partOne=first, partTwo=second } (Input text) = do
-    putStrLn $ "Parsing day " ++ show d
-    putStrLn $ "Parsing 1: " ++ solution (first  $ parseInput text)
-    putStrLn $ "Parsing 2: " ++ solution (second $ parseInput text)
+solveDay Day{ number, partOne, partTwo } (Input text) = do
+    putStrLn $ "Parsing day " ++ show number
+    putStrLn $ "Parsing 1: " ++ solution (partOne $ parseInput text)
+    putStrLn $ "Parsing 2: " ++ solution (partTwo $ parseInput text)
 
 solve :: Integer -> IO ()
 solve day = solve' day =<< currentYear

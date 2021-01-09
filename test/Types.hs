@@ -8,9 +8,6 @@ module Types where
 import Advent.Problem   (solution, ToString, Day(..))
 import Data.Maybe       (fromJust)
 
-answer :: (Result a, Result b) => Day -> a -> b -> Answer
-answer day partOne partTwo = Answer day (fromJust $ result partOne) (result partTwo)
-
 data Answer = Answer {
             day :: Day,
             partOne :: String,
@@ -24,6 +21,9 @@ data Answers = Answers {
             when :: Integer,
             solutions :: [Answer]
         }
+
+answer :: (Result a, Result b) => Day -> a -> b -> Answer
+answer day partOne partTwo = Answer day (fromJust $ result partOne) (result partTwo)
 
 -- This is an ugly and unsound type hack to help type inference,
 -- but it works since we only want to use Nothing and never Just
