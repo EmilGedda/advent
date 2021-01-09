@@ -32,6 +32,7 @@ data Options = LeaderboardOptions {
                 silver :: BadgesOptions
             }
 
+orderReader :: ReadM (User -> Integer)
 orderReader = eitherReader $ \s ->
         maybe (Left $ help s) Right $ map toLower s `lookup` order
         where order = [("localscore", localScore), ("stars", stars)]
@@ -74,6 +75,8 @@ optionsParser = subparser $
     command "leaderboard" (leaderboardParser `withInfo` "Display a leaderboard") <>
     command "progress"    (progressParser `withInfo` "Show current user progress")
 
+withInfo :: Parser a -> String -> ParserInfo a
+withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
 
 main :: IO ()
@@ -87,9 +90,6 @@ output f input = either putStrLn f
 
 (<==) = output
 infixr 0 <==
-
-withInfo :: Parser a -> String -> ParserInfo a
-withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
 toOrder :: LeaderboardOrder -> (User -> Integer)
 toOrder LocalScore = localScore

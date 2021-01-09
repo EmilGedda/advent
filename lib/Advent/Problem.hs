@@ -17,25 +17,13 @@ module Advent.Problem (
 import           Prelude hiding                             (readFile, writeFile, lines)
 import           Advent.Problem.Util
 import           Advent.Problem.Types
-import           Advent.API                                 (input, MonadHTTP)
-import           Control.Arrow                              ((***))
-import           Control.Monad                              (unless, foldM)
+import           Advent.API                                 (input, MonadHTTP, MonadFS(..))
 import           Control.Monad.Catch                        (MonadCatch)
-import           Control.Monad.Except                       (ExceptT, lift, liftIO, MonadIO, MonadError)
-import           Data.ByteString                            (ByteString, readFile, writeFile, stripSuffix)
-import           Data.ByteString.Char8                      (lines, readInt, readInteger, unpack, pack, split)
-import           Data.ByteString.Lazy                       (toStrict)
-import           Data.Maybe                                 (fromMaybe, fromJust)
-import           Data.List                                  (foldl1')
-import           Debug.Trace                                (trace)
-import           System.Directory                           (XdgDirectory(XdgConfig), getXdgDirectory
-                                                            , doesFileExist, createDirectoryIfMissing)
+import           Control.Monad.Except                       (MonadIO, MonadError)
+import           Data.ByteString                            (ByteString, stripSuffix)
+import           Data.Maybe                                 (fromMaybe)
 import           System.FilePath                            ((</>))
 import           Text.Printf                                (printf)
-import           Data.Attoparsec.ByteString.Char8   hiding  (takeWhile)
-import qualified Data.Set                           as      Set
-import qualified Data.Vector                        as      V
-import qualified Data.Vector.Unboxed                as      UV
 
 newtype Input = Input ByteString deriving Show
 
@@ -62,14 +50,16 @@ notSolved = const "Not solved"
 fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
 
-fetchInput :: (MonadHTTP m, MonadIO m, MonadError String m, MonadCatch m)
+fetchInput :: (MonadHTTP m, MonadError String m, MonadCatch m, MonadFS m)
     => Integer -> Integer -> m Input
 fetchInput year day = do
-    dir <- liftIO $ (</> show year </> printf "%02d" day) <$> getXdgDirectory XdgConfig "AdventOfCode"
-    liftIO $ createDirectoryIfMissing True dir
+    dir <- fmap (</> show year </> printf "%02d" day) cacheDir
+    createDir dir
     let cache = dir </> "input.txt"
-    hasFile <- liftIO $ doesFileExist cache
-    input <- if hasFile then liftIO (readFile cache) else input year day
-    unless hasFile (liftIO $ writeFile cache input)
-    return $ Input input
-
+    exists <- hasFile cache
+    if exists
+       then Input <$> readFile cache
+       else do
+           i <- input year day
+           writeFile cache i
+           return $ Input i

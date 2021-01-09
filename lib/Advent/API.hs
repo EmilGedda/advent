@@ -15,7 +15,7 @@ import           Control.Monad                  (when, unless, (<=<))
 import           Control.Monad.Catch            (MonadCatch)
 import           Control.Monad.Except           (ExceptT(..), throwError, lift, liftEither, lift, mapExceptT, MonadError, MonadTrans)
 import           Control.Monad.Reader           (Reader, ReaderT(..), runReader,  ask, runReaderT, MonadIO, MonadReader, liftIO)
-import qualified Data.ByteString                (readFile)
+import qualified Data.ByteString                (readFile, writeFile)
 import           Data.Bool                      (bool)
 import           Data.ByteString                (ByteString, null, stripSuffix)
 import           Data.ByteString.Char8          (readInteger)
@@ -28,8 +28,8 @@ import           Data.Time.Clock                (getCurrentTime, utctDay)
 import           Network.HTTP.Client            (CookieJar, Cookie(..), createCookieJar)
 import           Network.HTTP.Client.TLS        (tlsManagerSettings)
 import           Network.Wreq                   (getWith, defaults, cookies, responseBody)
-import           Prelude hiding                 (readFile, null)
-import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist)
+import           Prelude hiding                 (readFile, writeFile, null)
+import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
 import           System.FilePath                ((</>))
 import           Text.Printf                    (printf)
 import           Text.Regex.TDFA                ((=~))
@@ -40,15 +40,24 @@ import qualified Network.Wreq.Session       as  S
 type Trans c m a = forall m1 t. (MonadTrans t, c m1, m ~ t m1) => m a
 
 class Monad m => MonadFS m where
-    tokenFile :: m FilePath
+    cacheDir  :: m FilePath
+    createDir :: FilePath -> m ()
+
     readFile  :: FilePath  -> m ByteString
+    writeFile :: FilePath -> ByteString -> m ()
     hasFile   :: FilePath -> m Bool
 
-    default tokenFile :: Trans MonadFS m FilePath
-    tokenFile = lift tokenFile
+    default cacheDir :: Trans MonadFS m FilePath
+    cacheDir = lift cacheDir
+
+    default createDir :: FilePath -> Trans MonadFS m ()
+    createDir = lift . createDir
 
     default readFile :: FilePath -> Trans MonadFS m ByteString
     readFile = lift . readFile
+
+    default writeFile :: FilePath -> ByteString -> Trans MonadFS m ()
+    writeFile path = lift . writeFile path
 
     default hasFile :: FilePath -> Trans MonadFS m Bool
     hasFile = lift . hasFile
@@ -72,8 +81,10 @@ instance MonadHTTP IO where
     httpGet = fmap (toStrict . view responseBody) . getWith defaults
 
 instance MonadFS IO where
-    tokenFile = (</> "session-token.txt") <$> getXdgDirectory XdgConfig "AdventOfCode"
+    createDir = createDirectoryIfMissing True
+    cacheDir  = getXdgDirectory XdgConfig "AdventOfCode"
     readFile  = Data.ByteString.readFile
+    writeFile = Data.ByteString.writeFile
     hasFile   = doesFileExist
 
 instance MonadTime IO where
@@ -104,7 +115,7 @@ anyException = const
 
 getSessionToken :: (MonadFS m, MonadError String m, MonadCatch m) => m ByteString
 getSessionToken = flip catch "Unable to read session token" $ do
-    file   <- tokenFile
+    file   <- fmap (</> "session-token.txt") cacheDir
     exists <- hasFile file
     unless exists . throwError $ "No session token file found: " ++ file
     token  <- readFile file

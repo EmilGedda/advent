@@ -19,6 +19,7 @@ jobs:
         path: |
             ${{ steps.haskell.outputs.cabal-store }}
             ~/.stack
+            ~/.config/AdventOfCode
             .stack-work
         key: ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('Advent.cabal') }}
         restore-keys: |
