@@ -28,7 +28,7 @@ jobs:
             ${{ runner.os }}-stack-
 
     - name: Build tests, lib, and exe
-      run: stack build Advent:{test,advent} --no-run-tests
+      run: stack build --test --no-run-tests
 
     - name: Prepare session token
       env:

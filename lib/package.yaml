@@ -1,15 +1,10 @@
-name:                advent-solutions
+name:                advent
 version:             1.0.0.0
 github:              "EmilGedda/Advent-of-Code-2020"
 license:             BSD3
 author:              "Emil Gedda"
 maintainer:          "emil.gedda@emilgedda.se"
 copyright:           "2020 Emil Gedda"
-
-extra-source-files:
-- LICENSE
-- README.md
-- ChangeLog.md
 
 description:         Please see the README on GitHub at <https://github.com/EmilGedda/Advent-of-code-2020#readme>
 
@@ -18,11 +13,10 @@ dependencies:
 
 library:
   source-dirs:
-    - src
+    - .
   ghc-options:
     - -O2
   dependencies:
-    - advent
     - aeson                   ^>= 1.4
     - attoparsec              ^>= 0.13
     - bytestring              ^>= 0.10
@@ -43,10 +37,10 @@ library:
     - vector-algorithms       ^>= 0.8
     - wreq                    ^>= 0.5
 
-tests:
-  test:
-    main:                     Spec.hs
-    source-dirs:              test
+executables:
+  advent:
+    main:                     Main.hs
+    source-dirs:              ../app
     ghc-options:
       - -O2
       - -threaded
@@ -54,8 +48,9 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - advent
-      - advent-solutions
-      - bytestring            ^>= 0.10
+      - containers            ^>= 0.6
+      - exceptions            ^>= 0.10
       - mtl                   ^>= 2.2
-      - tasty                 ^>= 1.2
-      - tasty-hunit           ^>= 0.10
+      - optparse-applicative  ^>= 0.15
+      - wreq                  ^>= 0.5
+      - http-client           ^>= 0.6
