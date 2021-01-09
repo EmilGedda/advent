@@ -2,7 +2,7 @@
 module Solutions where
 
 import Advent.Problem
-import Advent.API                (currentYear)
+import Advent.API                (currentYear, runSession)
 import Control.Monad.Except      (runExceptT, liftIO)
 import Data.Maybe                (isNothing, fromJust, maybe)
 import Data.List                 (find)
@@ -27,7 +27,7 @@ solve' ::  Integer -> Integer -> IO ()
 solve' day y =
         maybe (putStrLn $ "No solution for year" ++ show y)
               (\(Year _ days) -> do
-                input <- runExceptT $ fetchInput y day
+                input <- runExceptT . runSession $ fetchInput y day
                 maybe (putStrLn $ "No solution for day " ++ show day)
                       (\ans -> either putStrLn (solveDay ans) input)
                       $ find ((==) day . number) days)

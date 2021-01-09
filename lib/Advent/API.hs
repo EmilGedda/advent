@@ -62,6 +62,9 @@ class Monad m => MonadTime m where
 class Monad m => MonadHTTP m where
     httpGet :: String -> m ByteString
 
+    baseURL :: m String
+    baseURL = return "https://adventofcode.com"
+
     default httpGet :: String -> Trans MonadHTTP m ByteString
     httpGet = lift . httpGet
 
@@ -92,10 +95,6 @@ instance MonadIO m => MonadHTTP (ReaderT CookieJar m) where
 
 instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
     httpGet = ReaderT . flip (\sess -> liftIO . fmap (toStrict . view responseBody) . S.get sess)
-
-
-baseURL :: String
-baseURL = "https://adventofcode.com"
 
 catch :: (MonadCatch m, MonadError e m) => m a -> e -> m a
 catch e str = e `C.catch` (throwError . anyException str)
@@ -132,7 +131,7 @@ sessionCookie token =
         "adventofcode.com" "/" create create True True False False]
 
 fetch :: (MonadError String m, MonadHTTP m) => String -> m ByteString
-fetch url = httpGet (baseURL ++ url)
+fetch url = httpGet . (++ url) =<< baseURL
 
 
 input :: (MonadError String m, MonadHTTP m, MonadCatch m)

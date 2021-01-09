@@ -1,5 +1,6 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Advent.Problem (
         module Advent.Problem.Util,
@@ -16,10 +17,11 @@ module Advent.Problem (
 import           Prelude hiding                             (readFile, writeFile, lines)
 import           Advent.Problem.Util
 import           Advent.Problem.Types
-import           Advent.API                                 (input)
+import           Advent.API                                 (input, MonadHTTP)
 import           Control.Arrow                              ((***))
 import           Control.Monad                              (unless, foldM)
-import           Control.Monad.Except                       (ExceptT, lift)
+import           Control.Monad.Catch                        (MonadCatch)
+import           Control.Monad.Except                       (ExceptT, lift, liftIO, MonadIO, MonadError)
 import           Data.ByteString                            (ByteString, readFile, writeFile, stripSuffix)
 import           Data.ByteString.Char8                      (lines, readInt, readInteger, unpack, pack, split)
 import           Data.ByteString.Lazy                       (toStrict)
@@ -60,13 +62,14 @@ notSolved = const "Not solved"
 fromInput :: Input -> ByteString
 fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
 
-fetchInput :: Integer -> Integer -> ExceptT String IO Input
+fetchInput :: (MonadHTTP m, MonadIO m, MonadError String m, MonadCatch m)
+    => Integer -> Integer -> m Input
 fetchInput year day = do
-    dir <- lift $ (</> show year </> printf "%02d" day) <$> getXdgDirectory XdgConfig "AdventOfCode"
-    lift $ createDirectoryIfMissing True dir
+    dir <- liftIO $ (</> show year </> printf "%02d" day) <$> getXdgDirectory XdgConfig "AdventOfCode"
+    liftIO $ createDirectoryIfMissing True dir
     let cache = dir </> "input.txt"
-    hasFile <- lift $ doesFileExist cache
-    input <- if hasFile then lift (readFile cache) else input year day
-    unless hasFile (lift $ writeFile cache input)
+    hasFile <- liftIO $ doesFileExist cache
+    input <- if hasFile then liftIO (readFile cache) else input year day
+    unless hasFile (liftIO $ writeFile cache input)
     return $ Input input
 
