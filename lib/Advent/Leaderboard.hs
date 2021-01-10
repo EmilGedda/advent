@@ -4,12 +4,13 @@ module Advent.Leaderboard where
 
 import Control.Monad            (liftM2, when)
 import Control.Applicative      ((<|>))
+import Control.Lens             ((%~), both)
 import Data.Aeson
 import Data.Aeson.Types
 import Data.ByteString.Lazy     (ByteString(..))
 import Data.HashMap.Strict      (member)
 import Data.Map                 (Map(..), elems)
-import Data.List                (sortBy)
+import Data.List                (sortBy, partition)
 import Data.Ord                 (Down(..), comparing)
 import qualified Data.Map as M  (lookup)
 import Data.Time.Clock          (secondsToNominalDiffTime)
@@ -105,3 +106,6 @@ printUser scoring scoreWidth nameWidth user@(User name _ _ lastStar _ progress) 
 timeSince :: Integral a => a -> IO String
 timeSince = fmap (formatTime defaultTimeLocale "%dd%2Hh%2Mm%2Ss") .
    liftM2 (-) getPOSIXTime . return . secondsToNominalDiffTime . fromIntegral
+
+starCount :: User -> (Int, Int)
+starCount = (both %~ length) . partition (==1) . map fromProgress . elems . progress

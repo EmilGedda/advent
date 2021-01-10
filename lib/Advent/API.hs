@@ -9,7 +9,7 @@
 module Advent.API where
 
 import           Advent.Leaderboard             (Leaderboard, parseLeaderboard, User, members, userid)
-import           Control.Exception              (SomeException)
+import           Control.Exception              (SomeException, displayException)
 import           Control.Lens                   ((?~), (^.), view)
 import           Control.Monad                  (when, unless, (<=<))
 import           Control.Monad.Catch            (MonadCatch)
@@ -120,11 +120,11 @@ instance MonadIO m => MonadHTTP (ReaderT CookieJar m) where
 instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
     httpGet = ReaderT . flip (\sess -> liftIO . fmap (toStrict . view responseBody) . S.get sess)
 
-catch :: (MonadCatch m, MonadError e m) => m a -> e -> m a
+catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
 catch e str = e `C.catch` (throwError . anyException str)
 
-anyException :: a -> SomeException -> a
-anyException = const
+anyException :: String -> SomeException -> String
+anyException a e = a ++ ": " ++ displayException e
 
 getSessionToken :: (MonadFS m, MonadError String m, MonadCatch m) => m ByteString
 getSessionToken = flip catch "Unable to read session token" $ do
@@ -189,20 +189,22 @@ currentUser :: (MonadError String m, MonadFS m, MonadHTTP m, MonadTime m, MonadC
 currentUser = do
     id <- currentUserID
     year <- currentYear
-    leaderboard <- leaderboard year id
     maybe (throwError "Unable to find user") return
-        . find ((id ==) . userid) $ members leaderboard
+        . find ((id ==) . userid)
+        . members =<< leaderboard year id
 
 
 findID :: MonadError String m => ByteString -> m Integer
 findID str =
     let (_, _, _, id) = str =~ ("anonymous user #([0-9]+)" :: ByteString)
                           :: (ByteString, ByteString, ByteString, [ByteString])
-    in maybe (throwError "Unable to find user id") (return . fst) (readInteger =<< listToMaybe id)
+    in maybe (throwError "Unable to find user id")
+             (return . fst)
+             (readInteger =<< listToMaybe id)
 
 
 leaderboard :: (MonadError String m, MonadHTTP m, MonadCatch m)
             => Integer -> Integer -> m Leaderboard
-leaderboard year id = liftEither . parseLeaderboard
-                  =<< fmap fromStrict (fetch url) `catch` "Unable to fetch leaderboard"
+leaderboard year id = ((liftEither . parseLeaderboard) . fromStrict =<< fetch url)
+                      `catch` "Unable to fetch leaderboard"
     where url = printf "/%d/leaderboard/private/view/%d.json" year id

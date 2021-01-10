@@ -6,7 +6,7 @@ import Data.Char                (toLower)
 import Data.String.Interpolate  (__i)
 
 
-data Color = Silver | Gold deriving (Enum, Show)
+data Color = Silver | Gold deriving (Enum, Show, Eq)
 
 badge :: Color -> Int -> ByteString
 badge star count =

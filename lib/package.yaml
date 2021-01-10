@@ -36,6 +36,9 @@ library:
     - vector                  ^>= 0.12
     - vector-algorithms       ^>= 0.8
     - wreq                    ^>= 0.5
+  when:
+  - condition: false
+    other-modules: Paths_advent
 
 executables:
   advent:
@@ -48,9 +51,13 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - advent
+      - bytestring            ^>= 0.10
       - containers            ^>= 0.6
       - exceptions            ^>= 0.10
       - mtl                   ^>= 2.2
       - optparse-applicative  ^>= 0.15
       - wreq                  ^>= 0.5
       - http-client           ^>= 0.6
+    when:
+    - condition: false
+      other-modules: Paths_advent

@@ -21,11 +21,11 @@ jobs:
             ~/.stack
             ~/.config/AdventOfCode
             .stack-work
-        key: ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('Advent.cabal') }}
+        key: ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('advent-solutions.cabal') }}-${{ hashFiles('lib/advent.cabal') }}
         restore-keys: |
-            ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('Advent.cabal') }}
-            ${{ runner.os }}-stack-cache-${{ hashFiles('stack.yaml.lock') }}-
-            ${{ runner.os }}-stack-
+            ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('advent-solutions.cabal') }}-${{ hashFiles('lib/advent.cabal') }}
+            ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-
+            ${{ runner.os }}-
 
     - name: Build tests, lib, and exe
       run: stack build --test --no-run-tests
@@ -38,13 +38,14 @@ jobs:
           echo -n "$SESSION_TOKEN" > ~/.config/AdventOfCode/session-token.txt
 
     - name: Run tests
-      run: stack test --verbosity warning
+      run: stack test advent-solutions:test --verbosity warning
 
     - name: Create svg badges
       working-directory: "./.github"
       run: |
           mkdir svg
-          stack run progress --verbosity silent -- -s | awk '{ print "./badge.sh", $0, ">", "svg/" tolower($1) ".svg" }' | bash
+          stack run --verbosity silent -- badge gold   > svg/gold.svg
+          stack run --verbosity silent -- badge silver > svg/silver.svg
 
     - name: Get short SHA
       id: scratch

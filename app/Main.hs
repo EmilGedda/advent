@@ -1,25 +1,26 @@
 module Main where
 
 import Advent.API
+import Advent.SVG
 import Advent.Problem
 import Advent.Leaderboard
 
 import           Control.Monad.Except   (runExceptT, ExceptT(..), mapExceptT)
 import           Control.Monad.Catch    (MonadCatch)
 import           Control.Monad.Reader   (ReaderT)
+import           Data.Bool              (bool)
 import           Data.Char              (toLower)
 import           Data.List              (partition, intercalate)
 import           Data.Maybe             (fromMaybe)
 import           Network.Wreq.Session   (Session)
 import           Network.HTTP.Client    (CookieJar)
 import           Options.Applicative
-import qualified Data.Map as M
+import qualified Data.ByteString.Char8  as B
+import qualified Data.Map               as M
 
 type App a = ReaderT Session (ExceptT String IO) a
 
 data LeaderboardOrder = LocalScore | Stars
-
-data BadgesOptions = Path String | Disabled
 
 data Options = LeaderboardOptions {
                 lid :: Maybe Integer,
@@ -28,9 +29,16 @@ data Options = LeaderboardOptions {
             } | ProgressOptions {
                 onlyStarCount :: Bool
             } | BadgesOptions {
-                gold :: BadgesOptions,
-                silver :: BadgesOptions
+                color :: Color
             }
+
+colorReader :: ReadM Color
+colorReader = eitherReader $ \s ->
+        maybe (Left $ help s) Right $ map toLower s `lookup` order
+        where order = [("gold", Gold), ("silver", Silver)]
+              help s = "Could not parser color \"" ++ s
+                       ++ "\", expected one of: " ++ intercalate ", " (map fst order)
+
 
 orderReader :: ReadM (User -> Integer)
 orderReader = eitherReader $ \s ->
@@ -70,10 +78,18 @@ progressParser = ProgressOptions
                 <> short 's'
                 <> help "Only display gold and silver star counts")
 
+
+badgesParser :: Parser Options
+badgesParser = BadgesOptions
+        <$> argument colorReader
+                (help "Color of star to generate. Gold or silver."
+                <> metavar "COLOR")
+
 optionsParser :: Parser Options
 optionsParser = subparser $
+    command "badge"       (badgesParser      `withInfo` "Generate a badge from current user progress") <>
     command "leaderboard" (leaderboardParser `withInfo` "Display a leaderboard") <>
-    command "progress"    (progressParser `withInfo` "Show current user progress")
+    command "progress"    (progressParser    `withInfo` "Show current user progress")
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
@@ -84,12 +100,15 @@ main = run =<< customExecParser (prefs showHelpOnError)
     (optionsParser `withInfo` "Display info and stats from Advent of Code")
 
 
-output :: (a -> IO ()) -> App a -> IO ()
-output f input = either putStrLn f
-  =<< (runExceptT . runSession) input
+output :: (a -> ExceptT String IO b) -> (b -> IO ()) -> a -> IO ()
+output f g input = either putStrLn g
+  =<< (runExceptT . f) input
 
-(<==) = output
+(<==) = output runSession
 infixr 0 <==
+
+(<<=) = output runCookies
+infixr 0 <<=
 
 toOrder :: LeaderboardOrder -> (User -> Integer)
 toOrder LocalScore = localScore
@@ -105,11 +124,11 @@ run :: Options -> IO ()
 run (LeaderboardOptions id year order)
   = printLeaderboard order <== do
         now <- currentYear
-        id' <- fromMaybe currentUserID (return <$> id)
+        id' <- maybe currentUserID return id
         leaderboard (fromMaybe now year) id'
 
 run (ProgressOptions onlyStarCount)
-    | onlyStarCount = printStars . starCount . progress <== currentUser
+    | onlyStarCount = printStars . starCount <== currentUser
     | otherwise = printLeaderboard stars <== do
         now <- currentYear
         id <- currentUserID
@@ -121,7 +140,9 @@ run (ProgressOptions onlyStarCount)
             putStr "Gold\t"
             print gold
 
-
-starCount :: M.Map Integer Progress -> (Int, Int)
-starCount = both length . partition (==1) . map fromProgress . M.elems
-
+run (BadgesOptions color)
+  = B.putStrLn
+  . badge color
+  . bool snd fst (color == Silver)
+  . starCount
+  <<= currentUser -- session seems to break if used here

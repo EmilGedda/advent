@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 576c5a65b9827a196720a6c06b2cb478d2b4475abf8009d43eab911f3d1cadc5
+-- hash: f4c50c255b32e82a1bb4ce872ebb3f46b8f163d458e821765be60f2c6dfad152
 
 name:           advent
 version:        1.0.0.0
@@ -29,8 +29,6 @@ library
       Advent.Problem.Types
       Advent.Problem.Util
       Advent.SVG
-  other-modules:
-      Paths_advent
   hs-source-dirs:
       ./.
   ghc-options: -O3
@@ -55,22 +53,27 @@ library
     , vector >=0.12 && <0.13
     , vector-algorithms >=0.8 && <0.9
     , wreq >=0.5 && <0.6
+  if false
+    other-modules:
+        Paths_advent
   default-language: Haskell2010
 
 executable advent
   main-is: Main.hs
-  other-modules:
-      Paths_advent
   hs-source-dirs:
       ../app
   ghc-options: -O3 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       advent
     , base >=4.13 && <4.14
+    , bytestring >=0.10 && <0.11
     , containers >=0.6 && <0.7
     , exceptions >=0.10 && <0.11
     , http-client >=0.6 && <0.7
     , mtl >=2.2 && <2.3
     , optparse-applicative >=0.15 && <0.16
     , wreq >=0.5 && <0.6
+  if false
+    other-modules:
+        Paths_advent
   default-language: Haskell2010
