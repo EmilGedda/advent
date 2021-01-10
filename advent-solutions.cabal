@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 157cb3257e22dc79b9c469380637854ed4d896d3e75ec11da4dc233347230b34
+-- hash: 77deeccc4d992bfe3b6a15b90835baea150fc31ee3ec3ed037fcba5321f98ccc
 
 name:           advent-solutions
 version:        1.0.0.0
@@ -86,7 +86,7 @@ test-suite test
       Paths_advent_solutions
   hs-source-dirs:
       test
-  ghc-options: -O2 -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -O3 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       advent
     , advent-solutions

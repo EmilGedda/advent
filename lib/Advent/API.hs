@@ -15,10 +15,10 @@ import           Control.Monad                  (when, unless, (<=<))
 import           Control.Monad.Catch            (MonadCatch)
 import           Control.Monad.Except           (ExceptT(..), throwError, lift, liftEither, lift, mapExceptT, MonadError, MonadTrans)
 import           Control.Monad.Reader           (Reader, ReaderT(..), runReader,  ask, runReaderT, MonadIO, MonadReader, liftIO)
-import qualified Data.ByteString                (readFile, writeFile)
+import qualified Data.ByteString                (readFile, writeFile, pack)
 import           Data.Bool                      (bool)
 import           Data.ByteString                (ByteString, null, stripSuffix)
-import           Data.ByteString.Char8          (readInteger)
+import           Data.ByteString.Char8          (readInteger, pack)
 import           Data.ByteString.Lazy           (toStrict, fromStrict)
 import           Data.List                      (find)
 import           Data.Maybe                     (fromMaybe, listToMaybe, fromJust, isNothing)
@@ -26,10 +26,10 @@ import           Data.Time                      (UTCTime, parseTimeOrError, defa
 import           Data.Time.Calendar             (toGregorian)
 import           Data.Time.Clock                (getCurrentTime, utctDay)
 import           Network.HTTP.Client            (CookieJar, Cookie(..), createCookieJar)
-import           Network.HTTP.Client.TLS        (tlsManagerSettings)
+import           Network.HTTP.Client.OpenSSL    (opensslManagerSettings, defaultMakeContext, defaultOpenSSLSettings)
 import           Network.Wreq                   (getWith, defaults, cookies, responseBody)
 import           Prelude hiding                 (readFile, writeFile, null)
-import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing)
+import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
 import           System.FilePath                ((</>))
 import           Text.Printf                    (printf)
 import           Text.Regex.TDFA                ((=~))
@@ -46,6 +46,11 @@ class Monad m => MonadFS m where
     readFile  :: FilePath  -> m ByteString
     writeFile :: FilePath -> ByteString -> m ()
     hasFile   :: FilePath -> m Bool
+    accessTime :: FilePath -> m UTCTime
+    deleteFile :: FilePath -> m ()
+
+    tokenFile :: m FilePath
+    tokenFile = (</> "session-token.txt") <$> cacheDir
 
     default cacheDir :: Trans MonadFS m FilePath
     cacheDir = lift cacheDir
@@ -61,6 +66,12 @@ class Monad m => MonadFS m where
 
     default hasFile :: FilePath -> Trans MonadFS m Bool
     hasFile = lift . hasFile
+
+    default accessTime :: FilePath -> Trans MonadFS m UTCTime
+    accessTime = lift . accessTime
+
+    default deleteFile :: FilePath -> Trans MonadFS m ()
+    deleteFile = lift . deleteFile
 
 class Monad m => MonadTime m where
     currentYear :: m Integer
@@ -81,11 +92,13 @@ instance MonadHTTP IO where
     httpGet = fmap (toStrict . view responseBody) . getWith defaults
 
 instance MonadFS IO where
-    createDir = createDirectoryIfMissing True
-    cacheDir  = getXdgDirectory XdgConfig "AdventOfCode"
-    readFile  = Data.ByteString.readFile
-    writeFile = Data.ByteString.writeFile
-    hasFile   = doesFileExist
+    createDir  = createDirectoryIfMissing True
+    cacheDir   = getXdgDirectory XdgConfig "AdventOfCode"
+    readFile   = Data.ByteString.readFile
+    writeFile  = Data.ByteString.writeFile
+    hasFile    = doesFileExist
+    accessTime = getAccessTime
+    deleteFile = System.Directory.removeFile
 
 instance MonadTime IO where
     currentYear = do
@@ -115,7 +128,7 @@ anyException = const
 
 getSessionToken :: (MonadFS m, MonadError String m, MonadCatch m) => m ByteString
 getSessionToken = flip catch "Unable to read session token" $ do
-    file   <- fmap (</> "session-token.txt") cacheDir
+    file   <- tokenFile
     exists <- hasFile file
     unless exists . throwError $ "No session token file found: " ++ file
     token  <- readFile file
@@ -123,7 +136,7 @@ getSessionToken = flip catch "Unable to read session token" $ do
     return . fromMaybe token $ stripSuffix "\n" token
 
 session :: (MonadIO m, MonadError String m) => ByteString -> m S.Session
-session = liftIO . flip S.newSessionControl tlsManagerSettings . Just . sessionCookie
+session = liftIO . flip S.newSessionControl (opensslManagerSettings . defaultMakeContext $ defaultOpenSSLSettings) . Just . sessionCookie
 
 runSession :: (MonadIO m, MonadError String m, MonadFS m, MonadCatch m)
     => ReaderT S.Session m b -> m b
@@ -150,15 +163,35 @@ input :: (MonadError String m, MonadHTTP m, MonadCatch m)
 input year day = fetch url `catch` "Unable to fetch input"
     where url = printf "/%d/day/%d/input" year day
 
+currentUserID :: (MonadError String m, MonadFS m, MonadHTTP m, MonadTime m, MonadCatch m) => m Integer
+currentUserID = do
+    cache <- (</> "user.txt") <$> cacheDir
+    exist <- hasFile cache
+    if not exist
+       then do
+           id <- fetchUserID
+           writeFile cache . pack $ show id
+           return id
+       else do
+           latest <- accessTime cache
+           token <- accessTime =<< tokenFile
+           if token > latest
+              then deleteFile cache *> currentUserID
+              else maybe (deleteFile cache *> currentUserID) (return . fst)
+                 . readInteger
+                =<< readFile cache
+
+
+fetchUserID :: (MonadError String m, MonadFS m, MonadHTTP m, MonadTime m, MonadCatch m) => m Integer
+fetchUserID = (findID =<< fetch "/settings") `catch` "Unable to fetch UserID"
 
 currentUser :: (MonadError String m, MonadFS m, MonadHTTP m, MonadTime m, MonadCatch m) => m User
 currentUser = do
-    id <- findID =<< fetch "/settings" `catch` "Unable to fetch UserID"
+    id <- currentUserID
     year <- currentYear
     leaderboard <- leaderboard year id
-    let user = find ((id ==) . userid) $ members leaderboard
-    when (isNothing user) $ throwError "Unable to find user"
-    return $ fromJust user
+    maybe (throwError "Unable to find user") return
+        . find ((id ==) . userid) $ members leaderboard
 
 
 findID :: MonadError String m => ByteString -> m Integer

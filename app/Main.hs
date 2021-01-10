@@ -104,14 +104,15 @@ current = (,) <$> currentYear <*> currentUser
 run :: Options -> IO ()
 run (LeaderboardOptions id year order)
   = printLeaderboard order <== do
-        (now, user) <- current
-        leaderboard (fromMaybe now year) (getID id user)
+        now <- currentYear
+        id' <- fromMaybe currentUserID (return <$> id)
+        leaderboard (fromMaybe now year) id'
 
 run (ProgressOptions onlyStarCount)
     | onlyStarCount = printStars . starCount . progress <== currentUser
     | otherwise = printLeaderboard stars <== do
-        (now, user) <- current
-        let id = userid user
+        now <- currentYear
+        id <- currentUserID
         soloboard <- leaderboard now id
         return $ soloboard { members = filter ((==) id . userid) (members soloboard) }
     where printStars (silver, gold) = do
