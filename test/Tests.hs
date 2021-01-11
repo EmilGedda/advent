@@ -24,6 +24,7 @@ answers = [
             answer Y20.day15 475            11261,
             answer Y20.day16 21956          3709435214239,
             answer Y20.day17 362            1980,
-            answer Y20.day18 6923486965641  70722650566361
+            answer Y20.day18 6923486965641  70722650566361,
+            answer Y20.day19 111            Nothing
         ]
     ]

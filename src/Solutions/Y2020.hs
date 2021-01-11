@@ -17,6 +17,7 @@ module Solutions.Y2020 (
     module Solutions.Y2020.D16,
     module Solutions.Y2020.D17,
     module Solutions.Y2020.D18,
+    module Solutions.Y2020.D19,
     y2020
     ) where
 
@@ -39,6 +40,7 @@ import Solutions.Y2020.D15
 import Solutions.Y2020.D16
 import Solutions.Y2020.D17
 import Solutions.Y2020.D18
+import Solutions.Y2020.D19
 
 y2020 :: Year
 y2020 = Year 2020 [
@@ -59,5 +61,6 @@ y2020 = Year 2020 [
         day15,
         day16,
         day17,
-        day18
+        day18,
+        day19
     ]
