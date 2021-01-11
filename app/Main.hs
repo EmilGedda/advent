@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Main where
 
 import Advent.API
@@ -9,11 +10,14 @@ import           Control.Monad.Except   (runExceptT, ExceptT(..), mapExceptT)
 import           Control.Monad.Catch    (MonadCatch)
 import           Control.Monad.Reader   (ReaderT)
 import           Data.Bool              (bool)
+import           Data.Version           (showVersion)
+import           Development.GitRev     (gitHash)
 import           Data.Char              (toLower)
 import           Data.List              (partition, intercalate)
 import           Data.Maybe             (fromMaybe)
 import           Network.Wreq.Session   (Session)
 import           Network.HTTP.Client    (CookieJar)
+import           Paths_advent           (version)
 import           Options.Applicative
 import qualified Data.ByteString.Char8  as B
 import qualified Data.Map               as M
@@ -30,7 +34,7 @@ data Options = LeaderboardOptions {
                 onlyStarCount :: Bool
             } | BadgesOptions {
                 color :: Color
-            }
+            } | VersionOptions
 
 colorReader :: ReadM Color
 colorReader = eitherReader $ \s ->
@@ -85,20 +89,28 @@ badgesParser = BadgesOptions
                 (help "Color of star to generate. Gold or silver."
                 <> metavar "COLOR")
 
+versionParser :: Parser Options
+versionParser = flag' VersionOptions
+                    (long "version"
+                        <> help "Display advent version")
+
+
 optionsParser :: Parser Options
-optionsParser = subparser $
-    command "badge"       (badgesParser      `withInfo` "Generate a badge from current user progress") <>
+optionsParser = versionParser <|> (subparser $
+    command "badge"       (badgesParser `withInfo` "Generate a badge from current user progress") <>
     command "leaderboard" (leaderboardParser `withInfo` "Display a leaderboard") <>
-    command "progress"    (progressParser    `withInfo` "Show current user progress")
+    command "progress"    (progressParser `withInfo` "Show current user progress"))
+
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
-
 main :: IO ()
 main = run =<< customExecParser (prefs showHelpOnError)
-    (optionsParser `withInfo` "Display info and stats from Advent of Code")
-
+        (info (helper <*> optionsParser)
+              (fullDesc
+              <> progDesc "Display info and stats from Advent of Code"
+              <> header "advent - Advent of Code in your terminal"))
 
 output :: (a -> ExceptT String IO b) -> (b -> IO ()) -> a -> IO ()
 output f g input = either putStrLn g
@@ -116,9 +128,6 @@ toOrder Stars = stars
 
 getID :: Maybe Integer -> User -> Integer
 getID override = flip fromMaybe override . userid
-
-current :: App (Integer, User)
-current = (,) <$> currentYear <*> currentUser
 
 run :: Options -> IO ()
 run (LeaderboardOptions id year order)
@@ -146,3 +155,7 @@ run (BadgesOptions color)
   . bool snd fst (color == Silver)
   . starCount
   <<= currentUser -- session seems to break if used here
+
+run VersionOptions
+  = putStrLn
+  $ concat ["advent (", take 8 $(gitHash), ") - v", showVersion version]

@@ -4,6 +4,7 @@
 module Advent.Problem.Types where
 
 import           Data.Maybe             (fromJust)
+import           Data.List.Split        (splitOn)
 import qualified Data.ByteString.Char8  as B
 import qualified Data.Vector            as V
 import qualified Data.Vector.Unboxed    as U
@@ -23,6 +24,9 @@ instance Parseable Double where
 instance Parseable B.ByteString where
     parseInput = id
 
+instance {-# OVERLAPS #-} Parseable String where
+    parseString = id
+
 instance Parseable Integer where
     parseInput = fst . fromJust . B.readInteger
 
@@ -40,6 +44,9 @@ instance Parseable a => Parseable (V.Vector a) where
 
 instance Parseable a => Parseable (CommaList a) where
     parseInput = CommaList . map parseInput . B.split ','
+
+instance (Parseable a, Parseable b) => Parseable (a, b) where
+    parseString i = let (a:b:_) = splitOn "\n\n" i in (parseString a, parseString b)
 
 instance Show a => Show (CommaList a) where
     show = show . getList
