@@ -205,6 +205,6 @@ findID str =
 
 leaderboard :: (MonadError String m, MonadHTTP m, MonadCatch m)
             => Integer -> Integer -> m Leaderboard
-leaderboard year id = ((liftEither . parseLeaderboard) . fromStrict =<< fetch url)
+leaderboard year id = (liftEither . parseLeaderboard . fromStrict =<< fetch url)
                       `catch` "Unable to fetch leaderboard"
     where url = printf "/%d/leaderboard/private/view/%d.json" year id

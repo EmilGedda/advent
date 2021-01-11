@@ -5,6 +5,7 @@ import Advent.API
 import Advent.SVG
 import Advent.Problem
 import Advent.Leaderboard
+import Language.Haskell.TH
 
 import           Control.Monad.Except   (runExceptT, ExceptT(..), mapExceptT)
 import           Control.Monad.Catch    (MonadCatch)
@@ -15,6 +16,8 @@ import           Development.GitRev     (gitHash)
 import           Data.Char              (toLower)
 import           Data.List              (partition, intercalate)
 import           Data.Maybe             (fromMaybe)
+import           Data.Time              (getCurrentTime)
+import           Data.Time.Format       (formatTime, defaultTimeLocale)
 import           Network.Wreq.Session   (Session)
 import           Network.HTTP.Client    (CookieJar)
 import           Paths_advent           (version)
@@ -146,8 +149,15 @@ run (BadgesOptions color)
   . badge color
   . bool snd fst (color == Silver)
   . starCount
-  <<= currentUser -- session seems to break if used here
+  <== currentUser
 
 run VersionOptions
   = putStrLn
-  $ concat ["advent (", take 8 $(gitHash), ") - v", showVersion version]
+  $ concat
+        [ "advent ("
+        , take 8 $(gitHash)
+        , ") - v"
+        , showVersion version
+        , " // "
+        , $(stringE =<< runIO (formatTime defaultTimeLocale "%F %T %EZ" <$> getCurrentTime))
+        ]
