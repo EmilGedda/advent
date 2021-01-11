@@ -96,10 +96,10 @@ versionParser = flag' VersionOptions
 
 
 optionsParser :: Parser Options
-optionsParser = versionParser <|> (subparser $
+optionsParser = subparser $
     command "badge"       (badgesParser `withInfo` "Generate a badge from current user progress") <>
     command "leaderboard" (leaderboardParser `withInfo` "Display a leaderboard") <>
-    command "progress"    (progressParser `withInfo` "Show current user progress"))
+    command "progress"    (progressParser `withInfo` "Show current user progress")
 
 
 withInfo :: Parser a -> String -> ParserInfo a
@@ -107,27 +107,19 @@ withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
 main :: IO ()
 main = run =<< customExecParser (prefs showHelpOnError)
-        (info (helper <*> optionsParser)
+        (info (helper <*> (versionParser <|> optionsParser))
               (fullDesc
               <> progDesc "Display info and stats from Advent of Code"
               <> header "advent - Advent of Code in your terminal"))
 
 output :: (a -> ExceptT String IO b) -> (b -> IO ()) -> a -> IO ()
-output f g input = either putStrLn g
-  =<< (runExceptT . f) input
+output f g input = either putStrLn g =<< (runExceptT . f) input
 
 (<==) = output runSession
 infixr 0 <==
 
 (<<=) = output runCookies
 infixr 0 <<=
-
-toOrder :: LeaderboardOrder -> (User -> Integer)
-toOrder LocalScore = localScore
-toOrder Stars = stars
-
-getID :: Maybe Integer -> User -> Integer
-getID override = flip fromMaybe override . userid
 
 run :: Options -> IO ()
 run (LeaderboardOptions id year order)
