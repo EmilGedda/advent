@@ -20,7 +20,11 @@ library:
   source-dirs:
     - src
   ghc-options:
-    - -O2
+    - -O3
+    - -Wall
+    - -Wno-name-shadowing
+    - -Wno-incomplete-patterns
+    - -Wno-missing-signatures
   dependencies:
     - advent
     - aeson                   ^>= 1.4
@@ -49,9 +53,13 @@ tests:
     source-dirs:              test
     ghc-options:
       - -O3
+      - -Wall
+      - -Wno-name-shadowing
+      - -Wno-incomplete-patterns
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wno-missing-signatures
     dependencies:
       - advent
       - advent-solutions

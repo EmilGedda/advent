@@ -10,10 +10,11 @@ import           Data.Functor                             (($>))
 import           Data.Attoparsec.ByteString.Char8 hiding  (count)
 import qualified Data.Map.Strict                  as M
 
-data Bag = Bag { verb :: ByteString, color :: ByteString } deriving (Eq, Ord)
+data Bag = Bag ByteString ByteString deriving (Eq, Ord)
 
 data Rule = Rule Bag [(Int, Bag)]
 
+word :: Parser ByteString
 word = takeTill (==' ')
 
 bag :: Parser Bag

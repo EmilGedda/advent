@@ -1,6 +1,5 @@
 module Tests where
 
-import Advent.Problem
 import qualified Solutions.Y2020 as Y20
 import Types (Answers(..), answer)
 

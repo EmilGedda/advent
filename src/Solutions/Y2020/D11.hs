@@ -27,8 +27,9 @@ occupied' = 1
 empty' :: Tile
 empty' = 2
 
-newtype Grid = Grid { fromGrid :: (Int, U.Vector Tile) }
+newtype Grid = Grid (Int, U.Vector Tile)
 
+toTile :: Char -> Tile
 toTile 'L' = empty'
 toTile '.' = floor'
 
@@ -146,6 +147,8 @@ whileM f = do
     !b <- f
     when b (whileM f)
 
+foldIM :: (Ord a, Monad m, Num a) =>
+          a -> b -> (a -> b -> m b) -> m b
 foldIM max s f =  go 0 max s f
     where go curr max !s f
             | curr >= max = return s

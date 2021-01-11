@@ -23,6 +23,7 @@ data Computer = Computer {
 opcode :: Parser OpCode
 opcode = "nop" $> Nop <|> "jmp" $> Jmp <|> "acc" $> Acc
 
+instruction :: Parser Instr
 instruction = Instr <$> opcode <*> (" " *> signed decimal)
 
 instance Parseable Instr where
@@ -60,5 +61,6 @@ step :: Int -> Computer -> Computer
 step n c@(Computer _ idx _ _ v)
   = c{ index = idx + n, visited = S.insert idx v }
 
+replace :: Instr -> Instr
 replace (Instr Nop v) = Instr Jmp v
 replace (Instr Jmp v) = Instr Nop v

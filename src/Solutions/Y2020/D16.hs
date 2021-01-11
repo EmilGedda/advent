@@ -1,11 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Solutions.Y2020.D16 (day16) where
 
-import Advent.Problem                   (Day, day, CommaList(..), commalist, Parseable(..)
-                                        , fromRight, notSolved, between, CommaList, getList)
-import Data.Maybe                       (catMaybes, listToMaybe, mapMaybe, isJust)
-import Data.List                        (find, transpose, intersect, sortOn, (\\)
-                                        , isPrefixOf, concatMap, foldl')
+import Advent.Problem
+import Data.Maybe                       (mapMaybe, isJust)
+import Data.List                        (find, transpose, intersect, sortOn, (\\) , isPrefixOf, foldl')
 import Data.Attoparsec.ByteString.Char8 (manyTill, parseOnly, decimal, sepBy, anyChar)
 
 data Rule = Rule {
@@ -34,14 +32,14 @@ instance Parseable Notes where
 
 
 day16 :: Day
-day16 = day 16 partOne partTwo
+day16 = day 16 partOne' partTwo'
 
-partOne :: Notes -> Int
-partOne (Notes rules _ nearby)
+partOne' :: Notes -> Int
+partOne' (Notes rules _ nearby)
   = sum $ mapMaybe (find (not . validate rules) . getList) nearby
 
-partTwo :: Notes -> Int
-partTwo (Notes rules ticket nearby)
+partTwo' :: Notes -> Int
+partTwo' (Notes rules ticket nearby)
   = product . map fst
   . filter (isPrefixOf "departure" . snd)
   . foldl' (\acc (v, x) -> (v, head $ x \\ map snd acc):acc) []

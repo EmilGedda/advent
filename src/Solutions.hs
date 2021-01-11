@@ -3,8 +3,7 @@ module Solutions where
 
 import Advent.Problem
 import Advent.API                (currentYear, runSession)
-import Control.Monad.Except      (runExceptT, liftIO)
-import Data.Maybe                (isNothing, fromJust, maybe)
+import Control.Monad.Except      (runExceptT)
 import Data.List                 (find)
 
 import Solutions.Y2020           (y2020)

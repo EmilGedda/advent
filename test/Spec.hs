@@ -9,7 +9,7 @@ import Data.ByteString              (null)
 import Data.Either                  (isRight)
 import Control.Monad.Except         (runExceptT, forM)
 import Data.Maybe                   (catMaybes)
-import Data.List                    ((\\), find, intersect)
+import Data.List                    ((\\), find)
 import Test.Tasty
 import Test.Tasty.HUnit
 

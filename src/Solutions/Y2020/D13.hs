@@ -4,9 +4,7 @@ module Solutions.Y2020.D13 (day13) where
 import Advent.Problem                   (Day, day, Parseable(..), fromRight)
 import Control.Applicative              ((<|>))
 import Control.Arrow                    ((&&&))
-import Data.List                        (sort, sortOn)
 import Data.Attoparsec.ByteString.Char8
-import Debug.Trace
 import Data.Functor
 
 data Puzzle = Puzzle {
@@ -29,13 +27,13 @@ partOne (Puzzle timestamp buses)
   $ filter (>0) buses
 
 partTwo :: Puzzle -> Int
-partTwo (Puzzle timestamp buses)
+partTwo (Puzzle _ buses)
   = (crt =<< product . map snd)
   . filter ((>0) . snd) $ zip [0..] buses
 
 euclidean :: Int -> Int -> Int
 euclidean a b = flip mod b . fst $ go a b
-    where go a 0 = (1, 0)
+    where go _ 0 = (1, 0)
           go a b =
             let (q, r) = quotRem a b
                 (s, t) = go b r

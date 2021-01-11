@@ -16,6 +16,8 @@ library:
     - .
   ghc-options:
     - -O3
+    - -Wall
+    - -Wno-name-shadowing
   dependencies:
     - aeson                   ^>= 1.4
     - attoparsec              ^>= 0.13
@@ -47,6 +49,9 @@ executables:
     source-dirs:              ../app
     ghc-options:
       - -O3
+      - -Wall
+      - -Wno-name-shadowing
+      - -Wno-incomplete-patterns
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N

@@ -3,18 +3,16 @@ module Main where
 
 import Advent.API
 import Advent.SVG
-import Advent.Problem
 import Advent.Leaderboard
 import Language.Haskell.TH
 
-import           Control.Monad.Except   (runExceptT, ExceptT(..), mapExceptT)
-import           Control.Monad.Catch    (MonadCatch)
+import           Control.Monad.Except   (runExceptT, ExceptT(..))
 import           Control.Monad.Reader   (ReaderT)
 import           Data.Bool              (bool)
 import           Data.Version           (showVersion)
 import           Development.GitRev     (gitHash)
 import           Data.Char              (toLower)
-import           Data.List              (partition, intercalate)
+import           Data.List              (intercalate)
 import           Data.Maybe             (fromMaybe)
 import           Data.Time              (getCurrentTime)
 import           Data.Time.Format       (formatTime, defaultTimeLocale)
@@ -23,9 +21,9 @@ import           Network.HTTP.Client    (CookieJar)
 import           Paths_advent           (version)
 import           Options.Applicative
 import qualified Data.ByteString.Char8  as B
-import qualified Data.Map               as M
 
-type App a = ReaderT Session (ExceptT String IO) a
+type App r a = ReaderT r (ExceptT String IO) a
+
 
 data LeaderboardOrder = LocalScore | Stars
 
@@ -110,18 +108,20 @@ withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
 main :: IO ()
 main = run =<< customExecParser (prefs showHelpOnError)
-        (info (helper <*> (versionParser <|> optionsParser))
+        (info (helper <*> versionParser <|> optionsParser)
               (fullDesc
               <> progDesc "Display info and stats from Advent of Code"
               <> header "advent - Advent of Code in your terminal"))
 
-output :: (a -> ExceptT String IO b) -> (b -> IO ()) -> a -> IO ()
-output f g input = either putStrLn g =<< (runExceptT . f) input
+output :: (a -> IO (Either String b)) -> (b -> IO ()) -> a -> IO ()
+output f g input = either putStrLn g =<< f input
 
-(<==) = output runSession
+(<==) :: (a -> IO ()) -> App Session a -> IO ()
+(<==) = output $ runExceptT . runSession
 infixr 0 <==
 
-(<<=) = output runCookies
+(<<=) :: (a -> IO ()) -> App CookieJar a -> IO ()
+(<<=) = output $ runExceptT .  runCookies
 infixr 0 <<=
 
 run :: Options -> IO ()
@@ -153,11 +153,9 @@ run (BadgesOptions color)
 
 run VersionOptions
   = putStrLn
-  $ concat
-        [ "advent ("
-        , take 8 $(gitHash)
-        , ") - v"
-        , showVersion version
-        , " // "
-        , $(stringE =<< runIO (formatTime defaultTimeLocale "%F %T %EZ" <$> getCurrentTime))
-        ]
+  $ "advent ("
+    <> take 8 $(gitHash)
+    <> ") - v"
+    <> showVersion version
+    <> " // "
+    <> $(stringE =<< runIO (formatTime defaultTimeLocale "%F %T %EZ" <$> getCurrentTime))

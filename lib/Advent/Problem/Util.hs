@@ -4,9 +4,8 @@ module Advent.Problem.Util where
 import           Advent.Problem.Types                      (CommaList(..))
 import           Control.Arrow                             (Arrow, (***))
 import           Control.Monad                             (foldM)
-import           Data.ByteString                           (ByteString, stripSuffix)
+import           Data.ByteString                           (ByteString)
 import           Data.Monoid                               (Sum(..), getSum)
-import           Data.Maybe                                (fromMaybe)
 import           Data.List                                 (foldl1')
 import           Debug.Trace                               (trace)
 import           Data.Attoparsec.ByteString.Char8   hiding (takeWhile)
@@ -18,7 +17,11 @@ every n = map head . takeWhile (not . null) . iterate (drop n)
 count :: (Foldable t, Enum b) => (a -> b) -> t a -> Int
 count f = getSum . foldMap (Sum . fromEnum . f)
 
+fromRight :: Either a b -> b
 fromRight (Right r) = r
+fromRight _ = error "Left in fromRight"
+
+fromBool :: (a -> Bool) -> a -> Maybe a
 fromBool f x | f x = Just x
              | otherwise = Nothing
 

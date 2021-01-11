@@ -19,4 +19,4 @@ partTwo = product . map (tribonacci . length) . filter (all (==1)) . group . V.t
 
 -- Tribonacci sequence as a closed form formula only valid for given the input
 tribonacci :: Int -> Int
-tribonacci n = (n ^ 2 - n) `div` 2 + 1
+tribonacci n = (n * n - n) `div` 2 + 1

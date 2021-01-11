@@ -5,7 +5,7 @@ import Advent.Problem                   (Day, day, both, fromBits, fromRight, Pa
 import Control.Arrow                    ((&&&))
 import Control.Applicative              ((<|>))
 import Data.List                        (foldl')
-import Data.Bits                        ((.|.), (.&.), complement, Bits)
+import Data.Bits                        ((.|.), (.&.), complement)
 import Data.Attoparsec.ByteString.Char8
 import Text.Printf                      (printf)
 import Numeric                          (showIntAtBase)
@@ -47,7 +47,7 @@ partTwo mask to value =
 run :: Part -> [Instruction] -> Integer
 run r = sum . M.elems . mem . foldl run (CPU "" M.empty)
     where run c (Mask s) = c{ mask = s }
-          run c@(CPU mask m) s@(Store to value)
+          run c@(CPU mask m) (Store to value)
                 = c{ mem = foldl' (flip (uncurry M.insert)) m (r mask to value)  }
 
 fromstr :: String -> (Integer, Integer)

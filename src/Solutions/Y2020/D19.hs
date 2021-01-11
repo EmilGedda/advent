@@ -5,7 +5,6 @@ import           Advent.Problem
 import           Control.Applicative              ((<|>))
 import           Data.Attoparsec.ByteString.Char8 hiding (count)
 import           Data.Functor                     (($>))
-import           Data.List                        (foldl1')
 import           Data.Either                      (isRight)
 import qualified Data.ByteString.Char8            as B
 import qualified Data.Map                         as M

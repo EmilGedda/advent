@@ -7,9 +7,9 @@ import Control.Applicative      ((<|>))
 import Control.Lens             ((%~), both)
 import Data.Aeson
 import Data.Aeson.Types
-import Data.ByteString.Lazy     (ByteString(..))
+import Data.ByteString.Lazy     (ByteString)
 import Data.HashMap.Strict      (member)
-import Data.Map                 (Map(..), elems)
+import Data.Map                 (Map, elems)
 import Data.List                (sortBy, partition)
 import Data.Ord                 (Down(..), comparing)
 import qualified Data.Map as M  (lookup)
@@ -56,7 +56,7 @@ instance FromJSON Leaderboard where
         <*> (elems <$> (obj .: "members" :: Parser (Map String User)))
 
 digits :: Integral a => a -> Int
-digits  = (+1) . floor . logBase 10 . fromIntegral
+digits  = (+1) . (floor :: Double -> Int) . logBase 10 . fromIntegral
 
 parseLeaderboard :: ByteString -> Either String Leaderboard
 parseLeaderboard = eitherDecode
@@ -96,7 +96,7 @@ printUser scoring scoreWidth nameWidth user@(User name _ _ lastStar _ progress) 
     let format = printf "\x1b[1m%%%dd\x1b[0m %%s \x1b[1m\x1b[92m%%-%ds \x1b[0m\x1b[37m" scoreWidth nameWidth
         stars = maybe "\x1b[90m." star . flip M.lookup progress =<< [1..25]
         star (Progress 1) = "\x1b[37m*"
-        star (Progress 2) = "\x1b[93m*"
+        star (Progress _) = "\x1b[93m*"
 
     printf format (scoring user) stars name
     when (lastStar > 0) $ printf "(%s)" =<< timeSince lastStar

@@ -3,10 +3,11 @@ module Solutions.Y2020.D02 (day02) where
 
 import Prelude hiding                   (drop)
 import Advent.Problem                   (Day, day, Parseable(..), fromRight)
-import Data.Attoparsec.ByteString.Char8 (decimal, char, anyChar, many', parseOnly)
+import Data.Attoparsec.ByteString.Char8 (Parser, decimal, char, anyChar, many', parseOnly)
 
 data Policy = Policy Int Int Char String
 
+policy :: Parser Policy
 policy = Policy
        <$> decimal
        <*> (char '-' *> decimal)

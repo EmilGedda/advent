@@ -17,9 +17,10 @@ module Advent.Problem (
 import           Prelude hiding                             (readFile, writeFile, lines)
 import           Advent.Problem.Util
 import           Advent.Problem.Types
-import           Advent.API                                 (input, MonadHTTP, MonadFS(..))
+import           Advent.API
+
 import           Control.Monad.Catch                        (MonadCatch)
-import           Control.Monad.Except                       (MonadIO, MonadError)
+import           Control.Monad.Except                       (MonadError)
 import           Data.ByteString                            (ByteString, stripSuffix)
 import           Data.Maybe                                 (fromMaybe)
 import           System.FilePath                            ((</>))
