@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Advent.Problem.Util where
 
 import           Advent.Problem.Types                      (CommaList(..))
@@ -44,7 +43,7 @@ fold :: (Foldable t, Monad m) => t a -> b -> (b -> a -> m b) -> m b
 fold v s f = foldM f s v
 
 commalist :: Parser a -> Parser (CommaList a)
-commalist p = CommaList <$> p `sepBy` ","
+commalist p = CommaList <$> p `sepBy` char ','
 
 debug :: Show a => a -> a
 debug x = trace (show x) x

@@ -1,0 +1,3 @@
+:set +s
+:set prompt "> "
+:set -XTypeApplications

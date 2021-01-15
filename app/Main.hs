@@ -1,11 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Main where
 
-import Advent.API
-import Advent.SVG
-import Advent.Leaderboard
-import Language.Haskell.TH
-
+import           Advent
+import           Advent.API
+import           Advent.SVG
+import           Advent.Leaderboard
 import           Control.Monad.Except   (runExceptT, ExceptT(..))
 import           Control.Monad.Reader   (ReaderT)
 import           Data.Bool              (bool)
@@ -20,6 +19,7 @@ import           Network.Wreq.Session   (Session)
 import           Network.HTTP.Client    (CookieJar)
 import           Paths_advent           (version)
 import           Options.Applicative
+import           Language.Haskell.TH
 import qualified Data.ByteString.Char8  as B
 
 type App r a = ReaderT r (ExceptT String IO) a
@@ -93,7 +93,7 @@ badgesParser = BadgesOptions
 versionParser :: Parser Options
 versionParser = flag' VersionOptions
                     (long "version"
-                        <> help "Display advent version")
+                    <> help "Display advent version")
 
 
 optionsParser :: Parser Options
@@ -126,18 +126,20 @@ infixr 0 <<=
 
 run :: Options -> IO ()
 run (LeaderboardOptions id year order)
-  = printLeaderboard order <== do
+  = putStr <== do
         now <- currentYear
         id' <- maybe currentUserID return id
-        leaderboard (fromMaybe now year) id'
+        l <- leaderboard (fromMaybe now year) id'
+        prettyLeaderboard order l
 
 run (ProgressOptions onlyStarCount)
     | onlyStarCount = printStars . starCount <== currentUser
-    | otherwise = printLeaderboard stars <== do
+    | otherwise = putStrLn <== do
         now <- currentYear
         id <- currentUserID
         soloboard <- leaderboard now id
-        return $ soloboard { members = filter ((==) id . userid) (members soloboard) }
+        prettyLeaderboard stars
+            $ soloboard { members = filter ((==) id . userid) (members soloboard) }
     where printStars (silver, gold) = do
             putStr "Silver\t"
             print silver

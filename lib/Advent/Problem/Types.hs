@@ -1,4 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module Advent.Problem.Types where
@@ -51,16 +50,17 @@ instance (Parseable a, Parseable b) => Parseable (a, b) where
 instance Show a => Show (CommaList a) where
     show = show . getList
 
-class Show a => ToString a where
+class ToString a where
     solution :: a -> String
 
-instance Show a => ToString a where
-    solution = show
-
-instance {-# OVERLAPPING #-} ToString Char where
+instance ToString Char where
     solution = return
 
-instance {-# OVERLAPPING #-} ToString String where
+instance ToString String where
     solution = id
 
+instance ToString Int where
+    solution = show
 
+instance ToString Integer where
+    solution = show

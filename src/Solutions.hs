@@ -1,8 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Solutions where
 
+import Advent
+import Advent.API
 import Advent.Problem
-import Advent.API                (currentYear, runSession)
 import Control.Monad.Except      (runExceptT)
 import Data.List                 (find)
 

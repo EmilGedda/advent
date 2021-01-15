@@ -15,9 +15,10 @@ module Advent.Problem (
     ) where
 
 import           Prelude hiding                             (readFile, writeFile, lines)
+import           Advent
+import           Advent.API
 import           Advent.Problem.Util
 import           Advent.Problem.Types
-import           Advent.API
 
 import           Control.Monad.Catch                        (MonadCatch)
 import           Control.Monad.Except                       (MonadError)
