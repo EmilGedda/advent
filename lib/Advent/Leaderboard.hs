@@ -54,11 +54,14 @@ instance FromJSON Leaderboard where
         <$> obj .: "event"
         <*> (M.elems <$> (obj .: "members" :: Parser (M.Map String User)))
 
+
 digits :: Integral a => a -> Int
 digits  = (+1) . (floor :: Double -> Int) . logBase 10 . fromIntegral
 
+
 parseLeaderboard :: MonadError String m => ByteString -> m Leaderboard
 parseLeaderboard = liftEither . eitherDecode
+
 
 prettyLeaderboard :: (Integral t, PrintfArg t, MonadTime m) => (User -> t) -> Leaderboard -> m String
 prettyLeaderboard score (Leaderboard event participants) = do
@@ -105,6 +108,7 @@ prettyUser scoring scoreWidth nameWidth user@(User name _ _ lastStar _ progress)
                 then printf "(%s)\n" $ formatTime defaultTimeLocale "%dd%2Hh%2Mm%2Ss" prev
                 else ""
           <> printf "\x1b[39m\n"
+
 
 starCount :: User -> (Int, Int)
 starCount = (both %~ length) . partition (==1) . map fromProgress . M.elems . progress
