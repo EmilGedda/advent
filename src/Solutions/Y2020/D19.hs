@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Solutions.Y2020.D19 where
+module Solutions.Y2020.D19 (day19) where
 
 import           Advent.Problem
 import           Control.Applicative              ((<|>))
+import           Control.Monad                    (guard)
 import           Data.Attoparsec.ByteString.Char8 hiding (count)
-import           Data.Functor                     (($>))
 import           Data.Either                      (isRight)
 import qualified Data.ByteString.Char8            as B
 import qualified Data.Map                         as M
@@ -34,18 +34,23 @@ instance Parseable Rule where
     parseInput = attoparse rule
 
 day19 :: Day
-day19 = day 19 (uncurry (valid id)) (uncurry (valid fix))
+day19 = day 19 (uncurry . valid . parser $ If 0) (uncurry . valid $ recursiveParser . fix)
 
-valid :: (M.Map Int Condition -> M.Map Int Condition)
-      -> [Rule] -> [B.ByteString] -> Int
-valid f = count . (isRight .) . parseOnly . parser . f . M.fromList . map fromRule
+valid :: (M.Map Int Condition -> Parser b) -> [Rule] -> [B.ByteString] -> Int
+valid p = count . (isRight .) . parseOnly . (<* endOfInput) . p . M.fromList . map fromRule
 
-parser :: M.Map Int Condition -> Parser ()
-parser m = go (If 0) *> endOfInput
-    where go (Lit c)  = char c $> ()
+parser :: Condition -> M.Map Int Condition -> Parser String
+parser start m = go start
+    where go (Lit c)  = return <$> char c
           go (If a)   = go (m M.! a)
-          go (And xs) = mapM_ go xs
+          go (And xs) = concat <$> mapM go xs
           go (Or a b) = go a <|> go b
+
+recursiveParser :: M.Map Int Condition -> Parser ()
+recursiveParser m = do
+  r42 <- many1 $ parser (If 42) m
+  r31 <- many1 $ parser (If 31) m
+  guard $ length r42 > length r31
 
 fix :: M.Map Int Condition -> M.Map Int Condition
 fix = M.insert 8  (Or (If 42)

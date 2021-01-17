@@ -48,5 +48,10 @@ commalist p = CommaList <$> p `sepBy` char ','
 debug :: Show a => a -> a
 debug x = trace (show x) x
 
+digits :: Integral x => x -> [x]
+digits = reverse . go
+    where go 0 = []
+          go x = x `mod` 10 : go (x `div` 10)
+
 attoparse :: Parser a -> ByteString -> a
 attoparse p = fromRight . parseOnly p

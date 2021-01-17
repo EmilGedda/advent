@@ -29,6 +29,7 @@ combat g@(Decks [] _) = g
 combat g@(Decks _ []) = g
 combat g = combat . topdeck $ g
 
+topdeck :: Decks -> Decks
 topdeck (Decks (x:xs) (y:ys))
     | x > y     = Decks (xs ++ [x, y]) ys
     | otherwise = Decks xs (ys ++ [y, x])
