@@ -111,6 +111,7 @@ findID str =
     let anonuser  = regexMatchGroups "anonymous user #([0-9]+)" str
         codehover = regexMatchGroups "<code>([0-9]+)" str
         readID list = fmap fst . readInteger =<< listToMaybe list
+
     in maybe (throwError "Unable to find user id") return
              $ readID anonuser <|> readID codehover
 

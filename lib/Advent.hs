@@ -1,22 +1,23 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Advent where
 
 import           Prelude hiding                 (readFile, writeFile, null)
 import           Control.Monad                  (liftM2)
-import           Control.Lens                   ((?~), view)
-import           Network.Wreq                   (getWith, defaults, cookies, responseBody)
-import qualified Data.ByteString                (readFile, writeFile)
+import           Control.Lens                   ((?~), view, (^.))
+import           Network.Wreq                   (getWith, defaults, cookies, responseBody, responseBody, statusCode, statusMessage, responseStatus)
 import           Data.Bool                      (bool)
 import           Data.ByteString                (ByteString)
 import           Data.ByteString.Lazy           (toStrict)
 import           Control.Exception              (SomeException, displayException)
-import           Control.Monad.Catch            (MonadCatch)
+import           Control.Monad.Catch            (MonadCatch, fromException)
 import           Control.Monad.Except           (ExceptT(..), throwError, lift, MonadError, MonadTrans)
 import           Control.Monad.Reader           (ReaderT(..), MonadIO, liftIO)
 import           Data.Time                      (UTCTime)
@@ -25,10 +26,13 @@ import           Data.Time.Clock                (getCurrentTime, utctDay, second
 import           Data.Time.Clock.POSIX          (getPOSIXTime, POSIXTime)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
 import           System.FilePath                ((</>))
-import           Network.HTTP.Client            (CookieJar)
 import           Network.HTTP.Client.OpenSSL    (withOpenSSL)
-import qualified Network.Wreq.Session       as  S
-import qualified Control.Monad.Catch        as  C
+import qualified Data.ByteString                (readFile, writeFile)
+import qualified Data.ByteString.Char8          as B
+import qualified GHC.IO.Exception               as GHC
+import qualified Network.HTTP.Client            as H
+import qualified Network.Wreq.Session           as S
+import qualified Control.Monad.Catch            as C
 
 type Trans c m a = forall m1 t. (MonadTrans t, c m1, m ~ t m1) => m a
 
@@ -110,7 +114,7 @@ instance MonadTime m => MonadTime (ReaderT r m)
 instance MonadHTTP m => MonadHTTP (ExceptT e m)
 
 
-instance MonadIO m => MonadHTTP (ReaderT CookieJar m) where
+instance MonadIO m => MonadHTTP (ReaderT H.CookieJar m) where
     httpGet = ReaderT . flip (\cookiejar -> liftIO . withOpenSSL
             . fmap (toStrict . view responseBody)
             . getWith (cookies ?~ cookiejar $ defaults))
@@ -120,8 +124,35 @@ instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
             . fmap (toStrict . view responseBody) . S.get sess)
 
 catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
-catch e str = e `C.catch` (throwError . anyException str)
+catch e str = e `C.catch` (throwError . prettyException str)
 
-anyException :: String -> SomeException -> String
-anyException a e = a ++ ": " ++ displayException e
+prettyException :: String -> SomeException -> String
+prettyException msg err =
+    let handle e f = maybe (displayException e) f $ fromException e
+    in msg ++ ": " ++ handle err (\case
+        H.HttpExceptionRequest req content
+            -> "http exception: "
+            ++ case content of -- HTTP Exceptions
+                H.StatusCodeException res _
+                     -> "expected 200 OK but got "
+                     ++ show (res ^. responseStatus . statusCode)
+                     ++ " "
+                     ++ B.unpack (res ^. responseStatus . statusMessage)
+                     ++ " during "
+                     ++ concatMap (B.unpack . ($ req))
+                            [ H.method
+                            , const " "
+                            , H.host
+                            , H.path ]
 
+                H.ConnectionFailure conerr ->
+                    case fromException conerr of -- IO Exceptions
+                        Just (GHC.IOError _ GHC.NoSuchThing _ desc _ _)
+                                -> "connecting to "
+                                ++ B.unpack (H.host req)
+                                ++ " failed: "
+                                ++ desc
+
+                        _ -> displayException err
+                _ -> displayException err
+        _ -> displayException err)
