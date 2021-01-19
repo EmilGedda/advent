@@ -26,6 +26,7 @@ import           Data.Time.Clock.POSIX          (getPOSIXTime, POSIXTime)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
 import           System.FilePath                ((</>))
 import           Network.HTTP.Client            (CookieJar)
+import           Network.HTTP.Client.OpenSSL    (withOpenSSL)
 import qualified Network.Wreq.Session       as  S
 import qualified Control.Monad.Catch        as  C
 
@@ -110,11 +111,13 @@ instance MonadHTTP m => MonadHTTP (ExceptT e m)
 
 
 instance MonadIO m => MonadHTTP (ReaderT CookieJar m) where
-    httpGet = ReaderT . flip (\cookiejar -> liftIO . fmap (toStrict . view responseBody)
+    httpGet = ReaderT . flip (\cookiejar -> liftIO . withOpenSSL
+            . fmap (toStrict . view responseBody)
             . getWith (cookies ?~ cookiejar $ defaults))
 
 instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
-    httpGet = ReaderT . flip (\sess -> liftIO . fmap (toStrict . view responseBody) . S.get sess)
+    httpGet = ReaderT . flip (\sess -> liftIO . withOpenSSL
+            . fmap (toStrict . view responseBody) . S.get sess)
 
 catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
 catch e str = e `C.catch` (throwError . anyException str)
