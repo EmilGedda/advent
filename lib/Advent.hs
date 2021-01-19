@@ -3,20 +3,20 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Advent where
 
-import           Prelude hiding                 (readFile, writeFile, null)
+import           Prelude                        hiding (readFile, writeFile, null)
+
 import           Control.Monad                  (liftM2)
 import           Control.Lens                   ((?~), view, (^.))
 import           Network.Wreq                   (getWith, defaults, cookies, responseBody, responseBody, statusCode, statusMessage, responseStatus)
 import           Data.Bool                      (bool)
 import           Data.ByteString                (ByteString)
 import           Data.ByteString.Lazy           (toStrict)
-import           Control.Exception              (SomeException, displayException)
+import           Control.Exception              (SomeException, displayException, IOException)
 import           Control.Monad.Catch            (MonadCatch, fromException)
 import           Control.Monad.Except           (ExceptT(..), throwError, lift, MonadError, MonadTrans)
 import           Control.Monad.Reader           (ReaderT(..), MonadIO, liftIO)
@@ -25,7 +25,6 @@ import           Data.Time.Calendar             (toGregorian)
 import           Data.Time.Clock                (getCurrentTime, utctDay, secondsToNominalDiffTime)
 import           Data.Time.Clock.POSIX          (getPOSIXTime, POSIXTime)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
-import           System.FilePath                ((</>))
 import           Network.HTTP.Client.OpenSSL    (withOpenSSL)
 import qualified Data.ByteString                (readFile, writeFile)
 import qualified Data.ByteString.Char8          as B
@@ -45,9 +44,6 @@ class Monad m => MonadFS m where
     hasFile   :: FilePath -> m Bool
     accessTime :: FilePath -> m UTCTime
     deleteFile :: FilePath -> m ()
-
-    tokenFile :: m FilePath
-    tokenFile = (</> "session-token.txt") <$> cacheDir
 
     default cacheDir :: Trans MonadFS m FilePath
     cacheDir = lift cacheDir
@@ -126,31 +122,37 @@ instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
 catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
 catch e str = e `C.catch` (throwError . prettyException str)
 
+
+httpCatcher :: H.HttpException -> String
+httpCatcher (H.HttpExceptionRequest req content)
+    = "http exception: "
+    ++ case content of -- HTTP Exceptions
+        H.StatusCodeException res _
+             -> "expected 200 OK but got "
+             ++ show (res ^. responseStatus . statusCode)
+             ++ " "
+             ++ B.unpack (res ^. responseStatus . statusMessage)
+             ++ " during "
+             ++ B.unpack (H.method req)
+             ++ " "
+             ++ show (H.getUri req)
+
+        H.ConnectionFailure conerr
+            -> flip prettyException conerr
+                $ "connecting to "
+                ++ show (H.getUri req)
+                ++ " failed"
+
+        _ -> show content
+
+httpCatcher err = displayException err
+
+ioCatcher :: IOException -> String
+ioCatcher (GHC.IOError _ GHC.NoSuchThing _ desc _ _) = desc
+ioCatcher err = "io exception: " ++ displayException err
+
 prettyException :: String -> SomeException -> String
 prettyException msg err =
-    let handle e f = maybe (displayException e) f $ fromException e
-    in msg ++ ": " ++ handle err (\case
-        H.HttpExceptionRequest req content
-            -> "http exception: "
-            ++ case content of -- HTTP Exceptions
-                H.StatusCodeException res _
-                     -> "expected 200 OK but got "
-                     ++ show (res ^. responseStatus . statusCode)
-                     ++ " "
-                     ++ B.unpack (res ^. responseStatus . statusMessage)
-                     ++ " during "
-                     ++ B.unpack (H.method req)
-                     ++ " "
-                     ++ show (H.getUri req)
-
-                H.ConnectionFailure conerr ->
-                    case fromException conerr of -- IO Exceptions
-                        Just (GHC.IOError _ GHC.NoSuchThing _ desc _ _)
-                                -> "connecting to "
-                                ++ show (H.getUri req)
-                                ++ " failed: "
-                                ++ desc
-
-                        _ -> displayException err
-                _ -> displayException err
-        _ -> displayException err)
+    let handler f g e = maybe (g e) f $ fromException e
+        catch = foldr ($) displayException [handler httpCatcher, handler ioCatcher]
+     in msg ++ ": " ++ catch err

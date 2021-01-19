@@ -31,6 +31,8 @@ import           Text.Regex.TDFA                ((=~))
 import           Text.Regex.TDFA.ByteString     ()
 import qualified Network.Wreq.Session       as  S
 
+tokenFile :: MonadFS m => m FilePath
+tokenFile = (</> "session-token.txt") <$> cacheDir
 
 getSessionToken :: (MonadFS m, MonadError String m, MonadCatch m) => m ByteString
 getSessionToken = flip catch "Unable to read session token" $ do
