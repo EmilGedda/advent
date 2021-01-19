@@ -139,17 +139,15 @@ prettyException msg err =
                      ++ " "
                      ++ B.unpack (res ^. responseStatus . statusMessage)
                      ++ " during "
-                     ++ concatMap (B.unpack . ($ req))
-                            [ H.method
-                            , const " "
-                            , H.host
-                            , H.path ]
+                     ++ B.unpack (H.method req)
+                     ++ " "
+                     ++ show (H.getUri req)
 
                 H.ConnectionFailure conerr ->
                     case fromException conerr of -- IO Exceptions
                         Just (GHC.IOError _ GHC.NoSuchThing _ desc _ _)
                                 -> "connecting to "
-                                ++ B.unpack (H.host req)
+                                ++ show (H.getUri req)
                                 ++ " failed: "
                                 ++ desc
 
