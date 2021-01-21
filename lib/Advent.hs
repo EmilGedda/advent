@@ -2,7 +2,6 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 
@@ -12,7 +11,7 @@ import           Prelude                        hiding (readFile, writeFile, nul
 
 import           Control.Monad                  (liftM2)
 import           Control.Lens                   ((?~), view, (^.))
-import           Network.Wreq                   (getWith, defaults, cookies, responseBody, responseBody, statusCode, statusMessage, responseStatus)
+import           Network.Wreq                   (getWith, defaults, cookies, responseBody, responseBody, statusCode, statusMessage, responseStatus, Response)
 import           Data.Bool                      (bool)
 import           Data.ByteString                (ByteString)
 import           Data.ByteString.Lazy           (toStrict)
@@ -28,6 +27,7 @@ import           System.Directory               (XdgDirectory(XdgConfig), getXdg
 import           Network.HTTP.Client.OpenSSL    (withOpenSSL)
 import qualified Data.ByteString                (readFile, writeFile)
 import qualified Data.ByteString.Char8          as B
+import qualified Data.ByteString.Lazy           as BL
 import qualified GHC.IO.Exception               as GHC
 import qualified Network.HTTP.Client            as H
 import qualified Network.Wreq.Session           as S
@@ -109,33 +109,30 @@ instance MonadTime m => MonadTime (ExceptT e m)
 instance MonadTime m => MonadTime (ReaderT r m)
 instance MonadHTTP m => MonadHTTP (ExceptT e m)
 
+wreq :: MonadIO m => (r -> a -> IO (Response BL.ByteString)) -> a -> ReaderT r m ByteString
+wreq f = ReaderT . flip (\x -> liftIO . withOpenSSL . fmap (toStrict . view responseBody) . f x)
 
 instance MonadIO m => MonadHTTP (ReaderT H.CookieJar m) where
-    httpGet = ReaderT . flip (\cookiejar -> liftIO . withOpenSSL
-            . fmap (toStrict . view responseBody)
-            . getWith (cookies ?~ cookiejar $ defaults))
+    httpGet = wreq (getWith . flip (cookies ?~) defaults)
 
 instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
-    httpGet = ReaderT . flip (\sess -> liftIO . withOpenSSL
-            . fmap (toStrict . view responseBody) . S.get sess)
+    httpGet = wreq S.get
 
 catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
 catch e str = e `C.catch` (throwError . prettyException str)
 
-
 httpCatcher :: H.HttpException -> String
 httpCatcher (H.HttpExceptionRequest req content)
-    = "http exception: "
-    ++ case content of -- HTTP Exceptions
+    = case content of -- HTTP Exceptions
         H.StatusCodeException res _
              -> "expected 200 OK but got "
-             ++ show (res ^. responseStatus . statusCode)
-             ++ " "
-             ++ B.unpack (res ^. responseStatus . statusMessage)
-             ++ " during "
-             ++ B.unpack (H.method req)
-             ++ " "
-             ++ show (H.getUri req)
+                ++ show (res ^. responseStatus . statusCode)
+                ++ " "
+                ++ B.unpack (res ^. responseStatus . statusMessage)
+                ++ " during "
+                ++ B.unpack (H.method req)
+                ++ " "
+                ++ show (H.getUri req)
 
         H.ConnectionFailure conerr
             -> flip prettyException conerr
@@ -149,10 +146,12 @@ httpCatcher err = displayException err
 
 ioCatcher :: IOException -> String
 ioCatcher (GHC.IOError _ GHC.NoSuchThing _ desc _ _) = desc
-ioCatcher err = "io exception: " ++ displayException err
+ioCatcher err = displayException err
 
 prettyException :: String -> SomeException -> String
 prettyException msg err =
-    let handler f g e = maybe (g e) f $ fromException e
-        catch = foldr ($) displayException [handler httpCatcher, handler ioCatcher]
+    let handler name f g e = maybe (g e) ((++) (name ++ " Exception: ") . f) $ fromException e
+        catch = foldr ($) displayException
+                    [ handler "HTTP" httpCatcher
+                    , handler "IO"   ioCatcher ]
      in msg ++ ": " ++ catch err

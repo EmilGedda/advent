@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cfc1d6e20fdc0a124e8637c6b66379c4be1333755d500eeed9662d541cff6b84
+-- hash: 59be23a4bcac385fa28182f1daebdc9e8dddb2548f3d8e4412fe33dfd6b660b8
 
 name:           advent-solutions
 version:        1.0.0.0
@@ -29,6 +29,7 @@ source-repository head
 library
   exposed-modules:
       Solutions
+      Solutions.TH
       Solutions.Y2020
       Solutions.Y2020.D01
       Solutions.Y2020.D02
@@ -74,6 +75,7 @@ library
     , regex-tdfa >=1.3 && <1.4
     , split >=0.2 && <0.3
     , string-interpolate >=0.2 && <0.3
+    , template-haskell >=2.15 && <2.16
     , time >=1.9 && <1.10
     , unordered-containers >=0.2 && <0.3
     , vector >=0.12 && <0.13

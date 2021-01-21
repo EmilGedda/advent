@@ -67,3 +67,17 @@ executables:
       - template-haskell      ^>= 2.15
       - time                  ^>= 1.9
       - wreq                  ^>= 0.5
+  advent-discover:
+    main:                     Main.hs
+    source-dirs:              discover
+    ghc-options:
+      - -O3
+      - -Wall
+      - -Wno-name-shadowing
+      - -Wno-incomplete-patterns
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - directory             ^>= 1.3
+      - filepath              ^>= 1.4
