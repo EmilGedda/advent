@@ -4,10 +4,11 @@ module Solutions where
 import Advent
 import Advent.API
 import Advent.Problem
+import Solutions.Y2020
+
 import Control.Monad.Except      (runExceptT)
 import Data.List                 (find)
 
-import Solutions.Y2020           (y2020)
 
 years :: [Year]
 years = [
