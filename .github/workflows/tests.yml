@@ -21,11 +21,11 @@ jobs:
             ~/.stack
             ~/.config/AdventOfCode
             .stack-work
-        key: ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('advent-solutions.cabal') }}-${{ hashFiles('lib/advent.cabal') }}
+        key: advent-${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('advent-solutions.cabal') }}-${{ hashFiles('lib/advent.cabal') }}
         restore-keys: |
-            ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('advent-solutions.cabal') }}-${{ hashFiles('lib/advent.cabal') }}
-            ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-
-            ${{ runner.os }}-
+            advent-${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('advent-solutions.cabal') }}-${{ hashFiles('lib/advent.cabal') }}
+            advent-${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}-
+            advent-${{ runner.os }}-
 
     - name: Build tests, lib, and exe
       run: stack build --test --no-run-tests
