@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f4e8c00767065004cbbbaf91d847e71d05d7904adccbb7735993b40a08610266
+-- hash: 7c2c08fad7c9a9457e2c6eaee5d8c3c2f35be35a8eaabbbbc943d85fe71c52c0
 
 name:           advent
 version:        1.0.0.0
@@ -32,11 +32,10 @@ library
       Advent.SVG
   hs-source-dirs:
       ./.
-  ghc-options: -O3 -Wall -Wno-name-shadowing
   build-depends:
-      aeson >=1.4 && <1.5
+      aeson >=1.5 && <1.6
     , attoparsec >=0.13 && <0.14
-    , base >=4.13 && <4.14
+    , base >=4.14 && <4.15
     , bytestring >=0.10 && <0.11
     , containers >=0.6 && <0.7
     , directory >=1.3 && <1.4
@@ -44,16 +43,15 @@ library
     , filepath >=1.4 && <1.5
     , http-client >=0.6 && <0.7
     , http-client-openssl >=0.3 && <0.4
-    , lens >=4.18 && <4.19
+    , lens >=4.19 && <4.20
     , mtl >=2.2 && <2.3
     , regex-tdfa >=1.3 && <1.4
     , split >=0.2 && <0.3
-    , string-interpolate >=0.2 && <0.3
-    , template-haskell >=2.15 && <2.16
+    , string-interpolate >=0.3 && <0.4
+    , template-haskell >=2.16 && <2.17
     , time >=1.9 && <1.10
     , unordered-containers >=0.2 && <0.3
     , vector >=0.12 && <0.13
-    , vector-algorithms >=0.8 && <0.9
     , wreq >=0.5 && <0.6
   if false
     other-modules:
@@ -66,10 +64,9 @@ executable advent
       Paths_advent
   hs-source-dirs:
       ../app
-  ghc-options: -O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       advent
-    , base >=4.13 && <4.14
+    , base >=4.14 && <4.15
     , bytestring >=0.10 && <0.11
     , containers >=0.6 && <0.7
     , exceptions >=0.10 && <0.11
@@ -77,7 +74,7 @@ executable advent
     , http-client >=0.6 && <0.7
     , mtl >=2.2 && <2.3
     , optparse-applicative >=0.15 && <0.16
-    , template-haskell >=2.15 && <2.16
+    , template-haskell >=2.16 && <2.17
     , time >=1.9 && <1.10
     , wreq >=0.5 && <0.6
   default-language: Haskell2010
@@ -90,7 +87,7 @@ executable advent-discover
       discover
   ghc-options: -O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.13 && <4.14
+      base >=4.14 && <4.15
     , directory >=1.3 && <1.4
     , filepath >=1.4 && <1.5
   default-language: Haskell2010
