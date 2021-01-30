@@ -5,10 +5,12 @@ import           Control.Arrow                             (Arrow, (***))
 import           Control.Monad                             (foldM)
 import           Data.ByteString                           (ByteString)
 import           Data.Monoid                               (Sum(..), getSum)
+import           Data.Hashable                             (Hashable)
 import           Data.List                                 (foldl1')
 import           Debug.Trace                               (trace)
 import           Data.Attoparsec.ByteString.Char8   hiding (takeWhile)
 import qualified Data.Set                           as     Set
+import qualified Data.HashSet                       as     HashSet
 
 every :: Int -> [a] -> [a]
 every n = map head . takeWhile (not . null) . iterate (drop n)
@@ -16,9 +18,9 @@ every n = map head . takeWhile (not . null) . iterate (drop n)
 count :: (Foldable t, Enum b) => (a -> b) -> t a -> Int
 count f = getSum . foldMap (Sum . fromEnum . f)
 
-fromRight :: Either a b -> b
+fromRight :: Show a => Either a b -> b
 fromRight (Right r) = r
-fromRight _ = error "Left in fromRight"
+fromRight (Left l)  = error $ "Left in fromRight: " ++ show l
 
 fromBool :: (a -> Bool) -> a -> Maybe a
 fromBool f x | f x = Just x
@@ -29,6 +31,9 @@ between a b x = a <= x && x <= b
 
 both :: Arrow a => a b c -> a (b, b) (c, c)
 both f = f *** f
+
+hashNub :: (Eq a, Hashable a) => [a] -> [a]
+hashNub = HashSet.toList . HashSet.fromList
 
 sortNub :: (Ord a) => [a] -> [a]
 sortNub = Set.toList . Set.fromList

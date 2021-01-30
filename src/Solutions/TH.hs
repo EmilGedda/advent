@@ -14,13 +14,14 @@ solutions year = map (\d -> printf "Solutions.Y%d.D%02d.day%02d" year d d) [1 ::
 isSolution :: Name -> Q Bool
 isSolution func = do
     VarI _ typ _ <- reify func
-    return $ typ == ConT 'Day
+    return $ show typ == "ConT Advent.Problem.Day"
 
 discoverDays :: Q Exp
-discoverDays = do
-    loc <- location
-    let year = read . dropWhile (not . isDigit) $ loc_module loc
+discoverDays = discoverDays' . read . dropWhile (not . isDigit) . loc_module =<< location
+
+discoverDays' :: Integer -> Q Exp
+discoverDays' year = do
     candidates <- mapM lookupValueName $ solutions year
-    solutions <- filterM isSolution $ catMaybes candidates
+    days <- filterM isSolution $ catMaybes candidates
     container <- [|Year year|]
-    return . AppE container . ListE $ map VarE solutions
+    return . AppE container . ListE $ map VarE days

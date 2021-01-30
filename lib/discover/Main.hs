@@ -13,21 +13,24 @@ main = do
 
     let mod        = "Solutions." ++ takeBaseName src
         year       = map toLower $ takeBaseName src
-        toImport m = "import " ++ mod ++ "." ++ m ++ " as S"
-        modules    = map toImport  . filter solution $ map takeBaseName files
+        days s m = s ++ " " ++ mod ++ "." ++ m
+        solutions  = filter solution $ map takeBaseName files
+        imports    = unlines . sort $ map (days "import") solutions
+        exports    = unlines . sort $ map ((++",") . days "module") solutions
 
     writeFile dst $ unlines
                   [ "{-# LANGUAGE TemplateHaskell #-}"
                   , ""
                   , "module " ++ mod
-                  , "    ( module S"
-                  , "    , " ++ year
+                  , "    ("
+                  , exports
+                  , year
                   , "    ) where"
                   , ""
                   , "import Advent.Problem"
                   , "import Solutions.TH"
                   , ""
-                  , unlines $ sort modules
+                  , imports
                   , ""
                   , year ++ " :: Year"
                   , year ++ " = $(discoverDays)"

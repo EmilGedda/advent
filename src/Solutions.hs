@@ -17,9 +17,9 @@ years = [
 
 solveDay :: Day -> Input -> IO ()
 solveDay Day{ number, partOne, partTwo } (Input text) = do
-    putStrLn $ "Parsing day " ++ show number
-    putStrLn $ "Parsing 1: " ++ solution (partOne $ parseInput text)
-    putStrLn $ "Parsing 2: " ++ solution (partTwo $ parseInput text)
+    putStrLn $ "Solving day " ++ show number
+    putStrLn $ "Part 1: " ++ solution (partOne $ parseInput text)
+    putStrLn $ "Part 2: " ++ solution (partTwo $ parseInput text)
 
 solve :: Integer -> IO ()
 solve day = solve' day =<< currentYear

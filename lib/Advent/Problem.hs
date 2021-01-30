@@ -10,24 +10,22 @@ module Advent.Problem (
         Input(..),
         day,
         notSolved,
-        fromInput,
         fetchInput
     ) where
 
-import           Prelude hiding                             (readFile, writeFile, lines)
 import           Advent
 import           Advent.API
 import           Advent.Problem.Util
 import           Advent.Problem.Types
 
-import           Control.Monad.Catch                        (MonadCatch)
-import           Control.Monad.Except                       (MonadError)
-import           Data.ByteString                            (ByteString, stripSuffix)
-import           Data.Maybe                                 (fromMaybe)
-import           System.FilePath                            ((</>))
-import           Text.Printf                                (printf)
+import           Prelude hiding         (readFile, writeFile, lines)
+import           Control.Monad.Catch    (MonadCatch)
+import           Control.Monad.Except   (MonadError)
+import           Data.ByteString        (ByteString)
+import           System.FilePath        ((</>))
+import           Text.Printf            (printf)
 
-newtype Input = Input ByteString deriving Show
+newtype Input = Input { fromInput :: ByteString } deriving Show
 
 data Day = forall a b c. (Parseable a, ToString b, ToString c)
          => Day {
@@ -48,9 +46,6 @@ data Year = Year {
 
 notSolved :: Parseable a => a -> String
 notSolved = const "Not solved"
-
-fromInput :: Input -> ByteString
-fromInput (Input str) = fromMaybe str $ stripSuffix "\n" str
 
 fetchInput :: (MonadHTTP m, MonadError String m, MonadCatch m, MonadFS m)
     => Integer -> Integer -> m Input
