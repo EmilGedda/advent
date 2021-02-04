@@ -3,7 +3,7 @@ import Tests
 
 import Prelude              hiding  (null)
 import Advent.Problem       hiding  (day)
-import Advent.API                   (runSession)
+import Advent.API                   (runNetworkEnv)
 import Solutions                    (years)
 import Data.ByteString              (null)
 import Data.Either                  (isRight)
@@ -32,7 +32,7 @@ testConsistency d ans
 
 findTest :: Integer -> Answer -> IO (Answer, Either String Input)
 findTest y ans@(Answer (Day n _ _) _ _)
-    = (,) ans <$> (runExceptT . runSession) (fetchInput y n)
+    = (,) ans <$> (runExceptT . runNetworkEnv) (fetchInput y n)
 
 testDay :: Answer -> Either String Input -> TestTree
 testDay (Answer (Day n partOne partTwo) first second) input =

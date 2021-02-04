@@ -6,13 +6,13 @@ import           Advent
 import           Data.Aeson
 import           Data.Aeson.Types
 import           Control.Applicative      ((<|>))
-import           Control.Lens             ((%~), both)
 import           Control.Monad            (zipWithM)
 import           Control.Monad.Except     (liftEither, MonadError)
 import           Data.ByteString.Lazy     (ByteString)
 import           Data.HashMap.Strict      (member)
 import           Data.List                (sortBy, partition)
 import           Data.Ord                 (Down(..), comparing)
+import           Lens.Micro               ((%~), both)
 import           Data.Time.Format         (formatTime, defaultTimeLocale)
 import           Text.Printf              (printf, PrintfArg)
 import qualified Data.Map                 as M

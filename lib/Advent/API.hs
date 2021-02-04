@@ -12,24 +12,36 @@ import           Advent.Problem.Util
 import           Advent.Leaderboard
 
 import           Control.Applicative            ((<|>))
-import           Control.Monad                  (when, unless, (<=<))
+import           Control.Monad                  (when, unless, (<=<), liftM2)
 import           Control.Monad.Catch            (MonadCatch)
 import           Control.Monad.Except           (throwError, MonadError)
-import           Control.Monad.Reader           (ReaderT(..), runReaderT, MonadIO, liftIO)
+import           Control.Monad.Reader           (ReaderT(..), runReaderT, MonadIO, liftIO, ask)
 import           Data.ByteString                (ByteString, null, stripSuffix)
 import           Data.ByteString.Char8          (readInteger, pack)
-import           Data.ByteString.Lazy           (fromStrict)
+import           Data.ByteString.Lazy           (fromStrict, toStrict)
 import           Data.List                      (find)
 import           Data.Maybe                     (fromMaybe, listToMaybe)
 import           Data.Time                      (UTCTime, parseTimeOrError, defaultTimeLocale)
-import           Network.HTTP.Client            (CookieJar, Cookie(..), createCookieJar)
-import           Network.HTTP.Client.OpenSSL    (opensslManagerSettings, defaultMakeContext, defaultOpenSSLSettings)
+import           Network.HTTP.Client            (CookieJar, Cookie(..), createCookieJar, Manager
+                                                , parseRequest_, responseBody, httpLbs, method, cookieJar)
+import           Network.HTTP.Client.OpenSSL    (newOpenSSLManager)
 import           Prelude hiding                 (readFile, writeFile, null)
 import           System.FilePath                ((</>))
 import           Text.Printf                    (printf)
 import           Text.Regex.TDFA                ((=~))
 import           Text.Regex.TDFA.ByteString     ()
-import qualified Network.Wreq.Session       as  S
+
+data NetworkEnv = NetworkEnv Manager CookieJar
+
+instance MonadIO m => MonadHTTP (ReaderT NetworkEnv m) where
+    httpGet url = do
+        NetworkEnv manager cookies <- ask
+        let req = (parseRequest_ url){
+                        method = "GET",
+                        cookieJar = Just cookies
+                  }
+        res <- liftIO $ httpLbs req manager
+        return . toStrict $ responseBody res
 
 tokenFile :: MonadFS m => m FilePath
 tokenFile = (</> "session-token.txt") <$> cacheDir
@@ -44,20 +56,13 @@ getSessionToken = flip catch "Unable to read session token" $ do
     return . fromMaybe token $ stripSuffix "\n" token
 
 
-session :: (MonadIO m, MonadError String m) => ByteString -> m S.Session
-session = liftIO . flip S.newSessionControl tls . Just . sessionCookie
-    where tls = opensslManagerSettings $ defaultMakeContext defaultOpenSSLSettings
+newNetworkEnv :: (MonadFS m, MonadError String m, MonadCatch m, MonadIO m)
+              => m NetworkEnv
+newNetworkEnv = liftM2 NetworkEnv newOpenSSLManager (sessionCookie <$> getSessionToken)
 
-
-runSession :: (MonadIO m, MonadError String m, MonadFS m, MonadCatch m)
-    => ReaderT S.Session m b -> m b
-runSession r = runReaderT r =<< session =<< getSessionToken
-
-
-runCookies :: (MonadIO m, MonadError String m, MonadFS m, MonadCatch m)
-    => ReaderT CookieJar m b -> m b
-runCookies r = runReaderT r . sessionCookie =<< getSessionToken
-
+runNetworkEnv :: (MonadFS m, MonadError String m, MonadCatch m, MonadIO m)
+              => ReaderT NetworkEnv m b -> m b
+runNetworkEnv r = runReaderT r =<< newNetworkEnv
 
 sessionCookie :: ByteString -> CookieJar
 sessionCookie token =
@@ -78,7 +83,8 @@ input year day = fetch url `catch` "Unable to fetch input"
     where url = printf "/%d/day/%d/input" year day
 
 
-currentUserID :: (MonadError String m, MonadFS m, MonadHTTP m, MonadTime m, MonadCatch m) => m Integer
+currentUserID :: (MonadError String m, MonadFS m, MonadHTTP m, MonadTime m, MonadCatch m)
+              => m Integer
 currentUserID = do
     cache <- (</> "user.txt") <$> cacheDir
     exist <- hasFile cache

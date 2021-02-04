@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 90efc8fe50665d03cee90ff44cf43dc49d8f22204891171856c2657c5960f3c7
+-- hash: 9a17ae0badaea5abe9b0f90fd43d62bd6d3b9b2a78e43df3760dc3621fe13513
 
 name:           advent
 version:        1.0.0.0
@@ -44,16 +44,15 @@ library
     , hashable >=1.3 && <1.4
     , http-client >=0.6 && <0.7
     , http-client-openssl >=0.3 && <0.4
-    , lens >=4.19 && <4.20
+    , http-types >=0.12 && <0.13
+    , microlens >=0.4 && <0.5
     , mtl >=2.2 && <2.3
     , regex-tdfa >=1.3 && <1.4
     , split >=0.2 && <0.3
-    , string-interpolate >=0.3 && <0.4
     , template-haskell >=2.16 && <2.17
     , time >=1.9 && <1.10
     , unordered-containers >=0.2 && <0.3
     , vector >=0.12 && <0.13
-    , wreq >=0.5 && <0.6
   if false
     other-modules:
         Paths_advent
@@ -77,14 +76,12 @@ executable advent
     , optparse-applicative >=0.15 && <0.16
     , template-haskell >=2.16 && <2.17
     , time >=1.9 && <1.10
-    , wreq >=0.5 && <0.6
   default-language: Haskell2010
 
 executable advent-discover
   main-is: Main.hs
   hs-source-dirs:
       discover
-  ghc-options: -O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.14 && <4.15
     , directory >=1.3 && <1.4

@@ -4,7 +4,9 @@ module Solutions.Y2020.D12 (day12) where
 
 import Advent.Problem                           (Day, day, fromRight, Parseable(..))
 import Data.List                                (foldl')
-import Control.Lens
+import Lens.Micro
+import Lens.Micro.Extras
+import Lens.Micro.TH
 import Data.Attoparsec.ByteString.Char8
 
 newtype Action = Action { getAction :: (Char, Int) }
@@ -29,7 +31,7 @@ sail :: Lens' Ship (Int, Int) ->  Lens' Ship (Int, Int) ->  Ship -> [Action] -> 
 sail field target = foldl' . flip $ uncurry (act field target) . getAction
 
 distance :: Ship -> Int
-distance = uncurry (+) . (both %~ abs) . view position
+distance = uncurry (+) . (both %~ abs) . _position
 
 act :: Lens' Ship (Int, Int) -> Lens' Ship (Int, Int) -> Char -> Int -> Ship -> Ship
 act field  _ 'N' n = move field    =<< const (n, 0)
@@ -49,6 +51,6 @@ rotate field n = (both %~ round) . angle n . (both %~ fromIntegral) . view field
 
 turn field  = update field const
 move field  = update field (+)
-towards f n = (both *~ n) . view f
+towards f n = (both %~ (*n)) . view f
 update l f  = (l %~) . tuple f
 tuple f (a,b) (x,y) = (f a x, f b y)

@@ -9,28 +9,24 @@ module Advent where
 
 import           Prelude                        hiding (readFile, writeFile, null)
 
+import           Control.Exception              (SomeException, displayException, IOException)
 import           Control.Monad                  (liftM2)
-import           Control.Lens                   ((?~), view, (^.))
-import           Network.Wreq                   (getWith, defaults, cookies, responseBody, responseBody, statusCode, statusMessage, responseStatus, Response)
+import           Control.Monad.Catch            (MonadCatch, fromException)
+import           Control.Monad.Reader           (ReaderT)
+import           Control.Monad.Except           (ExceptT(..), throwError, lift, MonadError, MonadTrans)
 import           Data.Bool                      (bool)
 import           Data.ByteString                (ByteString)
-import           Data.ByteString.Lazy           (toStrict)
-import           Control.Exception              (SomeException, displayException, IOException)
-import           Control.Monad.Catch            (MonadCatch, fromException)
-import           Control.Monad.Except           (ExceptT(..), throwError, lift, MonadError, MonadTrans)
-import           Control.Monad.Reader           (ReaderT(..), MonadIO, liftIO)
 import           Data.Time                      (UTCTime)
 import           Data.Time.Calendar             (toGregorian)
 import           Data.Time.Clock                (getCurrentTime, utctDay, secondsToNominalDiffTime)
 import           Data.Time.Clock.POSIX          (getPOSIXTime, POSIXTime)
+import           Network.HTTP.Client            (responseStatus)
+import           Network.HTTP.Types.Status      (statusCode, statusMessage)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
-import           Network.HTTP.Client.OpenSSL    (withOpenSSL)
 import qualified Data.ByteString                (readFile, writeFile)
 import qualified Data.ByteString.Char8          as B
-import qualified Data.ByteString.Lazy           as BL
 import qualified GHC.IO.Exception               as GHC
 import qualified Network.HTTP.Client            as H
-import qualified Network.Wreq.Session           as S
 import qualified Control.Monad.Catch            as C
 
 type Trans c m a = forall m1 t. (MonadTrans t, c m1, m ~ t m1) => m a
@@ -96,7 +92,7 @@ instance MonadFS IO where
 
 instance MonadTime IO where
     currentYear = do
-        (year, month, _) <- toGregorian . utctDay <$> liftIO getCurrentTime
+        (year, month, _) <- toGregorian . utctDay <$> getCurrentTime
         return $ bool year (year - 1) (month < 12)
 
     timeSince =  liftM2 (-) getPOSIXTime . return
@@ -109,15 +105,6 @@ instance MonadTime m => MonadTime (ExceptT e m)
 instance MonadTime m => MonadTime (ReaderT r m)
 instance MonadHTTP m => MonadHTTP (ExceptT e m)
 
-wreq :: MonadIO m => (r -> a -> IO (Response BL.ByteString)) -> a -> ReaderT r m ByteString
-wreq f = ReaderT . flip (\x -> liftIO . withOpenSSL . fmap (toStrict . view responseBody) . f x)
-
-instance MonadIO m => MonadHTTP (ReaderT H.CookieJar m) where
-    httpGet = wreq (getWith . flip (cookies ?~) defaults)
-
-instance MonadIO m => MonadHTTP (ReaderT S.Session m) where
-    httpGet = wreq S.get
-
 catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
 catch e str = e `C.catch` (throwError . prettyException str)
 
@@ -126,9 +113,9 @@ httpCatcher (H.HttpExceptionRequest req content)
     = case content of -- HTTP Exceptions
         H.StatusCodeException res _
              -> "expected 200 OK but got "
-                ++ show (res ^. responseStatus . statusCode)
+                ++ show (statusCode . responseStatus $ res)
                 ++ " "
-                ++ B.unpack (res ^. responseStatus . statusMessage)
+                ++ B.unpack (statusMessage . responseStatus $ res)
                 ++ " during "
                 ++ B.unpack (H.method req)
                 ++ " "

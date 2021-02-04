@@ -15,15 +15,12 @@ import           Data.List              (intercalate)
 import           Data.Maybe             (fromMaybe)
 import           Data.Time              (getCurrentTime)
 import           Data.Time.Format       (formatTime, defaultTimeLocale)
-import           Network.Wreq.Session   (Session)
-import           Network.HTTP.Client    (CookieJar)
 import           Paths_advent           (version)
 import           Options.Applicative
 import           Language.Haskell.TH
 import qualified Data.ByteString.Char8  as B
 
 type App r a = ReaderT r (ExceptT String IO) a
-
 
 data LeaderboardOrder = LocalScore | Stars
 
@@ -116,13 +113,9 @@ main = run =<< customExecParser (prefs showHelpOnError)
 output :: (a -> IO (Either String b)) -> (b -> IO ()) -> a -> IO ()
 output f g input = either putStrLn g =<< f input
 
-(<==) :: (a -> IO ()) -> App Session a -> IO ()
-(<==) = output $ runExceptT . runSession
+(<==) :: (a -> IO ()) -> App NetworkEnv a -> IO ()
+(<==) = output $ runExceptT . runNetworkEnv
 infixr 0 <==
-
-(<<=) :: (a -> IO ()) -> App CookieJar a -> IO ()
-(<<=) = output $ runExceptT .  runCookies
-infixr 0 <<=
 
 run :: Options -> IO ()
 run (LeaderboardOptions id year order)

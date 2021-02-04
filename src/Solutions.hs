@@ -28,7 +28,7 @@ solve' ::  Integer -> Integer -> IO ()
 solve' day y =
         maybe (putStrLn $ "No solution for year" ++ show y)
               (\(Year _ days) -> do
-                input <- runExceptT . runSession $ fetchInput y day
+                input <- runExceptT . runNetworkEnv $ fetchInput y day
                 maybe (putStrLn $ "No solution for day " ++ show day)
                       (\ans -> either putStrLn (solveDay ans) input)
                       $ find ((==) day . number) days)
