@@ -6,7 +6,7 @@ import           Control.Monad                             (foldM)
 import           Data.ByteString                           (ByteString)
 import           Data.Monoid                               (Sum(..), getSum)
 import           Data.Hashable                             (Hashable)
-import           Data.List                                 (foldl1')
+import           Data.List                                 (foldl1', foldl')
 import           Debug.Trace                               (trace)
 import           Data.Attoparsec.ByteString.Char8   hiding (takeWhile)
 import qualified Data.Set                           as     Set
@@ -53,8 +53,12 @@ commalist p = CommaList <$> p `sepBy` char ','
 debug :: Show a => a -> a
 debug x = trace (show x) x
 
-digits :: Integral x => x -> [x]
-digits = reverse . go
+fromDigits :: Integral x => [x] -> x
+fromDigits = foldl' ((+) . (*10)) 0
+
+
+toDigits :: Integral x => x -> [x]
+toDigits = reverse . go
     where go 0 = []
           go x = x `mod` 10 : go (x `div` 10)
 

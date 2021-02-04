@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e0d738646b3277ca93b528308dfd8fabdf330e616414ddcd0a915146c192bc55
+-- hash: 2befb5a625311491892e140daf487992d5ea3b5b340eddb47dcc551cce90e4c9
 
 name:           advent-solutions
 version:        1.0.0.0
@@ -52,6 +52,7 @@ library
       Solutions.Y2020.D20
       Solutions.Y2020.D21
       Solutions.Y2020.D22
+      Solutions.Y2020.D23
   other-modules:
       Paths_advent_solutions
   hs-source-dirs:
