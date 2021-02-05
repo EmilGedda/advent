@@ -1,45 +1,65 @@
+{-# LANGUAGE TupleSections #-}
 module Solutions.Y2020.D23 where
 
 import           Advent.Problem
 import           Control.Monad
 import           Control.Monad.ST
+import           Data.List                   (sortOn)
 import qualified Data.Vector.Unboxed         as U
 import qualified Data.Vector.Unboxed.Mutable as UM
 
 day23 :: Day
-day23 = day 23 (crab 100) notSolved
+day23 = day 23 (fromDigits . take 8 . crab 9 100)
+               (product . take 2 . crab 1000000 10000000)
 
-reorder :: Integral a => [a] -> [a]
-reorder = take 8 . drop 1 . dropWhile (/=1) . cycle
-
-crab :: Int -> Int -> Int
-crab n = fromDigits
-       . reorder
-       . U.toList
-       . U.modify (moveCups n)
-       . U.fromList
+crab :: Int -> Int -> Int -> [Int]
+crab l n = toList
+       . (\(start, v) -> U.modify (moveCups n start) v)
+       . createVector
+       . flip mappend [10..l]
        . toDigits
 
-moveCups :: Int -> UM.MVector s Int -> ST s ()
-moveCups n v =
-    let
-        write i = UM.unsafeWrite v (i `mod` 9)
-        read  i = UM.unsafeRead  v (i `mod` 9)
-        readL i = mapM read [i..i + 9]
-        writeL i l = zipWithM_ write [i..] l
+createVector :: [Int] -> (Int, U.Vector Int)
+createVector xs = (head xs,)
+                . U.fromList
+                . map snd
+                . sortOn fst
+                . zip xs
+                . tail
+                $ cycle xs
 
-        bound n
-            | n < 1 = 9
+toList :: U.Vector Int -> [Int]
+toList v = go 1
+    where go at = let x = v U.! (at - 1) in x:go x
+
+moveCups :: Int -> Int -> UM.MVector s Int -> ST s ()
+moveCups n start v =
+
+    let
+        len     = UM.length v
+        read i  = UM.read  v (i - 1)
+        write i = UM.write v (i - 1)
+
+        decrease n
+            | n <= 1 = len
+            | otherwise = n - 1
+
+        destination n a b c
+            | n == a || n == b || n == c
+                = destination (decrease n) a b c
             | otherwise = n
 
-        destination n _ [] = n
-        destination n l (x:xs)
-            | n == x = destination (bound $ n - 1) l l
-            | otherwise = destination n l xs
+    in void
+     $ fold [0..n - 1] start $ \current _ -> do
+          a    <- read current
+          b    <- read a
+          c    <- read b
+          next <- read c
+          write current next
 
-    in forM_ [0..n - 1] $ \i -> do
-        current <- read i
-        three <- take 3 <$> readL (i + 1)
-        let dest = destination (bound $ current - 1) three three
-        coming <- takeWhile (/= dest) <$> readL (i + 4)
-        writeL (i + 1) $ coming ++ dest:three
+          let dest = destination (decrease current) a b c
+          after <- read dest
+          write dest a
+          write c after
+
+          return next
