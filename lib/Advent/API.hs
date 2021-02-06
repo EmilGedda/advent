@@ -17,10 +17,11 @@ import           Control.Monad.Catch            (MonadCatch)
 import           Control.Monad.Except           (throwError, MonadError)
 import           Control.Monad.Reader           (ReaderT(..), runReaderT, MonadIO, liftIO, ask)
 import           Data.ByteString                (ByteString, null, stripSuffix)
-import           Data.ByteString.Char8          (readInteger, pack)
+import           Data.ByteString.Char8          (readInteger, pack, breakSubstring)
+import qualified Data.ByteString.Char8          as B
 import           Data.ByteString.Lazy           (fromStrict, toStrict)
 import           Data.List                      (find)
-import           Data.Maybe                     (fromMaybe, listToMaybe)
+import           Data.Maybe                     (fromMaybe)
 import           Data.Time                      (UTCTime, parseTimeOrError, defaultTimeLocale)
 import           Network.HTTP.Client            (CookieJar, Cookie(..), createCookieJar, Manager
                                                 , parseRequest_, responseBody, httpLbs, method, cookieJar)
@@ -28,8 +29,6 @@ import           Network.HTTP.Client.OpenSSL    (newOpenSSLManager)
 import           Prelude hiding                 (readFile, writeFile, null)
 import           System.FilePath                ((</>))
 import           Text.Printf                    (printf)
-import           Text.Regex.TDFA                ((=~))
-import           Text.Regex.TDFA.ByteString     ()
 
 data NetworkEnv = NetworkEnv Manager CookieJar
 
@@ -116,19 +115,13 @@ currentUser = do
 
 findID :: MonadError String m => ByteString -> m Integer
 findID str =
-    let anonuser  = regexMatchGroups "anonymous user #([0-9]+)" str
-        codehover = regexMatchGroups "<code>([0-9]+)" str
-        readID list = fmap fst . readInteger =<< listToMaybe list
+    let after s = B.drop (B.length s) . snd . breakSubstring s
+        anonuser  = after "anonymous user #" str
+        codehover = after "<code>" str
+        readID = fmap fst . readInteger
 
     in maybe (throwError "Unable to find user id") return
              $ readID anonuser <|> readID codehover
-
-
-regexMatchGroups :: ByteString -> ByteString -> [ByteString]
-regexMatchGroups regex str = groups
-    where (_, _, _, groups) = str =~ regex
-            :: (ByteString, ByteString, ByteString, [ByteString])
-
 
 leaderboard :: (MonadError String m, MonadHTTP m, MonadCatch m)
             => Integer -> Integer -> m Leaderboard
