@@ -56,7 +56,6 @@ debug x = trace (show x) x
 fromDigits :: Integral x => [x] -> x
 fromDigits = foldl' ((+) . (*10)) 0
 
-
 toDigits :: Integral x => x -> [x]
 toDigits = reverse . go
     where go 0 = []

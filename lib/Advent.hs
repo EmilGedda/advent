@@ -19,7 +19,7 @@ import           Data.ByteString                (ByteString)
 import           Data.Time                      (UTCTime)
 import           Data.Time.Calendar             (toGregorian)
 import           Data.Time.Clock                (getCurrentTime, utctDay, secondsToNominalDiffTime)
-import           Data.Time.Clock.POSIX          (getPOSIXTime, POSIXTime)
+import           Data.Time.Clock.POSIX          (getPOSIXTime)
 import           Network.HTTP.Client            (responseStatus)
 import           Network.HTTP.Types.Status      (statusCode, statusMessage)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
@@ -62,14 +62,21 @@ class Monad m => MonadFS m where
     default deleteFile :: FilePath -> Trans MonadFS m ()
     deleteFile = lift . deleteFile
 
+data TimeSince = TimeSince {
+                    days    :: Integer,
+                    hours   :: Integer,
+                    minutes :: Integer,
+                    seconds :: Integer
+                } deriving (Ord, Eq, Show)
+
 class Monad m => MonadTime m where
     currentYear :: m Integer
-    timeSince :: Integral a => a -> m POSIXTime
+    timeSince :: Integral a => a -> m (Maybe TimeSince)
 
     default currentYear :: Trans MonadTime m Integer
     currentYear = lift currentYear
 
-    default timeSince :: Integral a => a -> Trans MonadTime m POSIXTime
+    default timeSince :: Integral a => a -> Trans MonadTime m (Maybe TimeSince)
     timeSince = lift . timeSince
 
 class Monad m => MonadHTTP m where
@@ -95,8 +102,21 @@ instance MonadTime IO where
         (year, month, _) <- toGregorian . utctDay <$> getCurrentTime
         return $ bool year (year - 1) (month < 12)
 
-    timeSince =  liftM2 (-) getPOSIXTime . return
-              . secondsToNominalDiffTime . fromIntegral
+    timeSince 0 = return Nothing
+    timeSince v = do
+        posix <- liftM2 (-) getPOSIXTime . return
+                 . secondsToNominalDiffTime $ fromIntegral v
+        let
+            secondsPerHour = 60 * 60
+            secondsPerDay  = 24 * secondsPerHour
+
+            timestamp = floor (toRational posix)
+
+            (days, restHours) = timestamp `divMod` secondsPerDay
+            (hours, restMins) = restHours `divMod` secondsPerHour
+            (mins, secs)      = restMins `divMod` 60
+
+        return . Just $ TimeSince days hours mins secs
 
 
 instance MonadFS   m => MonadFS   (ExceptT e m)

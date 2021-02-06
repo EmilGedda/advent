@@ -1,5 +1,5 @@
 {-# LANGUAGE TupleSections #-}
-module Solutions.Y2020.D23 where
+module Solutions.Y2020.D23 (day23) where
 
 import           Advent.Problem
 import           Control.Monad
@@ -50,7 +50,7 @@ moveCups n start v =
             | otherwise = n
 
     in void
-     $ fold [0..n - 1] start $ \current _ -> do
+     . fold [0..n - 1] start . flip . const $ \current -> do
           a    <- read current
           b    <- read a
           c    <- read b
