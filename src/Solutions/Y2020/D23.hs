@@ -37,8 +37,8 @@ moveCups n start v =
 
     let
         len     = UM.length v
-        read i  = UM.read  v (i - 1)
-        write i = UM.write v (i - 1)
+        read i  = UM.unsafeRead  v (i - 1)
+        write i = UM.unsafeWrite v (i - 1)
 
         decrease n
             | n <= 1 = len
