@@ -45,7 +45,8 @@ ghc-options:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
-
+extra-deps:
+- microaeson-0.1.0.0@sha256:43dd72c13b2cde29d3fb9a7a67178b6eaaa4280bb6809c52fb4a32487bd5cb25,3318
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

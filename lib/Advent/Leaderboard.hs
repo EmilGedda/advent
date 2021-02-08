@@ -4,21 +4,22 @@
 module Advent.Leaderboard where
 
 import           Advent
-import           Advent.Problem.Util      hiding (fold, both)
-import           Data.Aeson
-import           Data.Aeson.Types
-import           Control.Applicative      ((<|>))
-import           Control.Monad            (zipWithM)
-import           Control.Monad.Except     (liftEither, MonadError)
-import           Data.ByteString.Lazy     (ByteString)
-import           Data.Foldable            (fold)
-import           Data.HashMap.Strict      (member)
-import           Data.List                (sortBy, partition)
-import           Data.Maybe               (catMaybes)
-import           Data.Ord                 (Down(..), comparing)
-import           Lens.Micro               ((%~), both)
-import           Text.Printf              (printf, PrintfArg)
-import qualified Data.Map                 as M
+import           Advent.Problem.Util        hiding (fold, both)
+
+import           Data.Aeson.Micro
+import           Control.Monad              (zipWithM)
+import           Control.Monad.Except       (MonadError, throwError)
+import           Data.Foldable              (fold)
+import           Data.List                  (sortBy, partition)
+import           Data.Maybe                 (catMaybes)
+import           Data.Ord                   (Down(..), comparing)
+import           Lens.Micro                 ((%~), both)
+import           Text.Printf                (printf, PrintfArg)
+import qualified Data.Map                   as M
+import qualified Data.ByteString.Char8      as B
+import qualified Data.Text                  as T
+import qualified Data.Text.Read             as TR
+
 
 newtype Progress = Progress { fromProgress :: Int }
 
@@ -41,28 +42,31 @@ data Leaderboard
 instance FromJSON Progress where
     parseJSON = withObject "Progress" $
         return . Progress . length . filter id
-               . flip map ["1","2"] . flip member
+               . flip map ["1","2"] . flip M.member
 
 instance FromJSON User where
     parseJSON = withObject "User" $ \v -> User
-        <$> v .: "name"
+        <$> (T.unpack <$> v .: "name")
         <*> v .: "stars"
         <*> v .: "local_score"
-        <*> (v .: "last_star_ts" <|> (read <$> v .: "last_star_ts"))
-        <*> (v .: "id" <|> (read <$> v .: "id"))
-        <*> v .: "completion_day_level"
+        <*> (read . T.unpack <$> v .: "last_star_ts")
+        <*> (read . T.unpack <$> v .: "id")
+        <*> (M.mapKeys readInt <$> v .: "completion_day_level")
+
+readInt :: T.Text -> Integer
+readInt = fst . fromRight . TR.decimal
 
 instance FromJSON Leaderboard where
     parseJSON = withObject "Leaderboard" $ \obj -> Leaderboard
-        <$> obj .: "event"
-        <*> (M.elems <$> (obj .: "members" :: Parser (M.Map String User)))
+        <$> (T.unpack <$> obj .: "event")
+        <*> (M.elems <$> (obj .: "members" :: Parser (M.Map T.Text User)))
+
 
 digits :: Integral a => a -> Int
 digits  = (+1) . (floor :: Double -> Int) . logBase 10 . fromIntegral
 
-
-parseLeaderboard :: MonadError String m => ByteString -> m Leaderboard
-parseLeaderboard = liftEither . eitherDecode
+parseLeaderboard :: MonadError String m => B.ByteString -> m Leaderboard
+parseLeaderboard = maybe (throwError "Failed to parse leaderboard json") return . decodeStrict
 
 
 prettyLeaderboard :: (Integral t, PrintfArg t, MonadTime m) => (User -> t) -> Leaderboard -> m String
@@ -70,22 +74,25 @@ prettyLeaderboard score (Leaderboard event participants) = do
     times <- mapM (timeSince . lastStar) participants
 
     let
+        toInt :: Integral a => a -> Int
+        toInt = fromIntegral
+
         members = sortBy order participants
         order   = comparing (Down . score) <> comparing (Down . lastStar)
-        scoreWidth  = digits . score . head $ members
-        indexWidth  = digits $ length participants
+        scoreWidth  = fromIntegral . digits . score . head $ members
+        indexWidth  = fromIntegral . digits $ length participants
         nameWidth   = fromIntegral . maximum $ map (length . name) participants
         columnWidth = indexWidth + scoreWidth + 2
         timeWidth   = maximum . map (length . toDigits . days) $ catMaybes times
         title       = if length event > columnWidth + 9
-                        then take (columnWidth + 6) event ++ "..."
+                        then take (columnWidth + 6) event <> "..."
                         else event
-        spacing         = 25 - max 0 (length title - columnWidth)
+        spacing         = 25 - max 0 (length title - toInt columnWidth)
         indexFormat     = printf "\x1b[37m%%%dd)\x1b[0m " indexWidth
         firstRowFormat  = printf "\x1b[37m%%-%ds \x1b[32m%%%ds\n" columnWidth spacing
         secondRowFormat = printf "\x1b[32m%%%dc %%s\x1b[39m\n" columnWidth
         printRow w i user = mappend (printf indexFormat i)
-                        <$> prettyUser score scoreWidth nameWidth w user
+                        <$> prettyUser score (toInt scoreWidth) nameWidth w user
 
     r <- zipWithM (printRow timeWidth) [1 :: Int ..] members
 

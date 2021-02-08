@@ -7,40 +7,32 @@
 
 module Advent.API where
 
+import           Prelude hiding                 (readFile, writeFile, null)
+
 import           Advent
 import           Advent.Problem.Util
 import           Advent.Leaderboard
 
 import           Control.Applicative            ((<|>))
-import           Control.Monad                  (when, unless, (<=<), liftM2)
+import           Control.Monad                  (when, unless, (<=<))
 import           Control.Monad.Catch            (MonadCatch)
 import           Control.Monad.Except           (throwError, MonadError)
 import           Control.Monad.Reader           (ReaderT(..), runReaderT, MonadIO, liftIO, ask)
 import           Data.ByteString                (ByteString, null, stripSuffix)
-import           Data.ByteString.Char8          (readInteger, pack, breakSubstring)
-import qualified Data.ByteString.Char8          as B
-import           Data.ByteString.Lazy           (fromStrict, toStrict)
 import           Data.List                      (find)
 import           Data.Maybe                     (fromMaybe)
-import           Data.Time                      (UTCTime, parseTimeOrError, defaultTimeLocale)
-import           Network.HTTP.Client            (CookieJar, Cookie(..), createCookieJar, Manager
-                                                , parseRequest_, responseBody, httpLbs, method, cookieJar)
-import           Network.HTTP.Client.OpenSSL    (newOpenSSLManager)
-import           Prelude hiding                 (readFile, writeFile, null)
+import           Network.Curl                   (curlGetString_, CurlOption(..))
 import           System.FilePath                ((</>))
 import           Text.Printf                    (printf)
+import qualified Data.ByteString.Char8          as B
 
-data NetworkEnv = NetworkEnv Manager CookieJar
+newtype NetworkEnv = NetworkEnv String
 
 instance MonadIO m => MonadHTTP (ReaderT NetworkEnv m) where
     httpGet url = do
-        NetworkEnv manager cookies <- ask
-        let req = (parseRequest_ url){
-                        method = "GET",
-                        cookieJar = Just cookies
-                  }
-        res <- liftIO $ httpLbs req manager
-        return . toStrict $ responseBody res
+        NetworkEnv cookie <- ask
+        (_, res) <- liftIO $ curlGetString_ url [CurlCookie $ "session=" ++ cookie]
+        return res
 
 tokenFile :: MonadFS m => m FilePath
 tokenFile = (</> "session-token.txt") <$> cacheDir
@@ -57,19 +49,12 @@ getSessionToken = flip catch "Unable to read session token" $ do
 
 newNetworkEnv :: (MonadFS m, MonadError String m, MonadCatch m, MonadIO m)
               => m NetworkEnv
-newNetworkEnv = liftM2 NetworkEnv newOpenSSLManager (sessionCookie <$> getSessionToken)
+newNetworkEnv = NetworkEnv . B.unpack <$> getSessionToken
+
 
 runNetworkEnv :: (MonadFS m, MonadError String m, MonadCatch m, MonadIO m)
               => ReaderT NetworkEnv m b -> m b
 runNetworkEnv r = runReaderT r =<< newNetworkEnv
-
-sessionCookie :: ByteString -> CookieJar
-sessionCookie token =
-    let parseTime = parseTimeOrError True defaultTimeLocale "%Y"
-        expire = parseTime "2030" :: UTCTime
-        create = parseTime "2020" :: UTCTime
-    in createCookieJar [Cookie "session" token expire
-        "adventofcode.com" "/" create create True True False False]
 
 
 fetch :: (MonadError String m, MonadHTTP m) => String -> m ByteString
@@ -90,13 +75,13 @@ currentUserID = do
     if not exist
        then do
            id <- fetchUserID
-           writeFile cache . pack $ show id
+           writeFile cache . B.pack $ show id
            return id
        else do
            latest <- accessTime cache
            token <- accessTime =<< tokenFile
            maybe (deleteFile cache >> currentUserID) (return . fst)
-             . (fromBool (const $ token <= latest) <=< readInteger)
+             . (fromBool (const $ token <= latest) <=< B.readInteger)
              =<< readFile cache
 
 
@@ -115,16 +100,16 @@ currentUser = do
 
 findID :: MonadError String m => ByteString -> m Integer
 findID str =
-    let after s = B.drop (B.length s) . snd . breakSubstring s
+    let after s = B.drop (B.length s) . snd . B.breakSubstring s
         anonuser  = after "anonymous user #" str
         codehover = after "<code>" str
-        readID = fmap fst . readInteger
+        readID = fmap fst . B.readInteger
 
     in maybe (throwError "Unable to find user id") return
              $ readID anonuser <|> readID codehover
 
 leaderboard :: (MonadError String m, MonadHTTP m, MonadCatch m)
             => Integer -> Integer -> m Leaderboard
-leaderboard year id = parseLeaderboard . fromStrict =<< fetch url
+leaderboard year id = parseLeaderboard =<< fetch url
                       `catch` "Unable to fetch leaderboard"
     where url = printf "/%d/leaderboard/private/view/%d.json" year id

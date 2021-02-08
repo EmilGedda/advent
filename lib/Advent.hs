@@ -20,13 +20,10 @@ import           Data.Time                      (UTCTime)
 import           Data.Time.Calendar             (toGregorian)
 import           Data.Time.Clock                (getCurrentTime, utctDay, secondsToNominalDiffTime)
 import           Data.Time.Clock.POSIX          (getPOSIXTime)
-import           Network.HTTP.Client            (responseStatus)
-import           Network.HTTP.Types.Status      (statusCode, statusMessage)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
 import qualified Data.ByteString                (readFile, writeFile)
 import qualified Data.ByteString.Char8          as B
 import qualified GHC.IO.Exception               as GHC
-import qualified Network.HTTP.Client            as H
 import qualified Control.Monad.Catch            as C
 
 type Trans c m a = forall m1 t. (MonadTrans t, c m1, m ~ t m1) => m a
@@ -128,28 +125,28 @@ instance MonadHTTP m => MonadHTTP (ExceptT e m)
 catch :: (MonadCatch m, MonadError String m) => m a -> String -> m a
 catch e str = e `C.catch` (throwError . prettyException str)
 
-httpCatcher :: H.HttpException -> String
-httpCatcher (H.HttpExceptionRequest req content)
-    = case content of -- HTTP Exceptions
-        H.StatusCodeException res _
-             -> "expected 200 OK but got "
-                ++ show (statusCode . responseStatus $ res)
-                ++ " "
-                ++ B.unpack (statusMessage . responseStatus $ res)
-                ++ " during "
-                ++ B.unpack (H.method req)
-                ++ " "
-                ++ show (H.getUri req)
-
-        H.ConnectionFailure conerr
-            -> flip prettyException conerr
-                $ "connecting to "
-                ++ show (H.getUri req)
-                ++ " failed"
-
-        _ -> show content
-
-httpCatcher err = displayException err
+-- httpCatcher :: H.HttpException -> String
+-- httpCatcher (H.HttpExceptionRequest req content)
+--     = case content of -- HTTP Exceptions
+--         H.StatusCodeException res _
+--              -> "expected 200 OK but got "
+--                 ++ show (statusCode . responseStatus $ res)
+--                 ++ " "
+--                 ++ B.unpack (statusMessage . responseStatus $ res)
+--                 ++ " during "
+--                 ++ B.unpack (H.method req)
+--                 ++ " "
+--                 ++ show (H.getUri req)
+--
+--         H.ConnectionFailure conerr
+--             -> flip prettyException conerr
+--                 $ "connecting to "
+--                 ++ show (H.getUri req)
+--                 ++ " failed"
+--
+--         _ -> show content
+--
+-- httpCatcher err = displayException err
 
 ioCatcher :: IOException -> String
 ioCatcher (GHC.IOError _ GHC.NoSuchThing _ desc _ _) = desc
@@ -159,6 +156,7 @@ prettyException :: String -> SomeException -> String
 prettyException msg err =
     let handler name f g e = maybe (g e) ((++) (name ++ " Exception: ") . f) $ fromException e
         catch = foldr ($) displayException
-                    [ handler "HTTP" httpCatcher
-                    , handler "IO"   ioCatcher ]
+                    [ --handler "HTTP" httpCatcher
+                   -- ,
+                    handler "IO"   ioCatcher ]
      in msg ++ ": " ++ catch err
