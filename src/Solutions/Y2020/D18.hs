@@ -6,8 +6,8 @@ import           Control.Applicative              ((<|>))
 import           Data.Attoparsec.ByteString.Char8
 import qualified Data.ByteString.Char8            as B
 
-day18 :: Day
-day18 = day 18 (eval grammar1) (eval grammar2)
+day18 :: Day 18
+day18 = day (eval grammar1) (eval grammar2)
 
 eval :: Parser Int -> [B.ByteString] -> Int
 eval parser = sum . map (attoparse parser . B.reverse)

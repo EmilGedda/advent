@@ -34,8 +34,8 @@ rule = Rule
 instance Parseable Rule where
     parseInput = fromRight . parseOnly rule
 
-day07 :: Day
-day07 = day 7 partOne partTwo
+day07 :: Day 7
+day07 = day partOne partTwo
 
 own :: Bag
 own = Bag "shiny" "gold"

@@ -33,8 +33,8 @@ rule = curry Rule <$> decimal <* ": " <*> condition
 instance Parseable Rule where
     parseInput = attoparse rule
 
-day19 :: Day
-day19 = day 19 (uncurry . valid . parser $ If 0) (uncurry . valid $ recursiveParser . fix)
+day19 :: Day 19
+day19 = day (uncurry . valid . parser $ If 0) (uncurry . valid $ recursiveParser . fix)
 
 valid :: (M.Map Int Condition -> Parser b) -> [Rule] -> [B.ByteString] -> Int
 valid p = count . (isRight .) . parseOnly . (<* endOfInput) . p . M.fromList . map fromRule

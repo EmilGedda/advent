@@ -16,15 +16,16 @@ main = do
         days s m = s ++ " " ++ mod ++ "." ++ m
         solutions  = filter solution $ map takeBaseName files
         imports    = unlines . sort $ map (days "import") solutions
-        exports    = unlines . sort $ map ((++",") . days "module") solutions
+        exports    = unlines . sort $ map ((++",") . days "    module") solutions
 
     writeFile dst $ unlines
                   [ "{-# LANGUAGE TemplateHaskell #-}"
+                  , "{-# LANGUAGE DataKinds #-}"
+                  , "{-# LANGUAGE PartialTypeSignatures #-}"
                   , ""
                   , "module " ++ mod
                   , "    ("
-                  , exports
-                  , year
+                  , exports ++ "    " ++ year
                   , "    ) where"
                   , ""
                   , "import Advent.Problem"
@@ -32,7 +33,7 @@ main = do
                   , ""
                   , imports
                   , ""
-                  , year ++ " :: Year"
+                  , year ++ " :: Year " ++ drop 1 year ++ " _"
                   , year ++ " = $(discoverDays)"
                   ]
 

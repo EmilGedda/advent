@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 import Types
 import Tests
 
@@ -19,28 +20,29 @@ main =
         . testGroup "Test solutions"
         =<< forM answers
              (\(Answers y ans) ->
-                let Just alldays = days <$> find ((==y) . year) years
+                let days (Year ds) = ds
+                    Just alldays = toDayList . days <$> find ((==y) . yearNum) years
                 in testGroup (show y)
                    . (testConsistency alldays ans:)
                    . map (uncurry testDay)
                    <$> mapM (findTest y) ans)
 
-testConsistency :: [Day] -> [Answer] -> TestTree
-testConsistency d ans
+testConsistency :: [SomeDay] -> [Answer] -> TestTree
+testConsistency ds ans
     = testCase "No days lacking tests"
-    $ map number d \\ map (number . day) ans @?= []
+    $ map someDayNum ds \\ map (\(Answer d _ _) -> dayNum d) ans @?= []
 
 findTest :: Integer -> Answer -> IO (Answer, Either String Input)
-findTest y ans@(Answer (Day n _ _) _ _)
-    = (,) ans <$> (runExceptT . runNetworkEnv) (fetchInput y n)
+findTest y ans@(Answer d@(Day _ _) _ _)
+    = (ans,) <$> (runExceptT . runNetworkEnv) (fetchInput y $ dayNum d)
 
 testDay :: Answer -> Either String Input -> TestTree
-testDay (Answer (Day n partOne partTwo) first second) input =
+testDay (Answer d@(Day partOne partTwo) first second) input =
     let wrap f = solution . f . parseInput . fromInput
         parts = zip3 "12" [wrap partOne, wrap partTwo] $ catMaybes [Just first, second]
         fromRight ~(Right r) = r
         fromLeft ~(Left a) = a
-        day = "Day " ++ show n
+        day = "Day " ++ show (dayNum d)
         test (part, output, answer) = after AllSucceed (day ++ ".Input") .
             testCase ("Part " ++ [part]) $ output (fromRight input) @?= solution answer
     in testGroup day $

@@ -2,14 +2,16 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE IncoherentInstances #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE GADTs #-}
 
 module Types where
 
 import Advent.Problem   (solution, ToString, Day(..))
 import Data.Maybe       (fromJust)
+import GHC.TypeLits
 
-data Answer = Answer {
-            day :: Day,
+data Answer = forall n. KnownNat n => Answer {
+            day :: Day n,
             partOne :: String,
             partTwo :: Maybe String
         }
@@ -22,7 +24,7 @@ data Answers = Answers {
             solutions :: [Answer]
         }
 
-answer :: (Result a, Result b) => Day -> a -> b -> Answer
+answer :: (Result a, Result b, KnownNat n) => Day n -> a -> b -> Answer
 answer day partOne partTwo = Answer day (fromJust $ result partOne) (result partTwo)
 
 -- This is an ugly and unsound type hack to help type inference,

@@ -26,8 +26,8 @@ data CPU = CPU {
 
 type Part = String -> Int -> Integer -> [(Int, Integer)]
 
-day14 :: Day
-day14 = day 14 (run partOne) (run partTwo)
+day14 :: Day 14
+day14 = day (run partOne) (run partTwo)
 
 partOne :: Part
 partOne mask to value = return (to, set (fromstr mask) value)

@@ -5,8 +5,8 @@ import           Data.Bool                      (bool)
 import           Control.Monad.ST               (runST)
 import qualified Data.Vector.Unboxed.Mutable    as UM
 
-day15 :: Day
-day15 = day 15 (speak 2020) (speak 30000000)
+day15 :: Day 15
+day15 = day (speak 2020) (speak 30000000)
 
 speak :: Int -> CommaList Int -> Int
 speak n (CommaList xs) = runST $ do

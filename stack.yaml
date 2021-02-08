@@ -33,7 +33,7 @@ packages:
 - lib
 
 ghc-options:
-    "$locals": "-O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -Wno-missing-signatures -Wno-unused-binds -Wno-type-defaults"
+    "$locals": "-O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -Wno-missing-signatures -Wno-unused-binds -Wno-type-defaults -Wno-partial-type-signatures"
     "$everything": "-split-sections"
 
 

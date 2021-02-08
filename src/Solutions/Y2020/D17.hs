@@ -12,8 +12,8 @@ instance Parseable Grid where
     parseString = Grid . (length . takeWhile (/='\n') &&& map (=='#') . filter (/='\n'))
 
 
-day17 :: Day
-day17 = day 17 (solve 3) (solve 4)
+day17 :: Day 17
+day17 = day (solve 3) (solve 4)
 
 solve :: Int -> Grid -> Int
 solve n = S.size

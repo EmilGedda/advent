@@ -9,8 +9,8 @@ instance Parseable SeatID where
     parseString = SeatID . uncurry ((+) . (8*)) . both (foldl1' ((+) . (2*)))
                 . splitAt 7 . map (fromEnum . (`elem` "BR"))
 
-day05 :: Day
-day05 = day 5 (maximum . map fromSeatID) (missing . sort . map fromSeatID)
+day05 :: Day 5
+day05 = day (maximum . map fromSeatID) (missing . sort . map fromSeatID)
 
 missing :: [Int] -> Int
 missing ids = head $ [head ids..last ids] \\ ids

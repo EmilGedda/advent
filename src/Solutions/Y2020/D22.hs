@@ -18,8 +18,8 @@ instance Parseable Decks where
                 . filter (not . isPrefixOf "Player")
                 . lines
 
-day22 :: Day
-day22 = day 22 (play . combat) (play . recursiveCombat)
+day22 :: Day 22
+day22 = day (play . combat) (play . recursiveCombat)
 
 play :: Decks -> Int
 play (Decks p1 p2) = sum . zipWith (*) [1..] . reverse $ p1 ++ p2

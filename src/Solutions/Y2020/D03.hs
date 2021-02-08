@@ -8,8 +8,8 @@ newtype TreeRow = TreeRow (Vector Bool)
 instance Parseable TreeRow where
     parseString = TreeRow . fromList . map ('#' ==)
 
-day03 :: Day
-day03 = day 3 (slope 3 1) part2
+day03 :: Day 3
+day03 = day (slope 3 1) part2
 
 slope :: Int -> Int -> [TreeRow] -> Int
 slope right down = sum . zipWith isTree (every right [0..]) . every down

@@ -10,8 +10,8 @@ newtype Answers = Answers { fromAnswers :: [[String]] }
 instance Parseable Answers where
     parseString = Answers . map words . splitOn "\n\n"
 
-day06 :: Day
-day06 = day 6 (collect $ nubOrd . concat) (collect $ foldl1 intersect)
+day06 :: Day 6
+day06 = day (collect $ nubOrd . concat) (collect $ foldl1 intersect)
 
 collect :: Foldable t => ([String] -> t a) -> Answers -> Int
 collect f = sum . map (length . f) . fromAnswers

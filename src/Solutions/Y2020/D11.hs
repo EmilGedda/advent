@@ -37,8 +37,8 @@ instance Parseable Grid where
     parseString = Grid . (length . takeWhile (/='\n') &&&
         U.fromList . map toTile . filter (/='\n'))
 
-day11 :: Day
-day11 = day 11 (seat Simple) (seat Extended)
+day11 :: Day 11
+day11 = day (seat Simple) (seat Extended)
 
 seat :: Ruleset -> Grid -> Int
 seat rules (Grid (width,v)) = runST $ stabilize rules width =<< U.thaw v

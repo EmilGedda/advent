@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 51d5f7c8bc00533f301123fb8b7731f06ba1e3be5ab46c11c3e178f8807abd75
+-- hash: 7839c9e6172046904ac7d22212185deafb1b8989a79cc1647c5a7472be47a8e4
 
 name:           advent-solutions
 version:        1.0.0.0
@@ -58,6 +58,7 @@ library
       Paths_advent_solutions
   hs-source-dirs:
       src
+  default-extensions: DataKinds
   build-depends:
       advent
     , attoparsec >=0.13 && <0.14
@@ -88,6 +89,7 @@ test-suite test
       Paths_advent_solutions
   hs-source-dirs:
       test
+  default-extensions: DataKinds
   build-depends:
       advent
     , advent-solutions

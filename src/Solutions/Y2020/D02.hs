@@ -18,8 +18,8 @@ instance Parseable Policy where
     parseInput = fromRight .  parseOnly policy
 
 
-day02 :: Day
-day02 = day 2 (length . filter valid1) (length . filter valid2)
+day02 :: Day 2
+day02 = day (length . filter valid1) (length . filter valid2)
 
 valid1 :: Policy -> Bool
 valid1 (Policy lower upper char password) = lower <= count && count <= upper

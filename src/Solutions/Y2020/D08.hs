@@ -29,8 +29,8 @@ instruction = Instr <$> opcode <*> (" " *> signed decimal)
 instance Parseable Instr where
     parseInput = fromRight . parseOnly instruction
 
-day08 :: Day
-day08 = day 8 (accumulator . run . computer) (accumulator . partTwo)
+day08 :: Day 8
+day08 = day (accumulator . run . computer) (accumulator . partTwo)
 
 partTwo :: V.Vector Instr -> Computer
 partTwo bootcode = V.head . V.filter ((==) <$> index <*> len)

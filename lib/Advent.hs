@@ -22,7 +22,6 @@ import           Data.Time.Clock                (getCurrentTime, utctDay, second
 import           Data.Time.Clock.POSIX          (getPOSIXTime)
 import           System.Directory               (XdgDirectory(XdgConfig), getXdgDirectory, doesFileExist, createDirectoryIfMissing, getAccessTime, removeFile)
 import qualified Data.ByteString                (readFile, writeFile)
-import qualified Data.ByteString.Char8          as B
 import qualified GHC.IO.Exception               as GHC
 import qualified Control.Monad.Catch            as C
 

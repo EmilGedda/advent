@@ -8,8 +8,8 @@ import           Data.List                   (sortOn)
 import qualified Data.Vector.Unboxed         as U
 import qualified Data.Vector.Unboxed.Mutable as UM
 
-day23 :: Day
-day23 = day 23 (fromDigits . take 8 . crab 9 100)
+day23 :: Day 23
+day23 = day (fromDigits . take 8 . crab 9 100)
                (product . take 2 . crab 1000000 10000000)
 
 crab :: Int -> Int -> Int -> [Int]

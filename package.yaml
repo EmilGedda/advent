@@ -18,6 +18,9 @@ dependencies:
 - bytestring    ^>= 0.10
 - mtl           ^>= 2.2
 
+default-extensions:
+- DataKinds
+
 library:
   source-dirs:
     - src

@@ -22,8 +22,8 @@ makeLenses ''Ship
 instance Parseable Action where
     parseInput = fromRight . parseOnly (curry Action <$> letter_ascii <*> decimal)
 
-day12 :: Day
-day12 = day 12 (distance . sail position direction ship)
+day12 :: Day 12
+day12 = day (distance . sail position direction ship)
                (distance . sail waypoint waypoint ship)
     where ship = Ship (0,0) (0,1) (1,10)
 

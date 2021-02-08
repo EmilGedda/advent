@@ -31,8 +31,8 @@ instance Parseable Notes where
     parseInput = fromRight . parseOnly notes
 
 
-day16 :: Day
-day16 = day 16 partOne' partTwo'
+day16 :: Day 16
+day16 = day partOne' partTwo'
 
 partOne' :: Notes -> Int
 partOne' (Notes rules _ nearby)

@@ -5,8 +5,8 @@ import           Data.List                    (group)
 import           Data.Vector.Algorithms.Intro (sort)
 import qualified Data.Vector                  as V
 
-day10 :: Day
-day10 = day 10 (partOne . diffs) (partTwo . diffs)
+day10 :: Day 10
+day10 = day (partOne . diffs) (partTwo . diffs)
 
 partOne :: V.Vector Int -> Int
 partOne = (*) <$> count (==1) <*> count (==3)

@@ -17,8 +17,8 @@ puzzle = Puzzle <$> decimal <* "\n" <*> (decimal <|> "x" $> 0) `sepBy` ","
 instance Parseable Puzzle where
     parseInput = fromRight . parseOnly puzzle
 
-day13 :: Day
-day13 = day 13 partOne partTwo
+day13 :: Day 13
+day13 = day partOne partTwo
 
 partOne :: Puzzle -> Int
 partOne (Puzzle timestamp buses)

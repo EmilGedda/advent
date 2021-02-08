@@ -16,8 +16,8 @@ instance Parseable Food where
                 . words
                 . filter (not . isPunctuation)
 
-day21 :: Day
-day21 = day 21 (length . safe) (intercalate "," . map snd . sortOn fst . allergens)
+day21 :: Day 21
+day21 = day (length . safe) (intercalate "," . map snd . sortOn fst . allergens)
 
 safe :: [Food] -> [String]
 safe foods = intersect ingredients

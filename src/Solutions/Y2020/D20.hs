@@ -45,8 +45,8 @@ instance Parseable Tiles where
     parseInput = Tiles . fromRight . eitherResult
                . flip feed "\n" . parse (many1 tile)
 
-day20 :: Day
-day20 = day 20 (product . map num . corners . puzzle) notSolved
+day20 :: Day 20
+day20 = day (product . map num . corners . puzzle) notSolved
 
 puzzle :: Tiles -> M.Map Tile Connection
 puzzle (Tiles ts) =

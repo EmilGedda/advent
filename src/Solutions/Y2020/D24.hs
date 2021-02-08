@@ -4,8 +4,8 @@ import           Advent.Problem
 import           Data.List      (sort, group)
 import qualified Data.HashSet   as H
 
-day24 :: Day
-day24 = day 24 (exhibit 0) (exhibit 100)
+day24 :: Day 24
+day24 = day (exhibit 0) (exhibit 100)
 
 exhibit :: Int -> [String] -> Int
 exhibit n = H.size
