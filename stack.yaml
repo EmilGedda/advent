@@ -34,6 +34,7 @@ packages:
 
 ghc-options:
     "$locals": "-O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -Wno-missing-signatures -Wno-unused-binds -Wno-type-defaults"
+    "$everything": "-split-sections"
 
 
 # Dependency packages to be pulled from upstream that are not in the resolver.
