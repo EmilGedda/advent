@@ -1,4 +1,4 @@
-module Solutions.Y2020.D24 where
+module Solutions.Y2020.D24 (day24) where
 
 import           Advent.Problem
 import           Data.List      (sort, group)
@@ -10,7 +10,7 @@ day24 = day (exhibit 0) (exhibit 100)
 exhibit :: Int -> [String] -> Int
 exhibit n = H.size
           . (!! n)
-          . iterate flipTiles
+          . iterate (H.difference <$> black <*> white)
           . tiles
 
 tiles :: [String] -> H.HashSet (Int, Int)
@@ -21,16 +21,12 @@ tiles = H.fromList
       . sort
       . map (foldr add (0, 0) . steps)
 
-flipTiles :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
-flipTiles s = black s `H.difference` white s
-
 friends :: H.HashSet (Int, Int) -> (Int, Int) -> Int
 friends s = length . filter (`H.member` s) . neighbours
 
 black :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
-black s = H.union s . H.fromList $ filter shouldSwap adjacent
-    where shouldSwap = (2==) . friends s
-          adjacent   = filter (not . flip H.member s) $ neighbours =<< H.toList s
+black s = H.union s . H.fromList $ filter ((2==) . friends s) adjacent
+    where adjacent = filter (not . flip H.member s) $ neighbours =<< H.toList s
 
 white :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
 white s = H.filter ((\x -> x == 0 || x > 2) . friends s) s
