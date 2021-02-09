@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Solutions.Y2020.D25 (day25) where
 
 import Advent.Problem
@@ -14,5 +15,7 @@ loopSize n = length
            $ iterate (flip mod 20201227 . (*7)) 1
 
 modpow :: Int -> Int -> Int
-modpow b e = (!! e) $ iterate (flip mod 20201227 . (*b)) 1
-
+modpow b e = go e 1
+    where f n = n * b `mod` 20201227
+          go 0 x = x
+          go n !x = go (n - 1) (f x)
