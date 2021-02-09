@@ -25,8 +25,11 @@ friends :: H.HashSet (Int, Int) -> (Int, Int) -> Int
 friends s = length . filter (`H.member` s) . neighbours
 
 black :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
-black s = H.union s . H.fromList $ filter ((2==) . friends s) adjacent
-    where adjacent = filter (not . flip H.member s) $ neighbours =<< H.toList s
+black s = H.union s
+        . H.fromList
+        . filter ((2==) . friends s)
+        . filter (not . flip H.member s)
+        $ neighbours =<< H.toList s
 
 white :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
 white s = H.filter ((\x -> x == 0 || x > 2) . friends s) s
