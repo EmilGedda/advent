@@ -24,14 +24,16 @@ tiles = H.fromList
 flipTiles :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
 flipTiles s = black s `H.difference` white s
 
+friends :: H.HashSet (Int, Int) -> (Int, Int) -> Int
+friends s = length . filter (`H.member` s) . neighbours
+
 black :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
-black s =
-    let
-        adjacent = H.unions . map (H.fromList . neighbours) $ H.toList s
-    in adjacent
+black s = H.union s . H.fromList $ filter shouldSwap adjacent
+    where shouldSwap = (2==) . friends s
+          adjacent   = filter (not . flip H.member s) $ neighbours =<< H.toList s
 
 white :: H.HashSet (Int, Int) -> H.HashSet (Int, Int)
-white s = undefined
+white s = H.filter ((\x -> x == 0 || x > 2) . friends s) s
 
 add :: (Num a, Num b) => (a, b) -> (a, b) -> (a, b)
 add (a, b) (c, d) = (a + c, b + d)
