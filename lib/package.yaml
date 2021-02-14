@@ -38,7 +38,7 @@ library:
 
 executables:
   advent:
-    main:                     Main.hs
+    main:                     advent.hs
     source-dirs:              ../app
     dependencies:
       - advent
@@ -52,8 +52,8 @@ executables:
       - time                  ^>= 1.9
 
   advent-discover:
-    main:                     Main.hs
-    source-dirs:              discover
+    main:                     advent-discover.hs
+    source-dirs:              ../app
     dependencies:
       - directory             ^>= 1.3
       - filepath              ^>= 1.4

@@ -40,18 +40,21 @@ import           Data.Proxy
 
 newtype Input = Input { fromInput :: ByteString } deriving Show
 
-data Day n = forall a b c. (Parseable a, ToString b, ToString c, KnownNat n)
+data Day n = forall a b c. (Parseable a, ToString b, ToString c, KnownNat n, n <= 25)
          => Day {
            partOne :: a -> b,
            partTwo :: a -> c
         }
 
-day :: (Parseable a, ToString b, ToString c, KnownNat n)
+day :: (Parseable a, ToString b, ToString c, KnownNat n, n <= 25)
         => (a -> b) -> (a -> c) -> Day n
 day = Day
 
+foo :: Day 27
+foo = undefined
+
 data Year n ns where
-    Year :: KnownNat n => Days ns -> Year n ns
+    Year :: (KnownNat n, 2015 <= n) => Days ns -> Year n ns
 
 data Days ns where
     EmptyDays :: Days '[]

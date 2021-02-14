@@ -6,10 +6,10 @@ import Data.Maybe (catMaybes)
 import qualified Data.IntMap as M
 
 day25 :: Day 25
-day25 = day encKey notSolved
+day25 = day diffieHellman notSolved
 
-encKey :: [Int] -> Int
-encKey [card, door] = modExp door (discreteLog card)
+diffieHellman :: [Int] -> Int
+diffieHellman [card, door] = modExp door (discreteLog card)
 
 discreteLog :: Int -> Int
 discreteLog = head . catMaybes . zipWith calc [0..] . iterate (transform factor)
