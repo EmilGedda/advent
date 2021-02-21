@@ -49,3 +49,13 @@ tests:
       - advent-solutions
       - tasty                 ^>= 1.2
       - tasty-hunit           ^>= 0.10
+
+benchmarks:
+  benchmark:
+    main:                     Spec.hs
+    source-dirs:              bench
+    dependencies:
+      - advent
+      - advent-solutions
+      - exceptions            ^>= 0.10
+      - gauge                 ^>= 0.2

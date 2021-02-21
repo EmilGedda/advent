@@ -2,6 +2,7 @@
 
 module Advent.Problem.Types where
 
+import           Control.DeepSeq        (NFData)
 import           Data.Maybe             (fromJust)
 import           Data.List.Split        (splitOn)
 import qualified Data.Sequence          as S
@@ -54,7 +55,7 @@ instance Parseable a => Parseable (S.Seq a) where
 instance Show a => Show (CommaList a) where
     show = show . getList
 
-class ToString a where
+class NFData a => ToString a where
     solution :: a -> String
 
 instance ToString Char where

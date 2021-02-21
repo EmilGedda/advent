@@ -20,8 +20,8 @@ main =
         . testGroup "Test solutions"
         =<< forM answers
              (\(Answers y ans) ->
-                let days (Year ds) = ds
-                    Just alldays = toDayList . days <$> find ((==y) . yearNum) years
+                let Just alldays = (\(WrapYear (Year ds)) -> toDayList ds)
+                             <$> find (\(WrapYear y') -> yearNum y' == y) years
                 in testGroup (show y)
                    . (testConsistency alldays ans:)
                    . map (uncurry testDay)

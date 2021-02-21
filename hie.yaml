@@ -12,3 +12,6 @@ cradle:
     - path: "./app"
       component: "advent-solutions:exe:advent"
 
+    - path: "./bench"
+      component: "advent-solutions:benchmark"
+

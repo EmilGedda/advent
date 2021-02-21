@@ -5,12 +5,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 
 module Advent.Problem (
         module Advent.Problem.Util,
         module Advent.Problem.Types,
         Day(..),
         Year(..),
+        SomeYear(..),
+        Years,
         Input(..),
         SomeDay(..),
         Days(..),
@@ -60,7 +63,11 @@ data Days ns where
     EmptyDays :: Days '[]
     PushDay :: KnownNat n => Day n -> Days ns -> Days (n ': ns)
 
+type Years = [SomeYear]
+
 data SomeDay = forall d. KnownNat d => WrapDay (Day d)
+
+data SomeYear = forall y d. KnownNat y => WrapYear (Year y d)
 
 dayNum :: forall n. KnownNat n => Day n -> Integer
 dayNum _ = natVal (Proxy :: Proxy n)
@@ -77,7 +84,6 @@ notSolved = const "Not solved"
 
 someDayNum :: SomeDay -> Integer
 someDayNum (WrapDay d) = dayNum d
-
 
 fetchInput :: (MonadHTTP m, MonadError String m, MonadCatch m, MonadFS m)
     => Integer -> Integer -> m Input
