@@ -1,27 +1,46 @@
-# Advent of Code 2020
+# Advent of Code
+
+<a href="https://github.com/EmilGedda/advent/workflows/Tests/badge.svg" alt="Tests">
+  <img src="https://github.com/EmilGedda/advent/workflows/Tests/badge.svg">
+</a>
+
+# ![Screenshot of advent](https://emilgedda.github.io/advent/assets/advent.png)
 
 <p align="center">
-  <a href="https://emilgedda.github.io/Advent-of-Code-2020/gold.svg" alt="Gold stars">
-    <img src="https://emilgedda.github.io/Advent-of-Code-2020/gold.svg">
-  </a>
-  <a href="https://emilgedda.github.io/Advent-of-Code-2020/silver.svg" alt="Silver stars">
-    <img src="https://emilgedda.github.io/Advent-of-Code-2020/silver.svg">
-  </a>
-  <a href="https://github.com/EmilGedda/Advent-of-Code-2020/workflows/Tests/badge.svg" alt="Tests">
-    <img src="https://github.com/EmilGedda/Advent-of-Code-2020/workflows/Tests/badge.svg">
-  </a>
+  <table>
+    <tr>
+      <th>2020</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://emilgedda.github.io/advent/2020/gold.svg" alt="Gold stars">
+          <img src="https://emilgedda.github.io/advent/2020/gold.svg">
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://emilgedda.github.io/advent/2020/silver.svg" alt="Silver stars">
+          <img src="https://emilgedda.github.io/advent/2020/silver.svg">
+        </a>
+      </td>
+    </tr>
+  </table>
 </p>
+
 
 ## What
 
-These are my solutions to Advent of Code 2020.
+These are my solutions to Advent of Code.
+
 Also comes with a small library for interfacing with the website with features
 such as:
  * Fetching input
  * Caching input to disk
  * Type infered parsing
- * Printing leaderboards and user progress
+ * Pretty printing leaderboards and user progress
  * Test suite for inputs and solutions
+ * Benchmarks for solutions
  * Generating badges from progress
 
 The daily solutions can be found in [Advent.Solutions](https://github.com/EmilGedda/Advent-of-Code-2020/tree/master/src/Advent/Solution) inside `src`.
@@ -38,7 +57,7 @@ the program is ran, it prints the expected location for it in the error message.
 
 The project is built with [stack](https://haskellstack.org/).
 
-###### To run the tests
+###### Run the tests
 ```
 $ stack test
 Tests
@@ -69,6 +88,23 @@ Tests
 
 All 17 tests passed (0.17s)
 ```
+###### Run the benchmarks
+```
+λ stack bench --benchmark-arguments="-p D19"
+advent-solutions> benchmarks
+Running 1 benchmarks...
+Benchmark benchmark: RUNNING...
+All
+  Y2020
+    D19
+      Silver: OK (0.31s)
+        2.3 ms ± 156 μs, 8.7 MB allocated,  21 KB copied
+      Gold:   OK (0.21s)
+        3.5 ms ± 210 μs,  14 MB allocated,  20 KB copied
+
+All 2 tests passed (0.53s)
+Benchmark benchmark: FINISH
+```
 
 ###### Display a leaderboard
 ```
@@ -79,8 +115,6 @@ $ stack run -- leaderboard -i 409260
 2) 12 ******................... Anders Eriksson (0d04h08m54s)
 3)  8 ****..................... kennethrunnman  (0d04h42m34s)
 4)  0 ......................... LukasSzerszen
-5)  0 ......................... Emil Persson
-6)  0 ......................... miht
 ```
 
 ###### Show current user progress in leaderboard format
@@ -88,7 +122,7 @@ $ stack run -- leaderboard -i 409260
 $ stack run -- progress
 2020           1111111111222222
       1234567890123456789012345
-1) 12 ******................... Emil Gedda (0d09h11m57s)
+1) 12 *****************........ Emil Gedda (0d09h11m57s)
 ```
 
 ###### Show current user progress in short format
@@ -101,15 +135,19 @@ Gold    5
 ###### Display help text
 ```
 $ stack run
-Missing: COMMAND
+Missing: (--version | COMMAND)
 
-Usage: advent COMMAND
+advent - Advent of Code in your terminal
+
+Usage: advent (--version | COMMAND)
   Display info and stats from Advent of Code
 
 Available options:
   -h,--help                Show this help text
+  --version                Display advent version
 
 Available commands:
+  badge                    Generate a badge from current user progress
   leaderboard              Display a leaderboard
   progress                 Show current user progress
 ```
@@ -133,10 +171,10 @@ Available options:
 
 
 ###### Creating badges
-The bash script takes a color and a star count.
+Generates badges for the current advent of code year.
 ```
-$ ./.github/badge.sh gold 5 > gold-badge.svg
-$ ./.github/badge.sh silver 0 > silver-badge.svg
+$ stack run -- badge gold > gold-badge.svg
+$ stack run -- badge silver > silver-badge.svg
 ```
 
 # License

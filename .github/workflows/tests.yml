@@ -13,7 +13,7 @@ jobs:
           sudo apt -y install libcurl4-gnutls-dev
 
     - uses: actions/checkout@v2
-    - uses: actions/setup-haskell@v1.1.4
+    - uses: haskell/actions/setup@v1
       id: haskell
       with:
         enable-stack: true
@@ -48,9 +48,10 @@ jobs:
     - name: Create svg badges
       working-directory: "./.github"
       run: |
-          mkdir svg
-          stack run --verbosity silent -- badge gold   > svg/gold.svg
-          stack run --verbosity silent -- badge silver > svg/silver.svg
+          YEAR=$((($(date +%m) < 12)) && echo $(($(date +%Y) - 1)) || echo $(date +%Y))
+          mkdir -p "svg/$YEAR"
+          stack run --verbosity silent -- badge gold   > "svg/$YEAR/gold.svg"
+          stack run --verbosity silent -- badge silver > "svg/$YEAR/silver.svg"
 
     - name: Get short SHA
       id: scratch
@@ -64,5 +65,6 @@ jobs:
           full_commit_message: ${{ steps.scratch.outputs.sha8 }} ${{ github.event.head_commit.message }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./.github/svg
+          keep_files: true
           user_email: "actions@github"
           user_name: "Github Actions"
