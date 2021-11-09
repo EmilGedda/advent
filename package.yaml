@@ -47,15 +47,17 @@ tests:
     source-dirs:              test
     dependencies:
       - advent-solutions
-      - tasty                 ^>= 1.2
+      - tasty                 ^>= 1.4
       - tasty-hunit           ^>= 0.10
 
 benchmarks:
   benchmark:
+    ghc-options: -O2 -threaded "-with-rtsopts=-T --nonmoving-gc -A64m"
+
     main:                     Spec.hs
     source-dirs:              bench
     dependencies:
       - advent
       - advent-solutions
       - exceptions            ^>= 0.10
-      - gauge                 ^>= 0.2
+      - tasty-bench           ^>= 0.2

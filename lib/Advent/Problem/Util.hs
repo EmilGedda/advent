@@ -39,10 +39,12 @@ sortNub :: (Ord a) => [a] -> [a]
 sortNub = Set.toList . Set.fromList
 
 same :: (Eq a) => [a] -> Bool
+same [] = True
 same xs = all (== head xs) (tail xs)
 
 fromBits :: Num a => [a] -> a
-fromBits = foldl1' ((+) . (2*))
+fromBits [] = 0
+fromBits xs = foldl1' ((+) . (2*)) xs
 
 fold :: (Foldable t, Monad m) => t a -> b -> (b -> a -> m b) -> m b
 fold v s f = foldM f s v

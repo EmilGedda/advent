@@ -1,104 +1,152 @@
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+module Solutions.Y2020.D20 where
 
-module Solutions.Y2020.D20 (day20) where
+import Advent.Problem
+import Control.Monad                            (guard)
+import Data.Attoparsec.ByteString.Char8 hiding (take, count)
+import Data.Bits                        hiding (rotate)
+import Data.Foldable                           (foldl')
+import Data.IntMap.Strict                      (IntMap, fromListWith, elems, (!))
 
-import           Advent.Problem
-import           Data.List                          (transpose, find)
-import           Data.Maybe                         (catMaybes, mapMaybe)
-import           Data.Attoparsec.ByteString.Char8   hiding (take, count)
-import qualified Data.Map.Strict                    as M
-import qualified Data.HashMap.Strict                as H
+import qualified Data.Map as M
+import qualified Data.Set as S
+import Debug.Trace
 
-data Square a = Square {
-                num :: Int,
-                contents :: a
-            } deriving (Show, Functor)
+data Tile a = Tile { getID :: Int, getGrid :: [a] }
+    deriving (Functor, Eq, Show)
 
-type Tile = Square [String]
+newtype Tiles = Tiles { tiles :: [Tile String] }
 
-newtype Tiles = Tiles [Tile]
+data Coord = C !Int !Int
+    deriving (Eq, Ord, Show)
 
-instance Eq Tile where
-    (==) (Square a c) (Square b d) = a == b && c == d
 
-instance Ord Tile where
-    compare (Square a _) (Square b _) = compare a b
-
-data Connection = Connection {
-                above :: Maybe Tile,
-                right :: Maybe Tile,
-                below :: Maybe Tile,
-                left  :: Maybe Tile
-            } deriving Show
-
-tile = Square
-    <$> ("Tile " *> decimal <* ":\n")
+parseTile :: Parser (Tile String)
+parseTile = Tile <$>
+    ("Tile " *> decimal <* ":\n")
     <*> (lines <$> manyTill' anyChar "\n\n")
-
-instance Parseable Tile where
-    parseInput = attoparse tile
 
 instance Parseable Tiles where
     parseInput = Tiles . fromRight . eitherResult
-               . flip feed "\n" . parse (many1 tile)
+               . flip feed "\n" . parse (many1 parseTile)
+
 
 day20 :: Day 20
-day20 = day (product . map num . corners . puzzle) notSolved
+day20 = day (corners . layImage) (countSnakes . removeBorders . layImage)
 
-puzzle :: Tiles -> M.Map Tile Connection
-puzzle (Tiles ts) =
-    let
-        tiles       = orientations =<< ts
-        hashmap f   = foldr (\t -> H.insertWith (++) (f t) [t])  H.empty tiles
-        match m f t = find (\x -> num x /= num t) =<< m H.!? f t
 
-        tops    = hashmap topside
-        rights  = hashmap rightside
-        lefts   = hashmap leftside
-        bottoms = hashmap bottom
+layImage :: Tiles -> M.Map Coord (Tile Coord)
+layImage = (placeImage <*> firstTile)
+    . edgeMap
+    . map (liftTile toPicture)
+    . tiles
 
-        connect tile
-            = Connection
-                (match bottoms topside   tile)
-                (match lefts   rightside tile)
-                (match tops    bottom    tile)
-                (match rights  leftside  tile)
+liftTile :: ([a] -> [b]) -> Tile a -> Tile b
+liftTile f (Tile id contents) = Tile id (f contents)
 
-        invalid (Connection Nothing Nothing Nothing Nothing) = True
-        invalid _ = False
+toPicture :: [String] -> [Coord]
+toPicture tile = do
+    (y, row) <- zip [0..] tile
+    (x, '#') <- zip [0..] row
+    return $ C y x
 
-     in M.fromList . filter (not . invalid . snd) $ zip tiles (map connect tiles)
+invert :: Coord -> Coord
+invert (C y x) = C x y
 
-reorder :: M.Map Tile Connection -> M.Map Tile Connection
-reorder m = m
+add :: Coord -> Coord -> Coord
+add (C y x) (C y' x') = C (y + y') (x + x')
 
-connections :: Connection -> [String]
-connections c
-  = mapMaybe ($ c) [ fmap bottom    . above
-                   , fmap leftside  . right
-                   , fmap topside   . below
-                   , fmap rightside . left ]
+row :: Coord -> Int
+row (C row _) = row
 
-topside :: Tile -> String
-topside (Square _ (x:_)) = x
+above, left :: Coord -> Coord
+above (C y x) = C (y-1)  x
+left  (C y x) = C  y    (x-1)
 
-bottom :: Tile -> String
-bottom (Square _ t) = last t
+turnRight :: Coord -> Coord
+turnRight (C y x) = C x (-y)
 
-rightside :: Tile -> String
-rightside = bottom  . fmap transpose
+rotate :: [Coord] -> [Coord]
+rotate coords = map (add (C 0 n) . turnRight) coords
+    where n = maximum $ map row coords
 
-leftside :: Tile -> String
-leftside  = topside . fmap transpose
+reorient :: [Coord] -> [[Coord]]
+reorient xs = do
+    xs' <- take 4 (iterate rotate xs)
+    [xs', map invert xs']
 
-corners :: M.Map Tile Connection -> [Tile]
-corners = M.keys . M.filter ((==2) . length . connections)
-    where connections (Connection a r b l) = catMaybes [a, r, b, l]
+edgeMap :: [Tile Coord] -> IntMap [Tile Coord]
+edgeMap tiles = fromListWith (++) $ do
+    Tile id coords <- tiles
+    permutations <- reorient coords
+    return (leftIdx permutations, [Tile id permutations])
 
-orientations :: Tile -> [Tile]
-orientations t = mirror =<< rotate t
-    where rotate = take 4 . iterate (fmap $ reverse . transpose)
-          mirror x = [x, fmap reverse x]
+firstTile :: IntMap [Tile Coord] -> Tile Coord
+firstTile edges = head $ do
+    x:xs <- elems edges
+    guard . same $ (x:xs)
+    guard . same $ edges ! topIdx (getGrid x)
+    return x
+
+corners :: M.Map Coord (Tile Coord) -> Int
+corners image = product $ do
+    y <- [0, 11]
+    x <- [0, 11]
+    return . getID $ image M.! C y x
+
+placeImage :: IntMap [Tile Coord] -> Tile Coord -> M.Map Coord (Tile Coord)
+placeImage edges corner = board
+    where
+        board = M.fromList $ (,) <*> pickTile <$> (C <$> [0..11] <*> [0..11])
+
+        pickTile coord
+            | coord == C 0 0 = corner
+
+            | row coord == 0 = head $ do
+                let Tile id' adj = board M.! left coord
+                Tile id coords <- edges ! rightIdx adj
+                guard $ id' /= id
+                return $ Tile id coords
+
+            | otherwise = head $ do
+                let Tile id' adj = board M.! above coord
+                Tile id coords <- edges ! bottomIdx adj
+                guard $ id' /= id
+                return $ Tile id (rotate coords)
+
+
+removeBorders :: M.Map Coord (Tile Coord) -> S.Set Coord
+removeBorders picture = S.fromList $ do
+    (C y x, Tile _ tile) <- M.toList picture
+    C y' x' <- tile
+    guard $ all (between 1 8) [y', x']
+    return $ C (y * 8 + y' - 1) (x * 8 + x' - 1)
+
+snake :: [Coord]
+snake =
+  toPicture
+    ["                  # "
+    ,"#    ##    ##    ###"
+    ," #  #  #  #  #  #   "]
+
+countSnakes :: S.Set Coord -> Int
+countSnakes image = waves . length $ do
+    snakes <- reorient snake
+    coord <- C <$> [0..8*12] <*> [0..8*12]
+    guard $ all (\pixel -> add coord pixel `S.member` image) snakes
+    return ()
+        where waves n = length image - length snake * n
+
+
+setBits :: [Int] -> Int
+setBits = foldl' (\acc n -> acc .|. 1 `shift` n) 0
+
+topIdx, leftIdx, bottomIdx, rightIdx :: [Coord] -> Int
+topIdx     xs = setBits [  i | C 0 i <- xs]
+leftIdx    xs = setBits [  i | C i 0 <- xs]
+bottomIdx  xs = setBits [9-i | C 9 i <- xs]
+rightIdx   xs = setBits [  i | C i 9 <- xs]
