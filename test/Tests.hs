@@ -25,11 +25,11 @@ answers = [
             answer Y20.day17 362            1980,
             answer Y20.day18 6923486965641  70722650566361,
             answer Y20.day19 111            343,
-            answer Y20.day20 18449208814679 Nothing,
+            answer Y20.day20 18449208814679 1559,
             answer Y20.day21 2020           "bcdgf,xhrdsl,vndrb,dhbxtb,lbnmsr,scxxn,bvcrrfbr,xcgtv",
             answer Y20.day22 32489          35676,
             answer Y20.day23 28793654       359206768694,
             answer Y20.day24 289            3551,
-            answer Y20.day25 3803729        1559
+            answer Y20.day25 3803729        Nothing
         ]
     ]

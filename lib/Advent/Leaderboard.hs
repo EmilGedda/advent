@@ -49,7 +49,7 @@ instance FromJSON User where
         <$> (T.unpack <$> v .: "name")
         <*> v .: "stars"
         <*> v .: "local_score"
-        <*> (read . T.unpack <$> v .: "last_star_ts")
+        <*> v .: "last_star_ts"
         <*> (read . T.unpack <$> v .: "id")
         <*> (M.mapKeys readInt <$> v .: "completion_day_level")
 
