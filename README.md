@@ -43,7 +43,7 @@ such as:
  * Benchmarks for solutions
  * Generating badges from progress
 
-The daily solutions can be found in [Advent.Solutions](https://github.com/EmilGedda/Advent-of-Code-2020/tree/master/src/Advent/Solution) inside `src`.
+The daily solutions can be found in [Advent.Solutions](https://github.com/EmilGedda/advent/tree/master/src/Solutions) inside `src`.
 
 ## How
 
@@ -180,7 +180,7 @@ $ stack run -- badge silver > silver-badge.svg
 # License
 *SPDX identifier: BSD-3-Clause*
 
-Copyright Emil Gedda (c) 2020
+Copyright Emil Gedda (c) 2020-2021
 
 All rights reserved.
 
