@@ -5,15 +5,15 @@
 
 packages:
 - completed:
-    hackage: microaeson-0.1.0.0@sha256:43dd72c13b2cde29d3fb9a7a67178b6eaaa4280bb6809c52fb4a32487bd5cb25,3318
+    hackage: microaeson-0.1.0.0@sha256:ddb1bfa843b3de5e105485b4ecd362ca7d0ccabb19901dd7786846caccf42d67,3456
     pantry-tree:
       size: 421
-      sha256: ad9e1d73267680bd860c83f5910c671d641410d571b7f7ce2dae97e494ae7fcd
+      sha256: 858517cae7cf8359c32cafc6f5fd4b92eb76274ab92ece78062d67eafa7f4aff
   original:
-    hackage: microaeson-0.1.0.0@sha256:43dd72c13b2cde29d3fb9a7a67178b6eaaa4280bb6809c52fb4a32487bd5cb25,3318
+    hackage: microaeson-0.1.0.0
 snapshots:
 - completed:
-    size: 586286
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/15.yaml
-    sha256: 2c9cb11d7aa0656bf28672dcb2414ab21e3ba9ea83ca170c216b2c2fc7e55856
-  original: lts-18.15
+    size: 594850
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/11/6.yaml
+    sha256: b5d7eef8b8b34d08a9604179e2594a9a5025d872146556b51f9d2f7bfead834b
+  original: nightly-2021-11-06

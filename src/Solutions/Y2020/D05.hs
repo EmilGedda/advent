@@ -1,9 +1,9 @@
 module Solutions.Y2020.D05 (day05) where
 
-import Advent.Problem   (day, Parseable, Day, parseString, both)
+import Advent.Problem
 import Data.List        (foldl1', sort, (\\))
 
-newtype SeatID = SeatID { fromSeatID :: Int } deriving (Eq, Ord)
+newtype SeatID = SeatID { fromSeatID :: Int } deriving (Eq, Ord, Generic, NFData)
 
 instance Parseable SeatID where
     parseString = SeatID . uncurry ((+) . (8*)) . both (foldl1' ((+) . (2*)))

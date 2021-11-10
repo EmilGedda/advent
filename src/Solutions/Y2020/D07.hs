@@ -2,17 +2,16 @@
 
 module Solutions.Y2020.D07 (day07) where
 
-import           Advent.Problem                           (Parseable, Day, parseInput,
-                                                                day, fromRight, count)
+import           Advent.Problem
 import           Control.Applicative                      ((<|>))
 import           Data.ByteString                          (ByteString)
 import           Data.Functor                             (($>))
 import           Data.Attoparsec.ByteString.Char8 hiding  (count)
 import qualified Data.Map.Strict                  as M
 
-data Bag = Bag ByteString ByteString deriving (Eq, Ord)
+data Bag = Bag ByteString ByteString deriving (Eq, Ord, Generic, NFData)
 
-data Rule = Rule Bag [(Int, Bag)]
+data Rule = Rule Bag [(Int, Bag)] deriving (Generic, NFData)
 
 word :: Parser ByteString
 word = takeTill (==' ')
@@ -35,16 +34,16 @@ instance Parseable Rule where
     parseInput = fromRight . parseOnly rule
 
 day07 :: Day 7
-day07 = day partOne partTwo
+day07 = day partOne' partTwo'
 
 own :: Bag
 own = Bag "shiny" "gold"
 
-partOne :: [Rule] -> Int
-partOne rules = bags (count (/=0)) (luggage rules own) rules
+partOne' :: [Rule] -> Int
+partOne' rules = bags (count (/=0)) (luggage rules own) rules
 
-partTwo :: [Rule] -> Int
-partTwo rules = bags sum (flip (luggage rules) own) rules
+partTwo' :: [Rule] -> Int
+partTwo' rules = bags sum (flip (luggage rules) own) rules
 
 fits :: M.Map Bag [(Int, Bag)] -> Bag -> Bag -> Int
 fits bags want has

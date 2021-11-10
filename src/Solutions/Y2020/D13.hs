@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Solutions.Y2020.D13 (day13) where
 
-import Advent.Problem                   (Day, day, Parseable(..), fromRight)
+import Advent.Problem
 import Control.Applicative              ((<|>))
 import Control.Arrow                    ((&&&))
 import Data.Attoparsec.ByteString.Char8
@@ -10,7 +10,7 @@ import Data.Functor
 data Puzzle = Puzzle {
                     timestamp :: Int,
                     buses :: [Int]
-                } deriving Show
+                } deriving (Show, Generic, NFData)
 
 puzzle = Puzzle <$> decimal <* "\n" <*> (decimal <|> "x" $> 0) `sepBy` ","
 
@@ -18,16 +18,16 @@ instance Parseable Puzzle where
     parseInput = fromRight . parseOnly puzzle
 
 day13 :: Day 13
-day13 = day partOne partTwo
+day13 = day partOne' partTwo'
 
-partOne :: Puzzle -> Int
-partOne (Puzzle timestamp buses)
+partOne' :: Puzzle -> Int
+partOne' (Puzzle timestamp buses)
   = uncurry (*) . minimum
   . map ((-) <*> mod timestamp &&& id)
   $ filter (>0) buses
 
-partTwo :: Puzzle -> Int
-partTwo (Puzzle _ buses)
+partTwo' :: Puzzle -> Int
+partTwo' (Puzzle _ buses)
   = (crt =<< product . map snd)
   . filter ((>0) . snd) $ zip [0..] buses
 

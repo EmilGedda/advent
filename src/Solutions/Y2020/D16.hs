@@ -10,11 +10,11 @@ data Rule = Rule {
             name :: String,
             first :: (Int, Int),
             second :: (Int, Int)
-        } deriving Show
+        } deriving (Show, Generic, NFData)
 
 type Ticket = CommaList Int
 
-data Notes = Notes [Rule] Ticket [Ticket] deriving Show
+data Notes = Notes [Rule] Ticket [Ticket] deriving (Show, Generic, NFData)
 
 rule = Rule
        <$> manyTill anyChar ": "

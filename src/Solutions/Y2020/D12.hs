@@ -2,14 +2,14 @@
 {-# LANGUAGE RankNTypes #-}
 module Solutions.Y2020.D12 (day12) where
 
-import Advent.Problem                           (Day, day, fromRight, Parseable(..))
-import Data.List                                (foldl')
+import Advent.Problem                   hiding (both)
+import Data.List                        (foldl')
 import Lens.Micro
 import Lens.Micro.Extras
 import Lens.Micro.TH
 import Data.Attoparsec.ByteString.Char8
 
-newtype Action = Action { getAction :: (Char, Int) }
+newtype Action = Action { getAction :: (Char, Int) } deriving (Generic, NFData)
 
 data Ship = Ship {
             _position :: (Int, Int),

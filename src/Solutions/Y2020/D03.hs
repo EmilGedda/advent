@@ -1,9 +1,9 @@
 module Solutions.Y2020.D03 (day03) where
 
-import Advent.Problem   (Day, day, Parseable(..), every)
+import Advent.Problem
 import Data.Vector      (Vector, fromList, (!))
 
-newtype TreeRow = TreeRow (Vector Bool)
+newtype TreeRow = TreeRow (Vector Bool) deriving (Generic, NFData)
 
 instance Parseable TreeRow where
     parseString = TreeRow . fromList . map ('#' ==)

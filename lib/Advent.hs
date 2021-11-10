@@ -25,8 +25,6 @@ import qualified Data.ByteString                (readFile, writeFile)
 import qualified GHC.IO.Exception               as GHC
 import qualified Control.Monad.Catch            as C
 
-type Trans c m a = forall m1 t. (MonadTrans t, c m1, m ~ t m1) => m a
-
 class Monad m => MonadFS m where
     cacheDir  :: m FilePath
     createDir :: FilePath -> m ()
@@ -37,25 +35,25 @@ class Monad m => MonadFS m where
     accessTime :: FilePath -> m UTCTime
     deleteFile :: FilePath -> m ()
 
-    default cacheDir :: Trans MonadFS m FilePath
+    default cacheDir :: (MonadTrans t, MonadFS m1, m ~ t m1) => m FilePath
     cacheDir = lift cacheDir
 
-    default createDir :: FilePath -> Trans MonadFS m ()
+    default createDir :: (MonadTrans t, MonadFS m1, m ~ t m1) => FilePath -> m ()
     createDir = lift . createDir
 
-    default readFile :: FilePath -> Trans MonadFS m ByteString
+    default readFile :: (MonadTrans t, MonadFS m1, m ~ t m1) => FilePath -> m ByteString
     readFile = lift . readFile
 
-    default writeFile :: FilePath -> ByteString -> Trans MonadFS m ()
+    default writeFile :: (MonadTrans t, MonadFS m1, m ~ t m1) => FilePath -> ByteString -> m ()
     writeFile path = lift . writeFile path
 
-    default hasFile :: FilePath -> Trans MonadFS m Bool
+    default hasFile :: (MonadTrans t, MonadFS m1, m ~ t m1) => FilePath -> m Bool
     hasFile = lift . hasFile
 
-    default accessTime :: FilePath -> Trans MonadFS m UTCTime
+    default accessTime :: (MonadTrans t, MonadFS m1, m ~ t m1) => FilePath -> m UTCTime
     accessTime = lift . accessTime
 
-    default deleteFile :: FilePath -> Trans MonadFS m ()
+    default deleteFile :: (MonadTrans t, MonadFS m1, m ~ t m1) => FilePath -> m ()
     deleteFile = lift . deleteFile
 
 data TimeSince = TimeSince {
@@ -69,10 +67,10 @@ class Monad m => MonadTime m where
     currentYear :: m Integer
     timeSince :: Integral a => a -> m (Maybe TimeSince)
 
-    default currentYear :: Trans MonadTime m Integer
+    default currentYear :: (MonadTrans t, MonadTime m1, m ~ t m1) => m Integer
     currentYear = lift currentYear
 
-    default timeSince :: Integral a => a -> Trans MonadTime m (Maybe TimeSince)
+    default timeSince :: (MonadTrans t, MonadTime m1, m ~ t m1,  Integral a) => a -> m (Maybe TimeSince)
     timeSince = lift . timeSince
 
 class Monad m => MonadHTTP m where
@@ -81,7 +79,7 @@ class Monad m => MonadHTTP m where
     baseURL :: m String
     baseURL = return "https://adventofcode.com"
 
-    default httpGet :: String -> Trans MonadHTTP m ByteString
+    default httpGet :: (MonadTrans t, MonadHTTP m1, m ~ t m1) => String -> m ByteString
     httpGet = lift . httpGet
 
 instance MonadFS IO where

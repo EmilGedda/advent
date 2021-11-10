@@ -14,9 +14,9 @@ data Condition
     | If Int
     | And [Condition]
     | Or Condition Condition
-    deriving Show
+    deriving (Show, Generic, NFData)
 
-newtype Rule = Rule { fromRule :: (Int, Condition) } deriving Show
+newtype Rule = Rule { fromRule :: (Int, Condition) } deriving (Show, Generic, NFData)
 
 condition :: Parser Condition
 condition = Lit <$> (char '"' *> letter_ascii <* char '"')

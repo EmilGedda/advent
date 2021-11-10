@@ -1,18 +1,18 @@
-{-# LANGUAGE FlexibleInstances #-}
-
+{-# LANGUAGE TypeSynonymInstances #-}
 module Advent.Problem.Types where
 
 import           Control.DeepSeq        (NFData)
 import           Data.Maybe             (fromJust)
 import           Data.List.Split        (splitOn)
+import           GHC.Generics           (Generic)
 import qualified Data.Sequence          as S
 import qualified Data.ByteString.Char8  as B
 import qualified Data.Vector            as V
 import qualified Data.Vector.Unboxed    as U
 
-newtype CommaList a = CommaList { getList :: [a] }
+newtype CommaList a = CommaList { getList :: [a] } deriving (Generic, NFData)
 
-class Parseable a where
+class NFData a => Parseable a where
     parseInput :: B.ByteString -> a
     parseInput = parseString . B.unpack
 

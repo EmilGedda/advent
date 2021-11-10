@@ -1,4 +1,5 @@
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE BangPatterns #-}
 module Solutions.Y2020.D23 (day23) where
 
 import           Advent.Problem
@@ -33,7 +34,7 @@ toList v = go 1
     where go at = let x = v U.! (at - 1) in x:go x
 
 moveCups :: Int -> Int -> UM.MVector s Int -> ST s ()
-moveCups n start v =
+moveCups !n !start v =
 
     let
         len     = UM.length v

@@ -2,7 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 module Solutions.Y2020.D11 (day11) where
 
-import           Advent.Problem               (Day, day, count, Parseable, parseString, both)
+import           Advent.Problem
 import           Data.Bifunctor               (bimap)
 import           Data.Foldable                (forM_)
 import           Data.Maybe                   (mapMaybe, listToMaybe)
@@ -16,7 +16,7 @@ import qualified Data.Vector.Unboxed          as U
 import qualified Data.Vector.Unboxed.Mutable  as UM
 
 type Tile = Word8
-data Ruleset = Simple | Extended deriving Enum
+data Ruleset = Simple | Extended deriving (Enum, Generic, NFData)
 
 floor' :: Tile
 floor' = 0
@@ -27,7 +27,7 @@ occupied' = 1
 empty' :: Tile
 empty' = 2
 
-newtype Grid = Grid (Int, U.Vector Tile)
+newtype Grid = Grid (Int, U.Vector Tile) deriving (Generic, NFData)
 
 toTile :: Char -> Tile
 toTile 'L' = empty'

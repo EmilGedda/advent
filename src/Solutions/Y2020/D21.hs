@@ -7,7 +7,7 @@ import           Data.List              (sortOn, foldl1', intersect, intercalate
 import qualified Data.HashSet           as S
 import qualified Data.HashMap.Strict    as M
 
-data Food = Food [String] [String]
+data Food = Food [String] [String] deriving (Generic, NFData)
 
 instance Parseable Food where
     parseString = uncurry Food

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Solutions.Y2020.D14 (day14) where
 
-import Advent.Problem                   (Day, day, both, fromBits, fromRight, Parseable(..))
+import Advent.Problem
 import Control.Arrow                    ((&&&))
 import Control.Applicative              ((<|>))
 import Data.List                        (foldl')
@@ -11,7 +11,7 @@ import Text.Printf                      (printf)
 import Numeric                          (showIntAtBase)
 import qualified Data.Map               as M
 
-data Instruction = Mask String | Store Int Integer
+data Instruction = Mask String | Store Int Integer deriving (Generic, NFData)
 
 maskP  = Mask <$> ("mask = " *> many1 anyChar)
 storeP = Store <$> ("mem[" *> decimal) <*> ("] = " *> decimal)
@@ -27,14 +27,14 @@ data CPU = CPU {
 type Part = String -> Int -> Integer -> [(Int, Integer)]
 
 day14 :: Day 14
-day14 = day (run partOne) (run partTwo)
+day14 = day (run partOne') (run partTwo')
 
-partOne :: Part
-partOne mask to value = return (to, set (fromstr mask) value)
+partOne' :: Part
+partOne' mask to value = return (to, set (fromstr mask) value)
     where set (zeros, ones) v = ones .|. v .&. complement zeros
 
-partTwo :: Part
-partTwo mask to value =
+partTwo' :: Part
+partTwo' mask to value =
     let addresses = go "" $ zipWith merge mask bit
         bit = printf "%036s" $ showIntAtBase 2 ("01"!!) to ""
         merge '0' y = y

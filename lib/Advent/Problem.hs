@@ -1,7 +1,5 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
@@ -10,6 +8,8 @@
 module Advent.Problem (
         module Advent.Problem.Util,
         module Advent.Problem.Types,
+        module Control.DeepSeq,
+        module GHC.Generics,
         Day(..),
         Year(..),
         SomeYear(..),
@@ -32,12 +32,13 @@ import           Advent.Problem.Util
 import           Advent.Problem.Types
 
 import           Prelude hiding         (readFile, writeFile, lines)
+import           Control.DeepSeq        (NFData)
 import           Control.Monad.Catch    (MonadCatch)
 import           Control.Monad.Except   (MonadError)
 import           Data.ByteString        (ByteString)
 import           System.FilePath        ((</>))
 import           Text.Printf            (printf)
-
+import           GHC.Generics           (Generic)
 import           GHC.TypeLits
 import           Data.Proxy
 

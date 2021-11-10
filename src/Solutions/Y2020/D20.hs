@@ -6,7 +6,7 @@
 module Solutions.Y2020.D20 where
 
 import Advent.Problem
-import Control.Monad                            (guard)
+import Control.Monad                           (guard)
 import Data.Attoparsec.ByteString.Char8 hiding (take, count)
 import Data.Bits                        hiding (rotate)
 import Data.Foldable                           (foldl')
@@ -14,12 +14,11 @@ import Data.IntMap.Strict                      (IntMap, fromListWith, elems, (!)
 
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Debug.Trace
 
 data Tile a = Tile { getID :: Int, getGrid :: [a] }
-    deriving (Functor, Eq, Show)
+    deriving (Functor, Eq, Show, Generic, NFData)
 
-newtype Tiles = Tiles { tiles :: [Tile String] }
+newtype Tiles = Tiles { tiles :: [Tile String] } deriving (Generic, NFData)
 
 data Coord = C !Int !Int
     deriving (Eq, Ord, Show)

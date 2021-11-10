@@ -1,13 +1,13 @@
 module Solutions.Y2020.D04 (day04) where
 
-import Advent.Problem           (Day, day, Parseable(..), count, between)
+import Advent.Problem
 import Control.Arrow            (second)
 import Data.List                ((\\))
 import Data.List.Split          (splitOn)
 import qualified Data.Map as M
 
 type Passport = [(String, String)]
-newtype Passports = Passports { fromPassports :: [Passport] }
+newtype Passports = Passports { fromPassports :: [Passport] } deriving (Generic, NFData)
 
 instance Parseable Passports where
     parseString = Passports . map (map (second (drop 1) . break (==':')) . words) . splitOn "\n\n"

@@ -2,10 +2,10 @@
 module Solutions.Y2020.D02 (day02) where
 
 import Prelude hiding                   (drop)
-import Advent.Problem                   (Day, day, Parseable(..), fromRight)
+import Advent.Problem
 import Data.Attoparsec.ByteString.Char8 (Parser, decimal, char, anyChar, many', parseOnly)
 
-data Policy = Policy Int Int Char String
+data Policy = Policy Int Int Char String deriving (Generic, NFData)
 
 policy :: Parser Policy
 policy = Policy

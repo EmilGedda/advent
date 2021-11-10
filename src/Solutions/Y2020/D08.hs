@@ -1,16 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Solutions.Y2020.D08 (day08) where
 
-import           Advent.Problem                           (Day, Parseable, parseInput
-                                                          , day, fromRight)
+import           Advent.Problem
 import           Control.Applicative                      ((<|>))
 import           Data.Attoparsec.ByteString.Char8 hiding  (count, take)
 import           Data.Functor                             (($>))
 import qualified Data.Vector                      as V
 import qualified Data.Set                         as S
 
-data OpCode = Nop | Jmp | Acc deriving (Show, Eq, Enum)
-data Instr = Instr OpCode Int deriving Show
+data OpCode = Nop | Jmp | Acc deriving (Show, Eq, Enum, Generic, NFData)
+data Instr = Instr OpCode Int deriving (Show, Generic, NFData)
 
 data Computer = Computer {
                     accumulator :: Int,
@@ -30,10 +29,10 @@ instance Parseable Instr where
     parseInput = fromRight . parseOnly instruction
 
 day08 :: Day 8
-day08 = day (accumulator . run . computer) (accumulator . partTwo)
+day08 = day (accumulator . run . computer) (accumulator . partTwo')
 
-partTwo :: V.Vector Instr -> Computer
-partTwo bootcode = V.head . V.filter ((==) <$> index <*> len)
+partTwo' :: V.Vector Instr -> Computer
+partTwo' bootcode = V.head . V.filter ((==) <$> index <*> len)
                  . V.map (run . computer . fix bootcode)
                  . replaceable $ bootcode
 
