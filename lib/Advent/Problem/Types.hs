@@ -5,6 +5,7 @@ import           Control.DeepSeq        (NFData)
 import           Data.Maybe             (fromJust)
 import           Data.List.Split        (splitOn)
 import           GHC.Generics           (Generic)
+import           Data.Int               (Int32)
 import qualified Data.Sequence          as S
 import qualified Data.ByteString.Char8  as B
 import qualified Data.Vector            as V
@@ -33,6 +34,9 @@ instance Parseable Integer where
 
 instance Parseable Int where
     parseInput = fst . fromJust . B.readInt
+
+instance Parseable Int32 where
+    parseInput = fromIntegral . fst . fromJust . B.readInt
 
 instance Parseable a => Parseable [a] where
     parseInput = map parseInput . B.lines
@@ -68,4 +72,7 @@ instance ToString Int where
     solution = show
 
 instance ToString Integer where
+    solution = show
+
+instance ToString Int32 where
     solution = show
