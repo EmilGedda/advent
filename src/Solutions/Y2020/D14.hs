@@ -2,54 +2,57 @@
 module Solutions.Y2020.D14 (day14) where
 
 import Advent.Problem
-import Control.Arrow                    ((&&&))
 import Control.Applicative              ((<|>))
-import Data.List                        (foldl')
-import Data.Bits                        ((.|.), (.&.), complement)
+import Data.Bits                        (setBit, clearBit)
 import Data.Attoparsec.ByteString.Char8
-import Text.Printf                      (printf)
-import Numeric                          (showIntAtBase)
-import qualified Data.Map               as M
+import Data.IntMap                      (IntMap)
+import qualified Data.IntMap            as IntMap
 
-data Instruction = Mask String | Store Int Integer deriving (Generic, NFData)
+data Bit = B1 | B0 | BX deriving (Generic, NFData)
+data Instruction = Mask [Bit] | Store Int Int deriving (Generic, NFData)
 
-maskP  = Mask <$> ("mask = " *> many1 anyChar)
+bitP :: Parser Bit
+bitP = (B1 <$ char '1')
+   <|> (B0 <$ char '0')
+   <|> (BX <$ char 'X')
+
+maskP :: Parser Instruction
+maskP  = Mask <$> ("mask = " *> many1 bitP)
+
+
+storeP :: Parser Instruction
 storeP = Store <$> ("mem[" *> decimal) <*> ("] = " *> decimal)
 
 instance Parseable Instruction where
     parseInput = fromRight . parseOnly (maskP <|> storeP)
 
-data CPU = CPU {
-            mask :: String,
-            mem :: M.Map Int Integer
-        }
-
-type Part = String -> Int -> Integer -> [(Int, Integer)]
-
 day14 :: Day 14
-day14 = day (run partOne') (run partTwo')
+day14 = day (partOne' [] mempty) (partTwo' [] mempty)
 
-partOne' :: Part
-partOne' mask to value = return (to, set (fromstr mask) value)
-    where set (zeros, ones) v = ones .|. v .&. complement zeros
+partOne' :: [Bit] -> IntMap Int -> [Instruction] -> Int
+partOne' _ mem [] = sum mem
+partOne' _ mem (Mask mask:xs) = partOne' mask mem xs
+partOne' mask mem (Store addr value:xs) = partOne' mask  memory xs
+    where
+        memory = IntMap.insert addr (go value 35 mask) mem
 
-partTwo' :: Part
-partTwo' mask to value =
-    let addresses = go "" $ zipWith merge mask bit
-        bit = printf "%036s" $ showIntAtBase 2 ("01"!!) to ""
-        merge '0' y = y
-        merge  c  _ = c
-        go prev [] = return $ reverse prev
-        go prev ('X':mask) = go prev ('0':mask) ++ go prev ('1':mask)
-        go prev (c:mask) = go (c:prev) mask
-    in map (\x -> (fromBits $ map (fromEnum . (=='1')) x, value)) addresses
+        go value bit (B1:bits) = go (setBit value bit) (bit - 1) bits
+        go value bit (B0:bits) = go (clearBit value bit) (bit - 1) bits
+        go value bit (BX:bits) = go value (bit - 1) bits
+        go value _ [] = value
 
-run :: Part -> [Instruction] -> Integer
-run r = sum . M.elems . mem . foldl run (CPU "" M.empty)
-    where run c (Mask s) = c{ mask = s }
-          run c@(CPU mask m) (Store to value)
-                = c{ mem = foldl' (flip (uncurry M.insert)) m (r mask to value)  }
 
-fromstr :: String -> (Integer, Integer)
-fromstr = both fromBits . (map (bit '0') &&& map (bit '1'))
-    where bit x v = fromIntegral . fromEnum $ v == x
+partTwo' :: [Bit] -> IntMap Int -> [Instruction] -> Int
+partTwo' _ mem [] = sum mem
+partTwo' _ mem (Mask mask:xs) = partTwo' mask mem xs
+partTwo' mask mem (Store addr value:xs) = partTwo' mask memory xs
+    where
+        memory = foldr (`IntMap.insert` value) mem
+               $ go addr 35 mask
+
+        go value bit (B1:bits) = go (setBit value bit) (bit - 1) bits
+        go value bit (B0:bits) = go value (bit - 1) bits
+        go value bit (BX:bits) = do
+            addr <- go (setBit value bit) (bit - 1) bits
+            [addr, clearBit addr bit]
+        go value _ [] = [value]
