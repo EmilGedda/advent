@@ -20,4 +20,4 @@ speak n (CommaList xs) = runST $ do
         let addr = fromIntegral prev
         v <- UM.read mem addr
         UM.write mem addr i
-        return . fromIntegral $ bool 0 (i - v) (v > 0)
+        return $ bool 0 (i - v) (v > 0)
