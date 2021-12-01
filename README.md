@@ -10,6 +10,7 @@
   <table>
     <tr>
       <th>2020</th>
+      <th>2021</th>
     </tr>
     <tr>
       <td>
@@ -17,11 +18,21 @@
           <img src="https://emilgedda.github.io/advent/2020/gold.svg">
         </a>
       </td>
+      <td>
+        <a href="https://emilgedda.github.io/advent/2021/gold.svg" alt="Gold stars">
+          <img src="https://emilgedda.github.io/advent/2021/gold.svg">
+        </a>
+      </td>
     </tr>
     <tr>
       <td>
         <a href="https://emilgedda.github.io/advent/2020/silver.svg" alt="Silver stars">
           <img src="https://emilgedda.github.io/advent/2020/silver.svg">
+        </a>
+      </td>
+      <td>
+        <a href="https://emilgedda.github.io/advent/2021/silver.svg" alt="Silver stars">
+          <img src="https://emilgedda.github.io/advent/2021/silver.svg">
         </a>
       </td>
     </tr>
