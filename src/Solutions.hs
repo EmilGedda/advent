@@ -6,13 +6,14 @@ import Advent
 import Advent.API
 import Advent.Problem
 import Solutions.Y2020
+import Solutions.Y2021
 
 import Control.Monad.Except      (runExceptT)
 import Data.List                 (find)
 
 
 years :: Years
-years = [ WrapYear y2020 ]
+years = [ WrapYear y2020, WrapYear y2021]
 
 solveDay :: Day n -> Input -> IO ()
 solveDay d@Day{ partOne, partTwo } (Input text) = do
@@ -25,7 +26,7 @@ solve day = solve' day =<< currentYear
 
 solve' ::  Integer -> Integer -> IO ()
 solve' day y =
-        maybe (putStrLn $ "No solution for year" ++ show y)
+        maybe (putStrLn $ "No solution for year " ++ show y)
               (\(WrapYear (Year days)) -> do
                 input <- runExceptT . runNetworkEnv $ fetchInput y day
                 maybe (putStrLn $ "No solution for day " ++ show day)

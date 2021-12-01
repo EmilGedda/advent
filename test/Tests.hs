@@ -1,6 +1,7 @@
 module Tests where
 
 import qualified Solutions.Y2020 as Y20
+import qualified Solutions.Y2021 as Y21
 import Types (Answers(..), answer)
 
 answers :: [Answers]
@@ -31,5 +32,8 @@ answers = [
             answer Y20.day23 28793654       359206768694,
             answer Y20.day24 289            3551,
             answer Y20.day25 3803729        Nothing
+        ],
+        Answers 2021 [
+            answer Y21.day01 1121 1065
         ]
     ]

@@ -26,5 +26,5 @@ modExp b e = go e 1 b
                        | otherwise = res
               in go (exp `shiftR` 1) res' (transform base base)
 
-transform :: Integral a => a -> a -> a
+transform :: Int -> Int -> Int
 transform b e = b * e `rem` 20201227
