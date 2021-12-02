@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d2fcc3db3cffbe19c37eb8e3da7674ae9b4a0c3580d3f192d07262cf8fe1d25d
+-- hash: ec7c5452796df0c27cee6768979810acc9a76abe25fe0269a1751e64d5a7d587
 
 name:           advent
 version:        1.0.0.0
@@ -27,6 +27,7 @@ library
       Advent.API
       Advent.Leaderboard
       Advent.Problem
+      Advent.Problem.Coord
       Advent.Problem.Types
       Advent.Problem.Util
       Advent.SVG

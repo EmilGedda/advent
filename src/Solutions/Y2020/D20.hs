@@ -5,11 +5,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Solutions.Y2020.D20 where
 
-import Advent.Problem
+import Advent.Problem hiding (Coord)
 import Control.Monad                           (guard)
 import Data.Attoparsec.ByteString.Char8 hiding (take, count)
 import Data.Bits                        hiding (rotate)
-import Data.Foldable                           (foldl')
 import Data.IntMap.Strict                      (IntMap, fromListWith, elems, (!))
 
 import qualified Data.Map as M

@@ -7,9 +7,11 @@
 
 module Advent.Problem (
         module Advent.Problem.Util,
+        module Advent.Problem.Coord,
         module Advent.Problem.Types,
         module Control.DeepSeq,
         module GHC.Generics,
+        module Data.Foldable,
         Day(..),
         Year(..),
         SomeYear(..),
@@ -26,21 +28,23 @@ module Advent.Problem (
         fetchInput,
     ) where
 
-import           Advent
-import           Advent.API
-import           Advent.Problem.Util
-import           Advent.Problem.Types
+import Advent
+import Advent.API
+import Advent.Problem.Util
+import Advent.Problem.Coord
+import Advent.Problem.Types
 
-import           Prelude hiding         (readFile, writeFile, lines)
-import           Control.DeepSeq        (NFData)
-import           Control.Monad.Catch    (MonadCatch)
-import           Control.Monad.Except   (MonadError)
-import           Data.ByteString        (ByteString)
-import           System.FilePath        ((</>))
-import           Text.Printf            (printf)
-import           GHC.Generics           (Generic)
-import           GHC.TypeLits
-import           Data.Proxy
+import Prelude hiding         (readFile, writeFile, lines)
+import Data.Foldable          (foldl')
+import Control.DeepSeq        (NFData)
+import Control.Monad.Catch    (MonadCatch)
+import Control.Monad.Except   (MonadError)
+import Data.ByteString        (ByteString)
+import System.FilePath        ((</>))
+import Text.Printf            (printf)
+import GHC.Generics           (Generic)
+import GHC.TypeLits
+import Data.Proxy
 
 newtype Input = Input { fromInput :: ByteString } deriving Show
 
