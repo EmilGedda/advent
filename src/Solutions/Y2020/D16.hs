@@ -3,7 +3,7 @@ module Solutions.Y2020.D16 (day16) where
 
 import Advent.Problem
 import Data.Maybe                       (mapMaybe, isJust)
-import Data.List                        (find, transpose, intersect, sortOn, (\\) , isPrefixOf, foldl')
+import Data.List                        (find, transpose, intersect, sortOn, (\\) , isPrefixOf)
 import Data.Attoparsec.ByteString.Char8 (manyTill, parseOnly, decimal, sepBy, anyChar)
 
 data Rule = Rule {

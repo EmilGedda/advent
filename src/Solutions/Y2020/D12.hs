@@ -3,7 +3,6 @@
 module Solutions.Y2020.D12 (day12) where
 
 import Advent.Problem                   hiding (both)
-import Data.List                        (foldl')
 import Lens.Micro
 import Lens.Micro.Extras
 import Lens.Micro.TH
