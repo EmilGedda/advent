@@ -34,6 +34,8 @@ answers = [
             answer Y20.day25 3803729        Nothing
         ],
         Answers 2021 [
-            answer Y21.day01 1121 1065
+            answer Y21.day01 1121    1065,
+            answer Y21.day02 1893605 2120734350,
+            answer Y21.day03 4001724 587895
         ]
     ]
