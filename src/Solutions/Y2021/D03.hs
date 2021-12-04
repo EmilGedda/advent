@@ -24,4 +24,4 @@ whichBit :: [Int] -> Int
 whichBit = fromEnum
          . (>=0)
          . sum
-         . map (pred . (*2))
+         . map (subtract 1 . (*2))
