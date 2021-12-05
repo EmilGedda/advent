@@ -18,7 +18,7 @@ day05 :: Day 5
 day05 = day (overlapping . filter (not . isDiagonal)) overlapping
 
 isDiagonal :: Vent -> Bool
-isDiagonal (Vent a b) = let Coord x y = b - a in x /= 0 && y /= 0
+isDiagonal (Vent (Coord x y) (Coord x' y')) = x /= x' && y /= y'
 
 overlapping :: [Vent] -> Int
 overlapping = count (not . null . tail) . group . sort . concatMap covering
