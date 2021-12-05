@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: nightly-2021-11-06
+resolver: nightly-2021-12-04
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -33,7 +33,7 @@ packages:
 - lib
 
 ghc-options:
-    "$locals": "-O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -Wno-missing-signatures -Wno-unused-binds -Wno-type-defaults -Wno-partial-type-signatures"
+    "$locals": "-O3 -Wall -Wno-name-shadowing -Wno-incomplete-patterns -threaded -Wno-missing-signatures -Wno-type-defaults -Wno-partial-type-signatures"
     "$everything": "-split-sections"
 
 

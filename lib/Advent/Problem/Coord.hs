@@ -2,7 +2,7 @@ module Advent.Problem.Coord where
 import Control.DeepSeq (NFData)
 import GHC.Generics (Generic)
 
-data Coord = Coord !Int !Int deriving (Generic, NFData)
+data Coord = Coord !Int !Int deriving (Eq, Ord, Show, Generic, NFData)
 
 overCoord :: (Int -> Int) -> Coord -> Coord
 overCoord f (Coord a b) = Coord (f a) (f b)
@@ -18,3 +18,4 @@ instance Num Coord where
     signum = overCoord signum
     negate = overCoord negate
     fromInteger = error "fromInteger on Coord"
+

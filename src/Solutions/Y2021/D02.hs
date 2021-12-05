@@ -5,7 +5,7 @@ import Data.Attoparsec.ByteString.Char8 hiding (count)
 
 data Instruction = Instruction !String !Int deriving (Generic, NFData)
 
-data Submarine = Submarine { position :: !Coord, aim :: !Int }
+data Submarine = Submarine !Coord !Int
 
 instance Parseable Instruction where
     parseInput = attoparse $ Instruction <$> many1 letter_ascii <*> (char ' ' *> decimal)
@@ -14,9 +14,9 @@ instance Parseable Instruction where
 day02 :: Day 2
 day02 = day (submarine simple) (submarine complex)
 
-
 submarine :: (Submarine -> Instruction -> Submarine) -> [Instruction] -> Int
 submarine part = combineCoord (*) . position . foldl' part (Submarine (Coord 0 0) 0)
+    where position (Submarine pos _) = pos
 
 simple :: Submarine -> Instruction -> Submarine
 simple (Submarine pos aim) (Instruction instr d)
