@@ -49,9 +49,12 @@ instance FromJSON User where
         <$> (T.unpack <$> v .: "name")
         <*> v .: "stars"
         <*> v .: "local_score"
-        <*> v .: "last_star_ts"
+        <*> (parseInt <$> v .: "last_star_ts")
         <*> (read . T.unpack <$> v .: "id")
         <*> (M.mapKeys readInt <$> v .: "completion_day_level")
+
+parseInt (String txt) = readInt txt
+parseInt (Number num) = round num
 
 readInt :: T.Text -> Integer
 readInt = fst . fromRight . TR.decimal
@@ -78,7 +81,7 @@ prettyLeaderboard score (Leaderboard event participants) = do
         toInt = fromIntegral
 
         members = sortBy order participants
-        order   = comparing (Down . score) <> comparing (Down . lastStar)
+        order   = comparing (Down . score) <> comparing lastStar
         scoreWidth  = fromIntegral . digits . score . head $ members
         indexWidth  = fromIntegral . digits $ length participants
         nameWidth   = fromIntegral . maximum $ map (length . name) participants
