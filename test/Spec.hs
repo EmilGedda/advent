@@ -42,7 +42,7 @@ testDay (Answer d@(Day partOne partTwo) first second) input =
         parts = zip3 "12" [wrap partOne, wrap partTwo] $ catMaybes [Just first, second]
         fromRight ~(Right r) = r
         fromLeft ~(Left a) = a
-        day = "Day " ++ show (dayNum d)
+        day = 'D':show (dayNum d)
         test (part, output, answer) = after AllSucceed (day ++ ".Input") .
             testCase ("Part " ++ [part]) $ output (fromRight input) @?= solution answer
     in testGroup day $
