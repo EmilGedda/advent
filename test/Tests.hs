@@ -39,7 +39,7 @@ answers = [
             answer Y21.day03 4001724 587895,
             answer Y21.day04 41503   3178,
             answer Y21.day05 5576    18144,
-
+            answer Y21.day06 379114  1702631502303,
             answer Y21.day07 352254  99053143
         ]
     ]
