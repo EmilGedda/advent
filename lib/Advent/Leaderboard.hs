@@ -82,9 +82,9 @@ prettyLeaderboard score (Leaderboard event participants) = do
 
         members = sortBy order participants
         order   = comparing (Down . score) <> comparing lastStar
-        scoreWidth  = fromIntegral . digits . score . head $ members
-        indexWidth  = fromIntegral . digits $ length participants
-        nameWidth   = fromIntegral . maximum $ map (length . name) participants
+        scoreWidth  = digits . score . head $ members
+        indexWidth  = digits $ length participants
+        nameWidth   = maximum $ map (length . name) participants
         columnWidth = indexWidth + scoreWidth + 2
         timeWidth   = maximum . map (length . toDigits . days) $ catMaybes times
         title       = if length event > columnWidth + 9
