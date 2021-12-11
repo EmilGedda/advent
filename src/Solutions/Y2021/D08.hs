@@ -56,12 +56,12 @@ output (Notes input output) =
 
         translate :: Char -> Char
         translate n = flip (M.!) n
-                        $ M.fromList [ (a,'a')
-                                     , (b,'b')
-                                     , (c,'c')
-                                     , (d,'d')
-                                     , (e,'e')
-                                     , (f,'f')
-                                     , (g,'g') ]
+                        $ M.fromList [ (a, 'a')
+                                     , (b, 'b')
+                                     , (c, 'c')
+                                     , (d, 'd')
+                                     , (e, 'e')
+                                     , (f, 'f')
+                                     , (g, 'g') ]
 
      in map ((M.!) segmentsToDigit . sort . map translate) output

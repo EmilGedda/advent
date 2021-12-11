@@ -58,9 +58,6 @@ day :: (Parseable a, ToString b, ToString c, KnownNat n, n <= 25)
         => (a -> b) -> (a -> c) -> Day n
 day = Day
 
-foo :: Day 27
-foo = undefined
-
 data Year n ns where
     Year :: (KnownNat n, 2015 <= n) => Days ns -> Year n ns
 

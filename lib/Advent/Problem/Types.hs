@@ -6,12 +6,15 @@ import           Data.Maybe             (fromJust)
 import           Data.List.Split        (splitOn)
 import           GHC.Generics           (Generic)
 import           Data.Int               (Int32)
+import           Data.Char              (digitToInt)
 import qualified Data.Sequence          as S
 import qualified Data.ByteString.Char8  as B
 import qualified Data.Vector            as V
 import qualified Data.Vector.Unboxed    as U
 
 newtype CommaList a = CommaList { getList :: [a] } deriving (Generic, NFData)
+
+newtype Digits = Digits { digits :: [Int] } deriving (Generic, NFData)
 
 class NFData a => Parseable a where
     parseInput :: B.ByteString -> a
@@ -49,6 +52,9 @@ instance Parseable a => Parseable (V.Vector a) where
 
 instance Parseable a => Parseable (CommaList a) where
     parseInput = CommaList . map parseInput . B.split ','
+
+instance Parseable Digits where
+    parseString = Digits . map digitToInt
 
 instance (Parseable a, Parseable b) => Parseable (a, b) where
     parseString i = let (a:b:_) = splitOn "\n\n" i in (parseString a, parseString b)

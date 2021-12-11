@@ -41,6 +41,8 @@ answers = [
             answer Y21.day05 5576    18144,
             answer Y21.day06 379114  1702631502303,
             answer Y21.day07 352254  99053143,
-            answer Y21.day08 383     998900
+            answer Y21.day08 383     998900,
+            answer Y21.day09 566     Nothing,
+            answer Y21.day10 344193  3241238967
         ]
     ]
