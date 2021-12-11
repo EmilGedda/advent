@@ -6,8 +6,8 @@ import Data.Function
 day09 :: Day 9
 day09 = day lowpoints notSolved
 
-lowpoints :: [Digits] -> String
-lowpoints input = show
+lowpoints :: [Digits] -> Int
+lowpoints input = sum
             . map (succ . fst)
             . filter snd
             . mconcat
