@@ -21,7 +21,7 @@ solve :: ([Int] -> Int) -> [Notes] -> Int
 solve f = sum . map (f . output)
 
 known :: Int -> Bool
-known n = n == 1 || n == 4 || n == 7 || n == 8
+known n = n `elem` [1,4,7,8]
 
 segmentsToDigit :: M.Map String Int
 segmentsToDigit = M.fromList
@@ -44,15 +44,14 @@ output :: Notes -> [Int]
 output (Notes input output) =
     let (one:_:four:rest) = sortOn length input
         segment = charCount $ concat input
-        exclude xs = filter (`notElem` xs)
 
         e:_ = segment M.! 4
         f:_ = segment M.! 9
         b:_ = segment M.! 6
-        c:_ = exclude [f] one
-        d:_ = exclude [b,c,f] four
-        a:_ = exclude [c] $ segment M.! 8
-        g:_ = exclude [a,b,c,d,e,f] $ last rest
+        a:_ = segment M.! 8 \\ [c]
+        c:_ = one           \\ [f]
+        d:_ = four          \\ [b,c,f]
+        g:_ = last rest     \\ [a,b,c,d,e,f]
 
         translate :: Char -> Char
         translate n = flip (M.!) n
